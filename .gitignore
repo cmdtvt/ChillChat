@@ -2,3 +2,4 @@ venv
 requirements.txt
 __pycache__
 .vscode
+*.css.map
