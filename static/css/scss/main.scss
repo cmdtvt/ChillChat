@@ -20,6 +20,29 @@ body {
 	} 
 }
 
+// /*Custom scrollbar*/
+// /* width */
+// ::-webkit-scrollbar {
+// 	width: 12px;
+// }
+  
+// /* Track */
+// ::-webkit-scrollbar-track {
+// 	background: #272727; 
+// }
+   
+// /* Handle */
+// ::-webkit-scrollbar-thumb {
+// 	background: #1d1a1a;
+// 	border-left: 1px solid #272727; 
+// }
+  
+// /* Handle on hover */
+// ::-webkit-scrollbar-thumb:hover {
+// 	background: #292929;
+// 	transition: 0.25s;
+// }	
+
 //Spacing for all inputs
 button,textarea,input,a {
 	margin-top: 10px;
@@ -52,10 +75,7 @@ button,textarea,input,a {
 //Css regarding the landing page.
 .front {
 
-	background-color: white;
-
 	header {
-		position: fixed;
 		width: 100vw;
 	}
 
@@ -64,14 +84,13 @@ button,textarea,input,a {
 		color:white;
 		min-height:5vh;
 		width: 100%;
-
-
-
-		
+		position: fixed;
 	}
 
 	.content {
-		min-height: 400vh;
+		// min-height: 400vh;
+		background-color: orange;
+		// clip-path: polygon(100% 0, 100% 28%, 86% 25%, 78% 38%, 56% 29%, 33% 37%, 24% 30%, 9% 37%, 0 31%, 0 0);
 	}
 
 
@@ -80,7 +99,6 @@ button,textarea,input,a {
 		background-image: url("../images/frontheader.jpg");
 		height: 35vh;
 		width: 100vw;
-		// clip-path: polygon(100% 0, 100% 28%, 86% 25%, 78% 38%, 56% 29%, 33% 37%, 24% 30%, 9% 37%, 0 31%, 0 0);
 	}
 }
 
@@ -97,14 +115,18 @@ button,textarea,input,a {
 
 
 //Container and things for flexbox
-.container,.container-full {
+.container,.container-full,.container-centered {
 	display: flex;
 	flex-wrap: wrap;
 
-	.item,.item-nowrap {
+	.item,.item-nowrap,.item-full {
 		display:flex;
 		flex-basis: auto;
 		flex-wrap: wrap;
+	}
+
+	.item-full {
+		width: 100%;
 	}
 
 	.item-nowrap {
@@ -114,6 +136,12 @@ button,textarea,input,a {
 
 .container-full {
 	min-width: 100%;
+}
+
+.container-centered {
+	margin-left: auto;
+	margin-right: auto;
+	min-width: 60%;
 }
 
 	
