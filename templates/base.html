@@ -11,14 +11,17 @@
 
 </head>
 <body>
-    
-    Hi
 
-    <script>
+
+    <main>
+        {% block main %}{% endblock %}
+    </main>
+
+    <!-- <script>
         let socket = new WebSocket("ws://127.0.0.1:5000/v1/ws");
         socket.onmessage = function(event) {
             alert(`Data ${event.data}`)
         }
-    </script>
+    </script> -->
 </body>
 </html>

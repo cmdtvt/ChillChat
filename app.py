@@ -7,4 +7,4 @@ app.register_blueprint(blueprint, url_prefix="/v1")
 async def hello():
     return await render_template("views/home.html")
 
-app.run()
+app.run(debug=True)

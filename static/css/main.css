@@ -1,8 +1,22 @@
 body {
-  background-color: cyan;
+  background: #0575E6;
+  background: -webkit-gradient(linear, left top, right top, from(#021B79), to(#0575E6));
+  background: linear-gradient(to right, #021B79, #0575E6);
 }
 
 body .item {
   background-color: red;
   font-size: 25px;
+}
+
+.box {
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 10px;
+  -webkit-box-shadow: 0px 0px 20px 4px #000000;
+          box-shadow: 0px 0px 20px 4px #000000;
+}
+
+.type-translucent {
+  background-color: rgba(255, 255, 255, 0.1);
 }
