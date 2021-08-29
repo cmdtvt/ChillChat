@@ -1,12 +1,64 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300&display=swap");
+html, body {
+  padding: 0px;
+  margin: 0px;
+}
+
 body {
-  background: #0575E6;
-  background: -webkit-gradient(linear, left top, right top, from(#021B79), to(#0575E6));
-  background: linear-gradient(to right, #021B79, #0575E6);
+  font-family: 'Nunito Sans', sans-serif;
+  background-color: #ebe7f0;
 }
 
 body .item {
-  background-color: red;
   font-size: 25px;
+}
+
+button, textarea, input, a {
+  margin-top: 10px;
+}
+
+.custom-button {
+  margin: 5px;
+  background-color: #702293;
+  border-radius: 20px;
+  padding: 5px;
+  padding-top: 9px;
+  font-size: 15px;
+  font-weight: bold;
+  width: 100px;
+  text-align: center;
+  border: 1px solid #5d1050cf;
+  color: #ffffff;
+  text-decoration: none;
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
+}
+
+.custom-button:hover {
+  background-color: #8e2abd;
+}
+
+.front header {
+  width: 100vw;
+}
+
+.front nav {
+  background-color: #541f6c;
+  color: white;
+  min-height: 5vh;
+  width: 100%;
+  position: fixed;
+}
+
+.front .content {
+  background-color: orange;
+}
+
+.front .clip-deco {
+  background-color: #732d93;
+  background-image: url("../images/frontheader.jpg");
+  height: 35vh;
+  width: 100vw;
 }
 
 .box {
@@ -19,4 +71,45 @@ body .item {
 
 .type-translucent {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.container, .container-full, .container-centered {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.container .item, .container .item-nowrap, .container .item-full, .container .item-right, .container-full .item, .container-full .item-nowrap, .container-full .item-full, .container-full .item-right, .container-centered .item, .container-centered .item-nowrap, .container-centered .item-full, .container-centered .item-right {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-preferred-size: auto;
+      flex-basis: auto;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.container .item-full, .container-full .item-full, .container-centered .item-full {
+  width: 100%;
+}
+
+.container .item-nowrap, .container-full .item-nowrap, .container-centered .item-nowrap {
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+}
+
+.container .item-right, .container-full .item-right, .container-centered .item-right {
+  margin-left: auto;
+}
+
+.container-full {
+  min-width: 100%;
+}
+
+.container-centered {
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 60%;
 }

@@ -7,4 +7,8 @@ app.register_blueprint(blueprint, url_prefix="/v1")
 async def hello():
     return await render_template("views/home.html")
 
+@app.route('/chat')
+async def chat():
+    return await render_template('views/chat.html')
+
 app.run(debug=True)
