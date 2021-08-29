@@ -17,11 +17,15 @@
         {% block main %}{% endblock %}
     </main>
 
-    <!-- <script>
-        let socket = new WebSocket("ws://127.0.0.1:5000/v1/ws");
-        socket.onmessage = function(event) {
+    <script>
+        let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
+        sock.onmessage = function(event) {
             alert(`Data ${event.data}`)
         }
-    </script> -->
+        function stuff() {
+            sock.send('IDENTIFY MOI');
+        }
+        stuff();
+    </script>
 </body>
 </html>
