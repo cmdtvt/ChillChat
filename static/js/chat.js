@@ -1,7 +1,8 @@
 console.log("React runs!");
 
 ReactDOM.render( 
-    <ChatApp />,
+    
+    <ChatApp/>,
     document.getElementById('main')
 );
 
@@ -29,22 +30,28 @@ function ChatApp() {
         }
     }
 
-    console.log(themeData['layout']['data']);
-    var state = themeData;
+    console.log(themeData['layout']['widLayout']);
+    var state = {} //Dont shove everything here!
+
+    var LayoutItemList = [];
+    for (let i of themeData['layout']['widLayout']) {
+        var text = i.widget;
+        LayoutItemList.push(<LayoutItem widgetName={text}/>);
+    }
 
     return (
         <div className="container-full ChatApp">
-            <LayoutItem/>
-            <LayoutItem/>
-            <WidgetWrapper/>     
+            {LayoutItemList}
         </div>
     )
 
 }
 
-function LayoutItem() {
+function LayoutItem(props) {
     return (
-        <div className="item layout-item">This is a layout item.</div>
+        <div className="item layout-item">
+            Data from parent is:{props.widgetName}
+        </div>
     )
 }
 
@@ -56,3 +63,5 @@ function WidgetWrapper() {
         </div>
     )
 }
+
+
