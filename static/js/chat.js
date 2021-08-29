@@ -1,13 +1,12 @@
 console.log("React runs!");
 
 ReactDOM.render( 
-    <App />,
+    <ChatApp />,
     document.getElementById('main')
-
 );
 
 //Manages the canvas and layouts are loaded into it.
-function App() {
+function ChatApp() {
 
     var themeData = {
         layout : {
@@ -34,8 +33,10 @@ function App() {
     var state = themeData;
 
     return (
-        <div className="App">
-            {themeData['layout']['widLayout'].map((grid) => (<p key={grid.id}>{grid.size}</p>))}
+        <div className="container-full ChatApp">
+            <LayoutItem/>
+            <LayoutItem/>
+            <WidgetWrapper/>     
         </div>
     )
 
@@ -43,10 +44,15 @@ function App() {
 
 function LayoutItem() {
     return (
-        <div>This is a layout item.</div>
+        <div className="item layout-item">This is a layout item.</div>
     )
 }
 
+//Inherited by widgets so they know how to scale etc...
 function WidgetWrapper() {
-    
+    return (
+        <div className="widge">
+            adadadadadad
+        </div>
+    )
 }

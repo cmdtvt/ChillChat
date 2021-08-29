@@ -87,7 +87,7 @@ button,textarea,input,a {
 
 
 //Container and things for flexbox
-.container,.container-full,.container-centered {
+.fwrap,.fwrap-full,.fwrap-centered {
 	display: flex;
 	flex-wrap: wrap;
 
@@ -111,11 +111,11 @@ button,textarea,input,a {
 	}
 }
 
-.container-full {
+.fwrap-full {
 	min-width: 100%;
 }
 
-.container-centered {
+.fwrap-centered {
 	margin-left: auto;
 	margin-right: auto;
 	min-width: 60%;

@@ -73,7 +73,7 @@ button, textarea, input, a {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.container, .container-full, .container-centered {
+.fwrap, .fwrap-full, .fwrap-centered {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -81,7 +81,7 @@ button, textarea, input, a {
       flex-wrap: wrap;
 }
 
-.container .item, .container .item-nowrap, .container .item-full, .container .item-right, .container-full .item, .container-full .item-nowrap, .container-full .item-full, .container-full .item-right, .container-centered .item, .container-centered .item-nowrap, .container-centered .item-full, .container-centered .item-right {
+.fwrap .item, .fwrap .item-nowrap, .fwrap .item-full, .fwrap .item-right, .fwrap-full .item, .fwrap-full .item-nowrap, .fwrap-full .item-full, .fwrap-full .item-right, .fwrap-centered .item, .fwrap-centered .item-nowrap, .fwrap-centered .item-full, .fwrap-centered .item-right {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -91,24 +91,24 @@ button, textarea, input, a {
       flex-wrap: wrap;
 }
 
-.container .item-full, .container-full .item-full, .container-centered .item-full {
+.fwrap .item-full, .fwrap-full .item-full, .fwrap-centered .item-full {
   width: 100%;
 }
 
-.container .item-nowrap, .container-full .item-nowrap, .container-centered .item-nowrap {
+.fwrap .item-nowrap, .fwrap-full .item-nowrap, .fwrap-centered .item-nowrap {
   -ms-flex-wrap: nowrap;
       flex-wrap: nowrap;
 }
 
-.container .item-right, .container-full .item-right, .container-centered .item-right {
+.fwrap .item-right, .fwrap-full .item-right, .fwrap-centered .item-right {
   margin-left: auto;
 }
 
-.container-full {
+.fwrap-full {
   min-width: 100%;
 }
 
-.container-centered {
+.fwrap-centered {
   margin-left: auto;
   margin-right: auto;
   min-width: 60%;
