@@ -20,16 +20,20 @@
         {% block main %}{% endblock %}
     </main>
 
-    <!-- <script>
+    <script>
         let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
         sock.onmessage = function(event) {
-            alert(`Data ${event.data}`)
+            console.log(`Data ${event.data}`)
+            if (event.data == "HEARTBEAT") {
+                sock.send("ACK_HEARTBEAT")
+                console.log("Acknowledging heartbeat")
+            }
         }
-        function stuff() {
+        sock.onopen = function() {
             sock.send('IDENTIFY MOI');
         }
         stuff();
-    </script> -->
+    </script>
 
     {% block endbody %}{% endblock %}
     
