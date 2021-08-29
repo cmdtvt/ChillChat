@@ -81,7 +81,7 @@ button, textarea, input, a {
       flex-wrap: wrap;
 }
 
-.container .item, .container .item-nowrap, .container .item-full, .container-full .item, .container-full .item-nowrap, .container-full .item-full, .container-centered .item, .container-centered .item-nowrap, .container-centered .item-full {
+.container .item, .container .item-nowrap, .container .item-full, .container .item-right, .container-full .item, .container-full .item-nowrap, .container-full .item-full, .container-full .item-right, .container-centered .item, .container-centered .item-nowrap, .container-centered .item-full, .container-centered .item-right {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -98,6 +98,10 @@ button, textarea, input, a {
 .container .item-nowrap, .container-full .item-nowrap, .container-centered .item-nowrap {
   -ms-flex-wrap: nowrap;
       flex-wrap: nowrap;
+}
+
+.container .item-right, .container-full .item-right, .container-centered .item-right {
+  margin-left: auto;
 }
 
 .container-full {

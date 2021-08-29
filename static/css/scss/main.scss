@@ -7,41 +7,13 @@ html,body {
 }
 
 body {
-	// background: #0575E6;
-	// background: -webkit-linear-gradient(to right, #021B79, #0575E6);
-	// background: linear-gradient(to right, #021B79, #0575E6);
-	
 	font-family: 'Nunito Sans', sans-serif;
-
 	background-color: #ebe7f0;
 
 	.item {
 		font-size: 25px;
 	} 
-}
-
-// /*Custom scrollbar*/
-// /* width */
-// ::-webkit-scrollbar {
-// 	width: 12px;
-// }
-  
-// /* Track */
-// ::-webkit-scrollbar-track {
-// 	background: #272727; 
-// }
-   
-// /* Handle */
-// ::-webkit-scrollbar-thumb {
-// 	background: #1d1a1a;
-// 	border-left: 1px solid #272727; 
-// }
-  
-// /* Handle on hover */
-// ::-webkit-scrollbar-thumb:hover {
-// 	background: #292929;
-// 	transition: 0.25s;
-// }	
+}	
 
 //Spacing for all inputs
 button,textarea,input,a {
@@ -119,7 +91,7 @@ button,textarea,input,a {
 	display: flex;
 	flex-wrap: wrap;
 
-	.item,.item-nowrap,.item-full {
+	.item,.item-nowrap,.item-full,.item-right {
 		display:flex;
 		flex-basis: auto;
 		flex-wrap: wrap;
@@ -131,6 +103,11 @@ button,textarea,input,a {
 
 	.item-nowrap {
 		flex-wrap: nowrap;
+	}
+
+	//Align items to right
+	.item-right {
+		margin-left: auto;
 	}
 }
 
