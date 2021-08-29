@@ -9,26 +9,33 @@ ReactDOM.render(
 //Manages the canvas and layouts are loaded into it.
 function App() {
 
-    var userdata = {
+    var themeData = {
         layout : {
-
-
             settings: {
                 maxSize : 12,
             },
 
-            layout: [{size:2,widget:"userinfo"}]
+            widLayout: [
+                {id:0,size:2,widget:"userinfo"},
+                {id:1,size:2,widget:"userinfo"},
+                {id:2,size:2,widget:"userinfo"},
+                {id:3,size:2,widget:"userinfo"},
+                {id:4,size:2,widget:"userinfo"},
+                {id:5,size:2,widget:"userinfo"}
+            ]
         },
 
-        username: 'TeroTesti',
+        styles : {
+
+        }
     }
 
-    console.log(userdata['layout']['layout']);
-    var state = {}
+    console.log(themeData['layout']['data']);
+    var state = themeData;
 
     return (
         <div className="App">
-            {userdata['layout']['layout'].map((grid) => (<p>{grid.size}</p>))}
+            {themeData['layout']['widLayout'].map((grid) => (<p key={grid.id}>{grid.size}</p>))}
         </div>
     )
 
@@ -38,4 +45,8 @@ function LayoutItem() {
     return (
         <div>This is a layout item.</div>
     )
+}
+
+function WidgetWrapper() {
+    
 }
