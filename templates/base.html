@@ -16,11 +16,11 @@
 <body>
 
 
-    <main>
+    <main id="main">
         {% block main %}{% endblock %}
     </main>
 
-    <script>
+    <!-- <script>
         let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
         sock.onmessage = function(event) {
             alert(`Data ${event.data}`)
@@ -29,6 +29,9 @@
             sock.send('IDENTIFY MOI');
         }
         stuff();
-    </script>
+    </script> -->
+
+    {% block endbody %}{% endblock %}
+    
 </body>
 </html>
