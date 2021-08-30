@@ -5,9 +5,29 @@
     width: 100%;
     max-width: 100vw;
 
+    background-color: brown;
+    flex-direction:row;
+    justify-content: space-evenly;
 
     .layout-item {
-        border: 1px solid black;
+        background-color:orange;
+        border: 2px solid black;
+        width: auto;
+
+        
+    }
+
+    .layout-item-size-row-4 {
+        flex: 1 0 21%;
+    }
+
+
+
+    .widget {
+        background-color: rgb(42, 38, 38);
+        color: white;
+        width: 100%;
+        height: 100%;
         
     }
 }
