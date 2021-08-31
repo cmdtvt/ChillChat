@@ -16,7 +16,7 @@
 <body>
 
 
-    <main>
+    <main id="main">
         {% block main %}{% endblock %}
     </main>
 
@@ -35,5 +35,8 @@
             }
         }
     </script>
+
+    {% block endbody %}{% endblock %}
+    
 </body>
 </html>
