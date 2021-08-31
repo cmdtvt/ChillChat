@@ -21,16 +21,18 @@
     </main>
 
     <script>
-        let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
-        sock.onmessage = function(event) {
-            console.log(`Data ${event.data}`)
-            if (event.data == "HEARTBEAT") {
-                sock.send("ACK_HEARTBEAT")
-                console.log("Acknowledging heartbeat")
+        function test(token) {
+            let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
+                sock.onmessage = async function(event) {
+                    console.log(`Data ${event.data}`)
+                    if (event.data == "HEARTBEAT") {
+                        await sock.send("ACK_HEARTBEAT")
+                        console.log("Acknowledging heartbeat")
+                    }
+                }
+                sock.onopen = async function() {
+                    await sock.send(`IDENTIFY ${token}`);
             }
-        }
-        sock.onopen = function() {
-            sock.send('IDENTIFY MOI');
         }
     </script>
 </body>
