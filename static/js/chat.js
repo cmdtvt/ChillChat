@@ -5,9 +5,7 @@ class ChatApp extends React.Component {
         this.themeData = {
             layout : {
                 settings: {
-                    maxSize : 12,
-                    maxWidgetsInRow: 4,
-                    maxWidgetsInColumn: 4,
+                    
                 },
     
                 widLayout: [
@@ -30,7 +28,7 @@ class ChatApp extends React.Component {
         console.log(this.themeData['layout']['widLayout']);
         var state = {} //Dont shove everything here!
 
-
+        
 
         var layoutSettings = this.themeData['layout']['settings'];
         this.LayoutItemList = [];
