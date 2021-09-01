@@ -11,10 +11,10 @@
 
     {% block head %}{% endblock %}
     
-
+    {{url_for('static', filename='themes/default/layout.html')}}
 </head>
 <body>
-    <main id="main">
+    <main>
         {% block main %}{% endblock %}
     </main>
 

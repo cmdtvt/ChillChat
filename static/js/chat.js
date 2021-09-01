@@ -99,6 +99,6 @@ class Widget extends React.Component {
 
 ReactDOM.render( 
     <ChatApp/>,
-    document.getElementById('main')
+    document.querySelector('main')
 );
 

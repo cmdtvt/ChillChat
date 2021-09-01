@@ -1,7 +1,7 @@
 from quart import Blueprint, websocket
 from typing import Union, Any
 from model.abc import ClientType
-from model.member import Member
+from db import Db
 import re
 import asyncio
 gateway_blueprint = Blueprint('gateway', __name__)
@@ -9,7 +9,6 @@ clients = {
     "all" : set(),
     "tokenized" : {}
 }
-members = {"moi" : Member(31321312, "asd", "moi", "lol", None, None), "123" : Member(31321312, "asd", "123", "lol", None, None)}
 tasks = {}
 class Gateway:
     IDENTIFY = "IDENTIFY"
@@ -65,7 +64,9 @@ class Client(ClientType):
             
             await ws.close(400)
     async def send(self, data : str) -> Any:
+        print(data)
         await self.queue.put(data)
+        print(self.queue)
 def collect_websocket(func):
     async def wrapper(*args, **kwargs):
         global clients
@@ -96,9 +97,11 @@ async def gateway(client):
                         if token not in clients["tokenized"]:
                             client.token = token
                             clients["tokenized"][client.token] = client
-                            if token in members:
-                                members[token].set_client(client)
-                            await client.process(websocket, data.result())
+                            if token in Db.members["token"]:
+                                Db.members["token"][token].set_client(client)
+                                for i, server in Db.members["token"][token].servers.items():
+                                    server.clients.add(Db.members["token"][token])
+                                await client.process(websocket, data.result())
                 else:
                     await client.process(websocket, data.result())
                 del tasks[client]

@@ -1,20 +1,33 @@
-from typing import Sequence
-from .abc import Messageable
+from typing import Sequence, Optional
+from .abc import Messageable, MemberType
 from .message import MessagePayload, Message
+from .server import Server
+import json
 class Channel(Messageable):
-    def __init__(self, channel_id : int, channel_name : str) -> None:
-        self.channel_id = channel_id
-        self.channel_name = channel_name
+    def __init__(self, id : int, name : str, server : Optional[Server]=None) -> None:
+        self.id = id
+        self.name = name
+        self.server = server
 class TextChannel(Channel):
-    def __init__(self, channel_id : int, channel_name : str, messages : Sequence[Message]) -> None:
-        super().__init__(channel_id, channel_name)
-    async def send(self, payload : MessagePayload) -> Message:
-        msg = None
+    Db = None
+    def __init__(self, id : int, name : str, server : Optional[Server]=None, messages : Sequence[Message]=None,) -> None:
+        super().__init__(id, name, server)
+    async def send(self, payload : MessagePayload) -> None:
+        print(TextChannel.Db)
+        if TextChannel.Db:
+            msg = TextChannel.Db.create_message(payload)
+            if self.server:
+                for i in self.server.clients:
+                    if i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
+                        tmp = json.dumps(msg.gateway_format)
+                        await i.send_via_client(tmp)
 
+
+        
 
 class VoiceChannel(Channel):
-    def __init__(self, channel_id : int, channel_name : str) -> None:
-        super().__init__(channel_id, channel_name)
+    def __init__(self, id : int, name : str) -> None:
+        super().__init__(id, name)
 class TemporaryChannel(TextChannel):
-    def __init__(self, channel_id : int, channel_name : str) -> None:
-        super().__init__(channel_id, channel_name)
+    def __init__(self, id : int, name : str) -> None:
+        super().__init__(id, name)
