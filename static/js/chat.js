@@ -2,6 +2,8 @@ class ChatApp extends React.Component {
     constructor(props) {
         super(props);
         this.props = props
+
+        //Theme data will be loaded from jinja
         this.themeData = {
             layout : {
                 settings: {
@@ -28,8 +30,9 @@ class ChatApp extends React.Component {
         console.log(this.themeData['layout']['widLayout']);
         var state = {} //Dont shove everything here!
 
-        
 
+        //Change so layout items are added to right area with ID
+        /*
         var layoutSettings = this.themeData['layout']['settings'];
         this.LayoutItemList = [];
         for (let i of this.themeData['layout']['widLayout']) {
@@ -37,14 +40,16 @@ class ChatApp extends React.Component {
             var data = i
             this.LayoutItemList.push(<LayoutItem widgetData={data} layoutSettings={layoutSettings}/>);
         }
-
+        */
         this.state = {}
     }
 
 
     render() {
+        console.log("me does render!");
         return(
             <div className="fwrap-full ChatApp">
+                <LayoutItem/>
                 {this.LayoutItemList}
             </div>
         )
@@ -57,44 +62,47 @@ class LayoutItem extends React.Component {
     constructor(props) {
         super(props);
         this.props = props
-        this.settings = this.props.layoutSettings
+
+        LayoutItem.defaultProps = {
+            
+        }
+
+        //this.settings = this.props.layoutSettings
         this.widgetData = this.props.widgetData
 
-        //Check the setting for maximum items side by side and add needes css class.
-        //this.cssClasses = "item layout-item layout-items-in-row-"+this.settings.maxWidgetsInRow;
-
-        //Pitää ottaa maximi esineiden määrä ja lisätä layoutitemeitä niin kauan kunnes on se määrä. Sitten pudottaa seuraavalle riville. Esineen koko lasketaan. Esineiden minimi koko * koko jaettuna määrällä tai jtn.
-        //Joten tarvitaan css joka skaalauttaa esineen riippuen sille annetusta koosta eli widgetData.size
         this.cssClasses = "item layout-item ";
-        //this.cssClasses += "layout-item-size-row-"+this.widgetData.size;
-        this.cssClasses += "layout-item-size-row-"+this.settings.maxWidgetsInRow;
+        //this.cssClasses += "layout-item-size-row-"+this.settings.maxWidgetsInRow;
     }
 
     render() {
         return(
             <div className={this.cssClasses}>
-
-                <Widget/>
+                <ChatWidget/>
             </div>
         )
     }
 }
 
+//Basicly wrapper for custom widgets.
 class Widget extends React.Component {
-
     constructor(props) {
         super(props);
-        this.props = props
+        Widget.defaultProps = {
+            id: "unset_widget"
+        }
+        this.props = props;
+        this.widgetName = this.props.id;
     }
 
     render() {
         return (
-            <div className="widget">
-                <p>This is a widget</p>
+            <div className="widget" id={this.widgetName}>
+                {this.props.children}
             </div>
         )
     }
 }
+
 
 
 ReactDOM.render( 
