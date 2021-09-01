@@ -35,6 +35,7 @@
 
 
 {% block endbody %}
+<script type="text/babel" src="{{url_for('static', filename='js/widget-components.js')}}"></script>
 <script type="text/babel" src="{{url_for('static', filename='js/widgets.js')}}"></script>
 <script type="text/babel" src="{{url_for('static', filename='js/chat.js')}}"></script>
 {% endblock %}

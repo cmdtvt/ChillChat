@@ -3,6 +3,10 @@ class ChatApp extends React.Component {
         super(props);
         this.props = props
 
+        //Stores refrence to each kind of widget. There might be better way to do this.
+        this.widgets = {
+            userinfo : "",
+        }
         //Theme data will be loaded from jinja
         this.themeData = {
             layout : {
@@ -49,7 +53,9 @@ class ChatApp extends React.Component {
         console.log("me does render!");
         return(
             <div className="fwrap-full ChatApp">
-                <LayoutItem/>
+                <LayoutItem Widget={<UsersWidget/>}/>
+                <LayoutItem Widget={<ChatWidget/>}/>
+                
                 {this.LayoutItemList}
             </div>
         )
@@ -64,7 +70,7 @@ class LayoutItem extends React.Component {
         this.props = props
 
         LayoutItem.defaultProps = {
-            
+            Widget: <ErrorWidget/>
         }
 
         //this.settings = this.props.layoutSettings
@@ -77,7 +83,7 @@ class LayoutItem extends React.Component {
     render() {
         return(
             <div className={this.cssClasses}>
-                <ChatWidget/>
+                {this.props.Widget}
             </div>
         )
     }

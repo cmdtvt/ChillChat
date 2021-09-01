@@ -10,11 +10,22 @@ body {
 }
 
 body .item {
-  font-size: 25px;
+  font-size: 16px;
 }
 
 button, textarea, input, a {
   margin-top: 10px;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .custom-button {
@@ -89,6 +100,7 @@ button, textarea, input, a {
       flex-basis: auto;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
+  max-width: 350px;
 }
 
 .fwrap .item-full, .fwrap-full .item-full, .fwrap-centered .item-full {

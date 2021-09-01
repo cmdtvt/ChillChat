@@ -11,13 +11,22 @@ body {
 	background-color: #ebe7f0;
 
 	.item {
-		font-size: 25px;
+		font-size: 16px;
 	} 
 }	
 
 //Spacing for all inputs
 button,textarea,input,a {
 	margin-top: 10px;
+}
+
+.hide-scrollbar {
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
 }
 
 .custom-button {
@@ -95,6 +104,7 @@ button,textarea,input,a {
 		display:flex;
 		flex-basis: auto;
 		flex-wrap: wrap;
+		max-width: 350px;
 	}
 
 	.item-full {
