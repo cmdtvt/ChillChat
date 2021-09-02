@@ -53,6 +53,7 @@ class ChatApp extends React.Component {
         console.log("me does render!");
         return(
             <div className="fwrap-full ChatApp">
+                <LayoutItem Widget={<NavigationWidget/>}/>
                 <LayoutItem Widget={<UsersWidget/>}/>
                 <LayoutItem Widget={<ChatWidget/>}/>
                 <LayoutItem Widget={<TimeWidget/>}/>

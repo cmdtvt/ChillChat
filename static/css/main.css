@@ -100,7 +100,6 @@ button, textarea, input, a {
       flex-basis: auto;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
-  max-width: 350px;
 }
 
 .fwrap .item-full, .fwrap-full .item-full, .fwrap-centered .item-full {

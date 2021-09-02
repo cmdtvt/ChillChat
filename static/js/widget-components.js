@@ -37,6 +37,29 @@ class VisualizeUser extends React.Component {
         super(props);
         this.props = props;
     }
+}
 
-    
+class NavigationLink extends React.Component {
+    constructor(props) {
+        super(props);
+        this.props = props;
+
+        NavigationLink.defaultProps = {
+            LinkLocation : "#",
+            LinkText: "Link"
+        }
+    }
+
+    handleClick(event) {
+        window.location.href=this.props.LinkLocation;
+    }
+
+    render() {
+        return (
+            <div onClick={this.handleClick}>
+                <span>{this.props.LinkText}</span>
+            </div>
+
+        )
+    }
 }

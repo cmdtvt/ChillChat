@@ -4,20 +4,19 @@ class ChatWidget extends React.Component {
     constructor(props) {
         super(props);
         this.props = props;
+        this.state = {}
     }
 
     handleKeyPress = (event) => {
         if(event.key === 'Enter'){
-            alert("Enter was pressed!");
+            this.setState({InputText:""});
         }
     }
     render() {
         return(
             <Widget id="ChatWidget">
-
                 <MessageWidget></MessageWidget>
-
-                <input className="chat-input" placeholder="Message" onKeyPress={this.handleKeyPress}></input>
+                <input className="chat-input" placeholder="Message" onKeyPress={this.handleKeyPress} value={this.state.InputText}></input>
             </Widget>
         )
     }
@@ -131,6 +130,21 @@ class TimeWidget extends React.Component {
     componentWillUnmount() {
         clearInterval(this.interval);
     }
+}
+
+class NavigationWidget extends React.Component {
+    constructor(props) {
+        super(props);
+        this.props = props;
+    }
+
+     render() {
+         return (
+            <Widget id="NavigationWidget">
+                <NavigationLink/>
+            </Widget>
+         );
+     }
 }
 
 class ErrorWidget extends React.Component {
