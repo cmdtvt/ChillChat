@@ -55,6 +55,7 @@ class ChatApp extends React.Component {
             <div className="fwrap-full ChatApp">
                 <LayoutItem Widget={<UsersWidget/>}/>
                 <LayoutItem Widget={<ChatWidget/>}/>
+                <LayoutItem Widget={<TimeWidget/>}/>
                 
                 {this.LayoutItemList}
             </div>

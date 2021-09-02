@@ -88,3 +88,9 @@ body {
   margin-left: 5px;
   margin-top: 5px;
 }
+
+.ChatApp #TimeWidget {
+  text-align: center;
+  font-weight: bold;
+  font-size: 32px;
+}
