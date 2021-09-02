@@ -1,6 +1,11 @@
 
 let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
 
+
+
+
+
+
 class ChatApp extends React.Component {
     constructor(props) {
         super(props);
@@ -43,6 +48,7 @@ class ChatApp extends React.Component {
 
         sock.onopen = async function() {
             await sock.send(`IDENTIFY ${token}`);
+            console.log("Socket started")
         }
 
         sock.onmessage = async (event) => {
@@ -51,8 +57,9 @@ class ChatApp extends React.Component {
                 this.setState({
                     messageData: this.state.messageData.concat(
                         {
-                            "id": 5270592, 
-                            "content": "This is content in a message.", 
+                            "id": 5270592,
+                            "content": "This is content in a message.",
+                            "time": new Date().getTime(),
                             "author": {
                                 "id": 987654, 
                                 "name": "SimoSocetti", 

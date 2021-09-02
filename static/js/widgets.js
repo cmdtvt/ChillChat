@@ -47,6 +47,7 @@ class MessageWidget extends React.Component {
                 {this.props.messageData.map(message => (
                     <VisualizeMessage messageData={message}/>
                 ))}
+                <div></div>
             </div>
         )
     }

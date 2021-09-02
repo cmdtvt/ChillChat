@@ -9,6 +9,9 @@ class VisualizeMessage extends React.Component {
         this.messageData = this.props.messageData;
         this.message = this.props.messageData;
         this.author = this.props.messageData.author;
+
+        this.date = new Date(this.message.time).toISOString()
+
     }
 
     render() {
@@ -16,7 +19,8 @@ class VisualizeMessage extends React.Component {
             <div className="chat-item" onClick={this.handleClick} id={this.props.id} key={this.message.id} data-message-id={this.message.id} data-user-id={this.author.id}>
                 <img src={this.author.avatar}></img>
                 <div>
-                    <span><b>{this.author.name}</b></span><br></br>
+                    <span><b>{this.author.name}</b></span>
+                    <span className="time">{this.date}</span><br></br>
                     <span>{this.message.content}</span>
                 </div>
             </div>
