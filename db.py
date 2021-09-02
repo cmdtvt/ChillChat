@@ -6,6 +6,7 @@ from model.server import Server
 import random
 perm1 = ChannelPermissions()
 perm1.toggle("VIEW_CHANNEL")
+#perm1.toggle("SEND_MESSAGE")
 perm2 = ChannelPermissions()
 server = Server(1, "moi")
 member1 = Member(987654, "asd1", "moi", "lol", None, {1 : server}, [], {"channel" : {
@@ -32,5 +33,5 @@ class Db():
     channels = {123456789 : channel1}
     @staticmethod
     def create_message(payload : MessagePayload) -> Message:
-        return Message(random.randint(15000, 10000000), payload.content, payload.author)
+        return Message(random.randint(15000, 10000000), payload.content, payload.author, payload.channel)
 TextChannel.Db = Db

@@ -5,3 +5,5 @@ class ClientType:
     pass
 class MemberType:
     pass
+class ChannelType:
+    pass
