@@ -15,5 +15,6 @@ class ServerPermissions(Permissions):
 class ChannelPermissions(Permissions):
     def __init__(self) -> None:
         self._keys = {
-            "VIEW_CHANNEL" : False
+            "VIEW_CHANNEL" : False,
+            "SEND_MESSAGE" : False,
         }

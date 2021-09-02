@@ -1,9 +1,9 @@
 from typing import Sequence, Optional
-from .abc import Messageable, MemberType
+from .abc import Messageable, MemberType, ChannelType
 from .message import MessagePayload, Message
 from .server import Server
 import json
-class Channel(Messageable):
+class Channel(Messageable, ChannelType):
     def __init__(self, id : int, name : str, server : Optional[Server]=None) -> None:
         self.id = id
         self.name = name
@@ -13,7 +13,6 @@ class TextChannel(Channel):
     def __init__(self, id : int, name : str, server : Optional[Server]=None, messages : Sequence[Message]=None,) -> None:
         super().__init__(id, name, server)
     async def send(self, payload : MessagePayload) -> None:
-        print(TextChannel.Db)
         if TextChannel.Db:
             msg = TextChannel.Db.create_message(payload)
             if self.server:

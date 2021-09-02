@@ -46,7 +46,6 @@ class Client(ClientType):
         while True:
             if self.ws and self.queue:
                 data = await self.queue.get()
-                print(data)
                 await self.ws.send(data)
                 await asyncio.sleep(0.01)
     async def process(self, ws, data):
@@ -64,9 +63,7 @@ class Client(ClientType):
             
             await ws.close(400)
     async def send(self, data : str) -> Any:
-        print(data)
         await self.queue.put(data)
-        print(self.queue)
 def collect_websocket(func):
     async def wrapper(*args, **kwargs):
         global clients

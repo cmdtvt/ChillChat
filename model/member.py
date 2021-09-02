@@ -13,14 +13,20 @@ class Member(Messageable, MemberType):
         self.avatar = avatar
         self.own_channel = own_channel
         self.servers = servers
-        self.client = None
         self.roles = roles
         self.permissions = permissions
+        self.client = None
     def set_client(self, client : ClientType) -> None:
         self.client = client
-    async def send(self, payload : MessagePayload) -> None:
-        if self.own_channel:
+    async def send(self, content : str, channel : TextChannel=None) -> None:
+        if channel:
+            if self.permissions["channel"][channel.id].is_allowed("SEND_MESSAGE"):
+                payload = MessagePayload(content, self, channel)
+                await self.channel.send(payload)
+        elif not channel and self.own_channel:
+            payload = MessagePayload(content, self, self.own_channel)
             await self.own_channel.send(payload)
+
     async def send_via_client(self, data : str):
         if self.client:
             await self.client.send(data)
