@@ -4,7 +4,10 @@ class ChatWidget extends React.Component {
     constructor(props) {
         super(props);
         this.props = props;
-        this.state = {}
+        this.state = {
+            messageData: []
+        }
+        //getDerivedStateFromProps
     }
 
     handleKeyPress = (event) => {
@@ -12,10 +15,12 @@ class ChatWidget extends React.Component {
             this.setState({InputText:""});
         }
     }
+
     render() {
+        //console.log(this.state.messageData)
         return(
             <Widget id="ChatWidget">
-                <MessageWidget></MessageWidget>
+                <MessageWidget messageData={this.props.MessageData}></MessageWidget>
                 <input className="chat-input" placeholder="Message" onKeyPress={this.handleKeyPress} value={this.state.InputText}></input>
             </Widget>
         )
@@ -28,35 +33,20 @@ class MessageWidget extends React.Component {
     constructor(props) {
         super(props);
         this.props = props;
-
-        
-        this.testd = {
-            "id": 5270592, 
-            "content": "test", 
-            "author": {
-                "id": 987654, 
-                "name": "asd1", 
-                "avatar": "lol"
-            }
+        this.state = {
+            messageData: []
         }
+
+        //console.log(this.props.messageData);
         
     }
 
     render() {
         return(
             <div className="chat-area hide-scrollbar">
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
-                <VisualizeMessage/>
+                {this.props.messageData.map(message => (
+                    <VisualizeMessage messageData={message}/>
+                ))}
             </div>
         )
     }

@@ -1,12 +1,12 @@
+
+let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
+
 class ChatApp extends React.Component {
     constructor(props) {
         super(props);
-        this.props = props
+        this.props = props;
+        this.SocketToken = "123";
 
-        //Stores refrence to each kind of widget. There might be better way to do this.
-        this.widgets = {
-            userinfo : "",
-        }
         //Theme data will be loaded from jinja
         this.themeData = {
             layout : {
@@ -31,31 +31,48 @@ class ChatApp extends React.Component {
             }
         }
 
-        console.log(this.themeData['layout']['widLayout']);
-        var state = {} //Dont shove everything here!
-
-
-        //Change so layout items are added to right area with ID
-        /*
-        var layoutSettings = this.themeData['layout']['settings'];
-        this.LayoutItemList = [];
-        for (let i of this.themeData['layout']['widLayout']) {
-            var text = i.widget;
-            var data = i
-            this.LayoutItemList.push(<LayoutItem widgetData={data} layoutSettings={layoutSettings}/>);
+        this.state = {
+            messageData: []
         }
-        */
-        this.state = {}
+    }
+
+    //Find out what is the new way to do this.
+    //https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html
+    UNSAFE_componentWillMount() {
+        var token = this.SocketToken;
+
+        sock.onopen = async function() {
+            await sock.send(`IDENTIFY ${token}`);
+        }
+
+        sock.onmessage = async (event) => {
+            if (event.data == "HEARTBEAT") {
+                await sock.send("ACK_HEARTBEAT");
+                this.setState({
+                    messageData: this.state.messageData.concat(
+                        {
+                            "id": 5270592, 
+                            "content": "This is content in a message.", 
+                            "author": {
+                                "id": 987654, 
+                                "name": "SimoSocetti", 
+                                "avatar": "http://via.placeholder.com/350x350"
+                            }
+                        }
+                    )
+                })
+                console.log("Acknowledging heartbeat");
+            }
+        }
     }
 
 
-    render() {
-        console.log("me does render!");
+    render() {  
         return(
             <div className="fwrap-full ChatApp">
                 <LayoutItem Widget={<NavigationWidget/>}/>
                 <LayoutItem Widget={<UsersWidget/>}/>
-                <LayoutItem Widget={<ChatWidget/>}/>
+                <LayoutItem Widget={<ChatWidget MessageData={this.state.messageData}/>}/>
                 <LayoutItem Widget={<TimeWidget/>}/>
                 
                 {this.LayoutItemList}

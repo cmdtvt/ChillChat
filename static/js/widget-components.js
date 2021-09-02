@@ -6,21 +6,18 @@ class VisualizeMessage extends React.Component {
     constructor(props) {
         super(props);
         this.props =  props;
-
-        VisualizeMessage.defaultProps = {
-            id : "undefined",
-            content: "undefined",
-            author: {}
-        }
+        this.messageData = this.props.messageData;
+        this.message = this.props.messageData;
+        this.author = this.props.messageData.author;
     }
 
     render() {
         return (
-            <div className="chat-item" onClick={this.handleClick} id={this.props.id}>
-                <img src="http://via.placeholder.com/350x350"></img>
+            <div className="chat-item" onClick={this.handleClick} id={this.props.id} key={this.message.id} data-message-id={this.message.id} data-user-id={this.author.id}>
+                <img src={this.author.avatar}></img>
                 <div>
-                    <span><b>USER</b></span><br></br>
-                    <span>lorem ipsum dolor sit amet, consectetur adip occ  occumst lorem ipsum dolor sit amet, consectetur adip occ  occumstlorem ipsum dolor sit amet, consectetur adip occ  occumst</span>
+                    <span><b>{this.author.name}</b></span><br></br>
+                    <span>{this.message.content}</span>
                 </div>
             </div>
         )
