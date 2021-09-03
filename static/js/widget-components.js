@@ -35,6 +35,14 @@ class VisualizeUser extends React.Component {
         super(props);
         this.props = props;
     }
+
+    render() {
+        return (
+            <div>
+                <p>me is a user.</p>
+            </div>
+        )
+    }
 }
 
 class NavigationLink extends React.Component {
@@ -54,7 +62,7 @@ class NavigationLink extends React.Component {
 
     render() {
         return (
-            <div onClick={this.handleClick}>
+            <div className="nav-link" onClick={this.handleClick}>
                 <span>{this.props.LinkText}</span>
             </div>
 

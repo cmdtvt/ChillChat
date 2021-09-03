@@ -64,7 +64,11 @@ class UsersWidget extends React.Component {
      render() {
          return(
              <Widget>
-                 <p>this is user widget</p>
+                 <VisualizeUser/>
+                 <VisualizeUser/>
+                 <VisualizeUser/>
+                 <VisualizeUser/>
+
              </Widget>
          )
      }
@@ -124,6 +128,11 @@ class NavigationWidget extends React.Component {
      render() {
          return (
             <Widget id="NavigationWidget">
+                <NavigationLink/>
+                <NavigationLink/>
+                <NavigationLink/>
+                <NavigationLink/>
+                <NavigationLink/>
                 <NavigationLink/>
             </Widget>
          );

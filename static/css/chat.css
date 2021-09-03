@@ -99,3 +99,36 @@ body {
   font-weight: bold;
   font-size: 32px;
 }
+
+.ChatApp #NavigationWidget {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 5px;
+}
+
+.ChatApp #NavigationWidget .nav-link {
+  width: 45px;
+  height: 45px;
+  margin-left: 5px;
+  background-color: #474040;
+  border-radius: 5px;
+  border: 2px solid black;
+  padding: 5px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.ChatApp #NavigationWidget .nav-link:hover {
+  cursor: pointer;
+  background-color: #2a2626;
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
+}

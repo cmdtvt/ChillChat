@@ -92,4 +92,32 @@ body {background-color: #595d66;}
         font-size: 32px;
     }
 
+    #NavigationWidget {
+        //display:grid;
+        //grid-template-columns: auto auto auto auto auto auto;
+        display:flex;
+        padding: 5px;
+
+        .nav-link {
+            width: 45px;
+            height: 45px;
+            //margin: 5px;
+            margin-left: 5px;
+            background-color: #474040;
+            border-radius: 5px;
+            border: 2px solid black;
+            padding: 5px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &:hover {
+                cursor: pointer;
+                background-color: #2a2626;
+                transition: 0.25s;
+            }
+        }
+    }
+
 }
