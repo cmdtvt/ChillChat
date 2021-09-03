@@ -38,8 +38,14 @@ class VisualizeUser extends React.Component {
 
     render() {
         return (
-            <div>
-                <p>me is a user.</p>
+            <div className="VisualizeUser">
+                <img src="https://via.placeholder.com/350x350"></img>
+                <div className="fcenter-content">
+                    <div>
+                        <span>Rauli</span><br/>
+                        <span className="status">Playing: Warframe</span>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -49,21 +55,30 @@ class NavigationLink extends React.Component {
     constructor(props) {
         super(props);
         this.props = props;
+        //this.LinkLocation = this.props.LinkLocation
+        this.state = {
+            LinkLocation: this.props.LinkLocation
+        }
+        console.log(this.state);
 
+        /*
         NavigationLink.defaultProps = {
             LinkLocation : "#",
             LinkText: "Link"
         }
+        */
     }
 
     handleClick(event) {
-        window.location.href=this.props.LinkLocation;
+        console.log("YEEET")
+        console.log(this.LinkLocation);
+        window.location.href = this.state.LinkLocation;
     }
 
     render() {
         return (
-            <div className="nav-link" onClick={this.handleClick}>
-                <span>{this.props.LinkText}</span>
+            <div className="nav-link" onClick={() => this.handleClick}>
+                <span>Link</span>
             </div>
 
         )

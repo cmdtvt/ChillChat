@@ -132,3 +132,34 @@ body {
   -webkit-transition: 0.25s;
   transition: 0.25s;
 }
+
+.ChatApp .VisualizeUser {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 10% auto;
+      grid-template-columns: 10% auto;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.ChatApp .VisualizeUser img {
+  padding: 2px;
+  border-radius: 5px;
+  width: 50px;
+  height: 50px;
+  background-color: #ffffff;
+}
+
+.ChatApp .VisualizeUser div {
+  -webkit-box-pack: left;
+      -ms-flex-pack: left;
+          justify-content: left;
+}
+
+.ChatApp .VisualizeUser div span {
+  font-size: 20px;
+}
+
+.ChatApp .VisualizeUser div .status {
+  font-size: 12px;
+}

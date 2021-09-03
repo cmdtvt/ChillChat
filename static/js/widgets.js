@@ -128,12 +128,12 @@ class NavigationWidget extends React.Component {
      render() {
          return (
             <Widget id="NavigationWidget">
-                <NavigationLink/>
-                <NavigationLink/>
-                <NavigationLink/>
-                <NavigationLink/>
-                <NavigationLink/>
-                <NavigationLink/>
+                <NavigationLink LinkLocation="https://www.google.com"/>
+                <NavigationLink LinkLocation="https://www.google.com"/>
+                <NavigationLink LinkLocation="https://www.google.com"/>
+                <NavigationLink LinkLocation="https://www.google.com"/>
+                <NavigationLink LinkLocation="https://www.google.com"/>
+                <NavigationLink LinkLocation="https://www.google.com"/>
             </Widget>
          );
      }
