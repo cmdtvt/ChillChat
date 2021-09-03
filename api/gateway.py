@@ -1,9 +1,9 @@
 from quart import Blueprint, websocket
 from typing import Union, Any
 from model.abc import ClientType
-from instances import database
 import re
 import asyncio
+database = None
 gateway_blueprint = Blueprint('gateway', __name__)
 clients = {
     "all" : set(),

@@ -1,7 +1,5 @@
-from model.message import MessagePayload
 from quart import Blueprint, websocket, request
-from .gateway import gateway_blueprint
-from instances import database
+from .gateway import gateway_blueprint, database
 import asyncio
 
 api_blueprint = Blueprint('api', __name__)
