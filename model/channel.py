@@ -2,6 +2,7 @@ from typing import Sequence, Optional
 from .abc import Messageable, MemberType, ChannelType
 from .message import MessagePayload, Message
 from .server import Server
+from instances import database
 import json
 class Channel(Messageable, ChannelType):
     def __init__(self, id : int, name : str, server : Optional[Server]=None) -> None:
@@ -20,17 +21,17 @@ class Channel(Messageable, ChannelType):
         return result
 
 class TextChannel(Channel):
-    Db = None
     def __init__(self, id : int, name : str, server : Optional[Server]=None, messages : Sequence[Message]=None,) -> None:
         super().__init__(id, name, server)
     async def send(self, payload : MessagePayload) -> None:
-        if TextChannel.Db:
-            msg = TextChannel.Db.create_message(payload)
-            if self.server:
-                for i in self.server.clients:
-                    if i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
-                        tmp = json.dumps(msg.gateway_format)
-                        await i.send_via_client(tmp)
+        msg = database.create_message(payload)
+        if self.server:
+            for i in self.server.clients:
+                if i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
+                    tmp = msg.gateway_format
+                    tmp["type"] = "message"
+                    tmp = json.dumps(tmp)
+                    await i.send_via_client(tmp)
 
 
         

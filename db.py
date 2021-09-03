@@ -1,42 +1,83 @@
+from typing import Optional, Sequence, Any
+
+import psycopg2, psycopg2.extras
 from model.permissions import ChannelPermissions, ServerPermissions
 from model.message import MessagePayload, Message
 from model.member import Member
 from model.channel import TextChannel
 from model.server import Server
-import random
-perm1 = ChannelPermissions()
-perm1.toggle("VIEW_CHANNEL")
-perm1.toggle("SEND_MESSAGE")
-perm2 = ChannelPermissions()
-perm2.toggle("VIEW_CHANNEL")
-perm2.toggle("SEND_MESSAGE")
-perm1_server = ServerPermissions()
-perm2_server = ServerPermissions()
-server = Server(1, "moi")
-member1 = Member(987654, "asd1", "moi", "https://i.pinimg.com/originals/9f/59/ff/9f59ffe1d5bea6cecbaa68d71cdb1ed0.jpg", None, {1 : server}, [], {"channel" : {
-    123456789 : perm1
-}, "server" : {1 : perm1_server}})
-server.owner = member1
-member2 = Member(123456, "asd2", "123", "https://s1.zerochan.net/Ceobe.600.3081523.jpg", None, {1 : server}, [], {"channel" : {
-    123456789 : perm2
-}, "server" : {1 : perm2_server}})
-channel1 = TextChannel(123456789, "testichannel 1", server, [])
-server.members = {987654 : member1, 123456 : member2}
-server.channels = {123456789 : channel1}
-class Db():
-    members = {
-        "token" : {
-            "moi" : member1,
-            "123" : member2
-        },
-        "id" : {
-            987654 : member1,
-            123456 : member2
+from utilities import run_in_executor
+
+class Database:
+    def __init__(self, host : str, username : str, password :str, database : str, port : int=5432) -> None:
+        self._dbo = psycopg2.connect(host=host, user=username, password=password, database=database, port=port)
+        self.queries = {
+            "INSERT_RETURNING" : "INSERT INTO {table} ({columns}) VALUES ({values}) RETURNING {returning}",
+            "SELECT_ALL" : "SELECT * FROM {table}"
         }
-    
-    }
-    channels = {123456789 : channel1}
-    @staticmethod
-    def create_message(payload : MessagePayload) -> Message:
-        return Message(random.randint(15000, 10000000), payload.content, payload.author, payload.channel)
-TextChannel.Db = Db
+    def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[psycopg2.extras.RealDictRow]:
+        try:
+            data = None
+            if params is None:
+                params = ()
+            with self._dbo.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
+                cursor.execute(sql, params)
+                if "SELECT" in sql:
+                    data = cursor.fetchall()
+                elif "RETURNING" in sql:
+                    data = cursor.fetchone()
+            self._dbo.commit()
+            if data:
+                return data
+        except Exception as e:
+            print(e)
+            self._dbo.rollback()
+class DB_API(Database):
+    def __init__(self, host : str, username : str, password :str, database : str, port : int=5432) -> None:
+        super().__init__(host, username, password, database, port)
+        self.members = {"token" : {}, "id" : {}}
+        self.servers = {}
+        self.channels = {}
+        self.roles = {}
+    @run_in_executor()
+    def query(self, sql : str) -> Optional[psycopg2.extras.RealDictRow]:
+        return super().query(sql)
+    async def create_message(self, payload : MessagePayload) -> Message:
+        message_id = await self.query(self.queries["INSERT_RETURNING"].format(
+            table="message",
+            columns="content, author_id, channel_id",
+            values="%s %s %s",
+            returning="id"
+        ), (payload.content, payload.author.id, payload.channel.id))
+        message = Message(message_id, payload.content, payload.author, payload.channel)
+        return message
+    async def load_members(self,):
+        members = {}
+        qr_permissions = await self.query(self.queries["SELECT_ALL"].format(
+            table="member_permissions"
+        ))
+        permissions = {"server" : {}, "channel" : {}}
+        for row in qr_permissions:
+            if row["member_id"] not in permissions[row["type"]]:
+                permission = None
+                if row["type"] == "server":
+                    permission = ServerPermissions()
+                elif row["type"] == "channel":
+                    permission = ChannelPermissions()
+                
+                if permission is not None:
+                    permissions[row["type"]][row["member_id"]] = permission
+            
+            if row["enabled"]:
+                permissions[row["type"]][row["member_id"]].toggle(row["name"])
+        qr = await self.query(self.queries["SELECT_ALL"].format(
+            table="member"
+        ))
+        for i in qr:
+            channel_perms = permissions["channel"][row["id"]]
+            server_perms = permissions["server"][row["id"]]
+
+            member = Member(row["id"], row["name"],"", row["avatar"], None, {}, {}, {"channel" : channel_perms, "server" : server_perms})
+            members[row["id"]] = member
+
+

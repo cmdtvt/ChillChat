@@ -1,7 +1,7 @@
 from quart import Blueprint, websocket
 from typing import Union, Any
 from model.abc import ClientType
-from db import Db
+from instances import database
 import re
 import asyncio
 gateway_blueprint = Blueprint('gateway', __name__)
@@ -94,10 +94,10 @@ async def gateway(client):
                         if token not in clients["tokenized"]:
                             client.token = token
                             clients["tokenized"][client.token] = client
-                            if token in Db.members["token"]:
-                                Db.members["token"][token].set_client(client)
-                                for i, server in Db.members["token"][token].servers.items():
-                                    server.clients.add(Db.members["token"][token])
+                            if token in database.members["token"]:
+                                database.members["token"][token].set_client(client)
+                                for i, server in database.members["token"][token].servers.items():
+                                    server.clients.add(database.members["token"][token])
                                 await client.process(websocket, data.result())
                 else:
                     await client.process(websocket, data.result())
