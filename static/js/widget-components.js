@@ -10,7 +10,8 @@ class VisualizeMessage extends React.Component {
         this.message = this.props.messageData;
         this.author = this.props.messageData.author;
 
-        this.date = new Date(this.message.time).toISOString()
+        this.date = convertUnixTimestampToDate(this.message.time)
+        this.date = convertDatetoFormat(this.date)
 
     }
 
@@ -25,10 +26,6 @@ class VisualizeMessage extends React.Component {
                 </div>
             </div>
         )
-    }
-
-    handleClick(event) {
-        alert("Message was pressed.")
     }
 }
 

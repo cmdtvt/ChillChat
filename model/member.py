@@ -20,9 +20,10 @@ class Member(Messageable, MemberType):
         self.client = client
     async def send(self, content : str, channel : TextChannel=None) -> None:
         if channel:
-            if self.permissions["channel"][channel.id].is_allowed("SEND_MESSAGE"):
+
+            if self.permissions["server"][channel.server.id].is_allowed("ADMINISTRATOR") or self.permissions["channel"][channel.id].is_allowed("SEND_MESSAGE"):
                 payload = MessagePayload(content, self, channel)
-                await self.channel.send(payload)
+                await channel.send(payload)
         elif not channel and self.own_channel:
             payload = MessagePayload(content, self, self.own_channel)
             await self.own_channel.send(payload)

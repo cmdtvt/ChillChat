@@ -1,5 +1,6 @@
 from model.abc import MemberType, ChannelType
 from typing import Union
+import time
 class Message:
     def __init__(self, id : int, content : str, author : MemberType, channel : ChannelType) -> None:
         self.id = id
@@ -11,11 +12,15 @@ class Message:
         response = {
             "id" : self.id,
             "content" : self.content,
-            "author" : self.author.gateway_format
+            "author" : self.author.gateway_format,
+            "channel" : self.channel.gateway_format,
+            "time" : time.time()
         }
+        print(response)
         return response
 
 class MessagePayload:
     def __init__(self, content : str, author : MemberType, channel : ChannelType)-> None:
         self.content = content
         self.author = author
+        self.channel = channel

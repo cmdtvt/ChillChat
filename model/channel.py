@@ -8,6 +8,17 @@ class Channel(Messageable, ChannelType):
         self.id = id
         self.name = name
         self.server = server
+
+    @property
+    def gateway_format(self,):
+        result = {
+            "id" : self.id,
+            "name" : self.name,
+        }
+        if self.server:
+            result["server"] = self.server.gateway_format
+        return result
+
 class TextChannel(Channel):
     Db = None
     def __init__(self, id : int, name : str, server : Optional[Server]=None, messages : Sequence[Message]=None,) -> None:

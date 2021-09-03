@@ -53,23 +53,18 @@ class ChatApp extends React.Component {
 
         sock.onmessage = async (event) => {
             if (event.data == "HEARTBEAT") {
-                await sock.send("ACK_HEARTBEAT");
+                sock.send("ACK_HEARTBEAT");
+                console.log("Acknowledging heartbeat");
+            } else {
+                let parsed = JSON.parse(event.data)
+                console.log(parsed)
                 this.setState({
                     messageData: this.state.messageData.concat(
-                        {
-                            "id": 5270592,
-                            "content": "This is content in a message.",
-                            "time": new Date().getTime(),
-                            "author": {
-                                "id": 987654, 
-                                "name": "SimoSocetti", 
-                                "avatar": "http://via.placeholder.com/350x350"
-                            }
-                        }
+                        parsed
                     )
                 })
-                console.log("Acknowledging heartbeat");
             }
+
         }
     }
 

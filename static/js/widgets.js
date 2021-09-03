@@ -91,7 +91,7 @@ class TimeWidget extends React.Component {
         super(props);
         this.props = props;
         this.state = {
-            time: "00|00"
+            time: "00:00"
         }
     }
 
@@ -105,15 +105,7 @@ class TimeWidget extends React.Component {
 
     componentDidMount() {
         this.interval = setInterval(() => {
-            var today = new Date();
-            var minutes = today.getMinutes();
-            var hours = today.getHours();
-        
-            if (String(today.getMinutes()).length == 1) {minutes = "0" + today.getMinutes();}
-        
-            if (String(today.getHours()).length == 1) {hours = "0" + today.getHours();}
-            var time = hours + "|" + minutes;
-
+            var time = convertDatetoFormat(new Date())
             this.setState({ time: time })
         }, 1000);
     }
