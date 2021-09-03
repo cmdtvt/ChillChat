@@ -120,4 +120,36 @@ body {background-color: #595d66;}
         }
     }
 
+    #UserWidget {
+
+
+    }
+
+    .VisualizeUser {
+        display:grid;
+        grid-template-columns: 10% auto;
+        margin-bottom: 10px;
+        padding: 5px;
+
+        img {
+            padding: 2px;
+            border-radius: 5px;
+            width: 50px;
+            height: 50px;
+            background-color: #ffffff;
+        }
+
+        div {
+            justify-content: left;
+            span {
+                font-size: 20px;
+            }
+
+            .status {
+                font-size: 12px;
+            }
+        }
+
+    }
+
 }
