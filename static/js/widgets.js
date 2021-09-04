@@ -38,18 +38,24 @@ class MessageWidget extends React.Component {
 		}
 	}
 
+	//https://stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js
 	scrollToBottom = () => {
 		this.messagesEnd.scrollIntoView({ behavior: "smooth" });
 	}
 	  
 	componentDidMount() {
 		this.scrollToBottom();
+		window.addEventListener('scroll', this.handleScroll, { passive: true })
 	}
 	  
 	componentDidUpdate() {
 		this.scrollToBottom();
+		window.removeEventListener('scroll', this.handleScroll)
 	}
 
+	handleScroll(event) {
+		console.log("Scrolling chat!");
+	}
 
 	render() {		
 		return(
@@ -150,6 +156,22 @@ class NavigationWidget extends React.Component {
 		 );
 	 }
 }
+
+class ChannelSelectorWidget extends React.Component {
+	constructor(props) {
+		super(props);
+		this.props = props;
+	}
+
+	render() {
+		return (
+			<Widget id="ChannelSelectorWidget">
+				<span>This is channel selector.</span>
+			</Widget>
+		)
+	}
+}
+
 
 class ErrorWidget extends React.Component {
 	constructor(props) {
