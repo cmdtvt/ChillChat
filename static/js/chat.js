@@ -74,6 +74,7 @@ class ChatApp extends React.Component {
                 <LayoutItem Widget={<UsersWidget/>}/>
                 <LayoutItem Widget={<ChatWidget MessageData={this.state.messageData}/>}/>
                 <LayoutItem Widget={<TimeWidget/>}/>
+                <LayoutItem Widget={<ChannelSelectorWidget/>}/>
                 
                 {this.LayoutItemList}
             </div>

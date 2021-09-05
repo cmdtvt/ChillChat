@@ -13,19 +13,41 @@ class VisualizeMessage extends React.Component {
         this.date = convertUnixTimestampToDate(this.message.time)
         this.date = convertDatetoFormat(this.date)
 
+
+
+        //Message type should decied how "special" content is shown. Images, videos etc... Like embeding.
     }
 
     render() {
         return (
-            <div className="chat-item" onClick={this.handleClick} id={this.props.id} key={this.message.id} data-message-id={this.message.id} data-user-id={this.author.id}>
+            <div className="chat-item" onClick={this.handleClick} id={this.props.id} key={this.message.id} data-message-id={this.message.id} data-user-id={this.author.id} data-message-type="embed">
                 <img src={this.author.avatar}></img>
                 <div>
                     <span><b>{this.author.name}</b></span>
                     <span className="time">{this.date}</span><br></br>
                     <span>{this.message.content}</span>
+
+                    <EmbedInMessage url="https://via.placeholder.com/400x900" embedText="Embed placeholder content"/>
                 </div>
             </div>
         )
+    }
+}
+
+class EmbedInMessage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.props = props;
+        this.state = {}
+    }
+
+    render() {
+        return (
+             <div className="embed">
+                 <span>{this.props.embedText}</span><br></br>
+                 <img src={this.props.url}></img>
+             </div>
+        );
     }
 }
 

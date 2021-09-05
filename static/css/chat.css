@@ -94,6 +94,23 @@ body {
   font-size: 12px;
 }
 
+.ChatApp #ChatWidget .chat-item .embed {
+  background-color: #414141;
+  padding: 0px 10px 10px 10px;
+  max-width: 360px;
+  border-radius: 5px;
+}
+
+.ChatApp #ChatWidget .chat-item .embed span {
+  font-size: 12px;
+}
+
+.ChatApp #ChatWidget .chat-item .embed img {
+  width: 350px;
+  height: auto;
+  border-radius: 5px;
+}
+
 .ChatApp #TimeWidget {
   text-align: center;
   font-weight: bold;
