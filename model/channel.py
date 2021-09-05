@@ -26,7 +26,7 @@ class TextChannel(Channel):
     def __init__(self, id : int, name : str, server : Optional[Server]=None, messages : Sequence[Message]=None,) -> None:
         super().__init__(id, name, server)
     async def send(self, payload : MessagePayload) -> None:
-        msg = TextChannel.database.create_message(payload)
+        msg = await TextChannel.database.create_message(payload)
         if self.server:
             for i in self.server.clients:
                 if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
@@ -34,6 +34,7 @@ class TextChannel(Channel):
                     tmp["type"] = "message"
                     tmp = json.dumps(tmp)
                     await i.send_via_client(tmp)
+                    return "ok"
 
 
         

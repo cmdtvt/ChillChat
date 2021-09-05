@@ -1,5 +1,6 @@
 from typing import Optional, Sequence, Any
 import asyncio
+import os, binascii
 
 import psycopg2, psycopg2.extras
 from model.permissions import ChannelPermissions, ServerPermissions
@@ -44,6 +45,13 @@ class DB_API(Database):
         Server.database = self
         TextChannel.database = self
         Member.database = self
+    def create_token(self, member : Member) -> None:
+        if member.token:
+            del self.members["token"][member.token]
+            member.token = None
+        token = binascii.b2a_hex(os.urandom(50)).decode('utf8')
+        member.token = token
+        self.members["token"][token] = member
     async def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[psycopg2.extras.RealDictRow]:
         result = await asyncio.get_event_loop().run_in_executor(None, super().query, sql, params)
         return result
@@ -51,7 +59,7 @@ class DB_API(Database):
         message_id = await self.query(self.queries["INSERT_RETURNING"].format(
             table="message",
             columns="content, author_id, channel_id",
-            values="%s %s %s",
+            values="%s, %s, %s",
             returning="id"
         ), (payload.content, payload.author.id, payload.channel.id))
         message = Message(message_id, payload.content, payload.author, payload.channel)
@@ -60,33 +68,42 @@ class DB_API(Database):
         servers = {}
         qr_servers = await self.query(self.queries["SELECT_ALL"].format(table="server"))
         
-        channels = await self.load_server_channels()
+        channels = await self.load_channels()
         members = await self.load_members()
         for row in qr_servers:
             servers[row["id"]] = Server(row["id"], row["name"])
 
             servers[row["id"]].owner = members[row["owner"]]
-            servers[row["id"]].channels = channels.get(row["id"]) or {}
+            servers[row["id"]].channels = channels["server"].get(row["id"]) or {}
+            for id, channel in servers[row["id"]].channels.items():
+                channel.server = servers[row["id"]]
         await self.server_member_relationships(servers, members)
-        self.channels["server"] = channels
-        self.members = members
+        self.channels = channels
+        self.members["id"] = members
         self.servers = servers
     async def server_member_relationships(self, servers : dict[int, Server], members : dict[int, Member]) -> None:
         member_server_relationships = await self.query(self.queries["SELECT_ALL"].format(table="server_members"))
         for row in member_server_relationships:
             servers[row["server_id"]].members[row["member_id"]] = members[row["member_id"]]
             members[row["member_id"]].servers[row["server_id"]] = servers[row["server_id"]]
-    async def load_server_channels(self,) -> dict[int, dict[int,Channel]]:
-        channels = {}
-        qr = await self.query(self.queries["SELECT_ALL"].format(table="server_channels"))
+    async def load_channels(self,) -> dict[int, dict[int,Channel]]:
+        channels = {"server" : {}, "member" : {}, "all" : {}}
+        qr = await self.query(self.queries["SELECT_ALL"].format(table="channel"))
+        qr_server = await self.query(self.queries["SELECT_ALL"].format(table="server_channels"))
         for row in qr:
-            if row["server"] not in channels:
-                channels[row["server"]] = {}
+            # if row["server"] not in channels:
+            #     channels[row["server"]] = {}
             channel = None
             if row["type"] == "text":
                 channel = TextChannel(row["id"], row["name"], None, None)
-            channels[row["server"]][row["id"]] = channel
-            self.channels["server"][row["id"]] = channel
+            channels["all"][row["id"]] = channel
+        
+            # channels[row["server"]][row["id"]] = channel
+            # self.channels["server"][row["id"]] = channel
+        for row in qr_server:
+            if row["server_id"] not in channels["server"]:
+                channels["server"][row["server_id"]] = {}
+            channels["server"][row["server_id"]][row["channel_id"]] = channels["all"][row["channel_id"]] 
         return channels
     async def load_members(self,):
         members = {}
@@ -135,7 +152,8 @@ class DB_API(Database):
         await self.join_server(owner, result)
         return result
     async def create_server_channel(self, name : str, channel_type : str, server : Server) -> Channel:
-        qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server_channels", columns="name, server, type", values="%s, %s, %s", returning="id"), (name, server.id, channel_type))
+        qr = await self.query(self.queries["INSERT_RETURNING"].format(table="channel", columns="name, type", values="%s, %s", returning="id"), (name, channel_type))
+        qr_server = await self.query(self.queries["INSERT"].format(table="server_channels", columns="channel_id, server_id", values="%s, %s"), (qr, server.id))
         channel = None
         if channel_type == "text":
             channel = TextChannel(qr, name, server, [])
