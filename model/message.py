@@ -16,7 +16,6 @@ class Message:
             "channel" : self.channel.gateway_format,
             "time" : time.time()
         }
-        print(response)
         return response
 
 class MessagePayload:

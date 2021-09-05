@@ -1,4 +1,3 @@
-from fake_db import Db
-import api.gateway
-database = Db
-api.gateway.database = database
+from db import DB_API
+import asyncio
+database = DB_API("127.0.0.1", "chillchat", "chillarandgrillar", "chillchat", 5432)

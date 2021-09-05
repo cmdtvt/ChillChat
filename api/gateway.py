@@ -105,6 +105,3 @@ async def gateway(client):
             await asyncio.sleep(0.01)
         except asyncio.CancelledError:
             break
-
-
-

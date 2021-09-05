@@ -1,14 +1,15 @@
 from typing import Sequence, Optional
 from .abc import Messageable, MemberType, ChannelType
 from .message import MessagePayload, Message
+from .permissions import ChannelPermissions
 from .server import Server
-from instances import database
 import json
 class Channel(Messageable, ChannelType):
     def __init__(self, id : int, name : str, server : Optional[Server]=None) -> None:
         self.id = id
         self.name = name
         self.server = server
+        self.default_permissions = ChannelPermissions()
 
     @property
     def gateway_format(self,):
@@ -21,13 +22,14 @@ class Channel(Messageable, ChannelType):
         return result
 
 class TextChannel(Channel):
+    database = None
     def __init__(self, id : int, name : str, server : Optional[Server]=None, messages : Sequence[Message]=None,) -> None:
         super().__init__(id, name, server)
     async def send(self, payload : MessagePayload) -> None:
-        msg = database.create_message(payload)
+        msg = TextChannel.database.create_message(payload)
         if self.server:
             for i in self.server.clients:
-                if i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
+                if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
                     tmp = msg.gateway_format
                     tmp["type"] = "message"
                     tmp = json.dumps(tmp)
