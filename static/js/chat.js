@@ -44,10 +44,8 @@ class ChatApp extends React.Component {
     //Find out what is the new way to do this.
     //https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html
     UNSAFE_componentWillMount() {
-        var token = this.SocketToken;
-
         sock.onopen = async function() {
-            await sock.send(`IDENTIFY ${token}`);
+            await sock.send(`START`);
             console.log("Socket started")
         }
 

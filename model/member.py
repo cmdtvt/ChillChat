@@ -33,6 +33,7 @@ class Member(Messageable, MemberType):
     async def join_server(self, server : Server) -> bool:
         await Member.database.join_server(self, server)
         return True
+    
     @property
     def gateway_format(self,):
         response = {
@@ -42,3 +43,5 @@ class Member(Messageable, MemberType):
 
         }
         return response
+    def __repr__(self):
+        return f"<model.Member name={self.name}, servers={len(self.servers)}>"

@@ -1,4 +1,4 @@
-from quart import Blueprint, websocket
+from quart import Blueprint, websocket, session
 from typing import Union, Any
 from model.abc import ClientType
 import re
@@ -12,7 +12,7 @@ clients = {
 tasks = {}
 class Gateway:
     IDENTIFY = "IDENTIFY"
-    IDENTIFY_REGEX = r"IDENTIFY (.{3})"
+    IDENTIFY_REGEX = r"IDENTIFY (.{100})"
     HEARTBEAT = "HEARTBEAT"
     ACK_HEARTBEAT = "ACK_HEARTBEAT"
     @staticmethod
@@ -81,27 +81,43 @@ def collect_websocket(func):
 async def gateway(client):
     global clients
     global tasks
+    global database
     websocket.headers
     while True:
         try:
-            if client not in tasks:
-                data = asyncio.create_task(websocket.receive())
-                tasks[client] = data
-            if tasks[client].done():
-                if not client.authenticated():
-                    token = Gateway.get_token(data.result())
-                    if token:
+            if session:
+                if session.get('token'):
+                    token = session.get('token')
+                    if token in database.members["token"]:
+                        if client not in tasks:
+                            tasks[client] = asyncio.create_task(websocket.receive())
                         if token not in clients["tokenized"]:
                             client.token = token
                             clients["tokenized"][client.token] = client
-                            if token in database.members["token"]:
-                                database.members["token"][token].set_client(client)
-                                for i, server in database.members["token"][token].servers.items():
-                                    server.clients.add(database.members["token"][token])
-                                await client.process(websocket, data.result())
-                else:
-                    await client.process(websocket, data.result())
-                del tasks[client]
+                            database.members["token"][token].set_client(client)
+                            for i, server in database.members["token"][token].servers.items():
+                                server.clients.add(database.members["token"][token])
+                        if tasks[client].done():
+                            await client.process(websocket, tasks[client].result())
+                            del tasks[client]
+                        
             await asyncio.sleep(0.01)
+            # 
+            #     tasks[client] = data
+            # if tasks[client].done():
+            #     if not client.authenticated():
+            #         token = Gateway.get_token(data.result())
+            #         print(token, data.result())
+            #         if token:
+            #             if token not in clients["tokenized"]:
+            #                 if token in database.members["token"]:
+            #                     client.token = token
+            #                     clients["tokenized"][client.token] = client
+            #                     database.members["token"][token].set_client(client)
+            #                     for i, server in database.members["token"][token].servers.items():
+            #                         server.clients.add(database.members["token"][token])
+            #                     await client.process(websocket, data.result())
+
+            
         except asyncio.CancelledError:
             break
