@@ -1,12 +1,38 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300&display=swap");
+:root {
+  /*Main colors*/
+  --color-background: #ebe7f0;
+  --color-primary:  #282C34;
+  --color-secondary: #3a424d;
+  --color-decoration: #21252B;
+  --color-border: black;
+  --color-attention-bad: #eb4034;
+  --color-attention-warning: #fcba03;
+  --color-attention-good: #32a852;
+  /*Padding and margin settings*/
+  --setting-padding: 20px;
+  --setting-margin: 10px;
+  --setting-margin-seperate: 20px;
+  /*Fonts*/
+  --font-main: 'Nunito Sans', sans-serif;
+  --font-base-size: 12px;
+  --color-font-main: #ffffff;
+  --color-font-secondary: #ffffffd8;
+  /*Specials*/
+  --special-border-radius: 5px;
+  --special-transition: 0.25s;
+}
+
 html, body {
   padding: 0px;
   margin: 0px;
 }
 
 body {
-  font-family: 'Nunito Sans', sans-serif;
-  background-color: #ebe7f0;
+  min-height: 100vh;
+  min-width: 100vw;
+  font-family: var(--font-main);
+  background-color: var(--color-background);
 }
 
 body .item {
@@ -41,8 +67,8 @@ button, textarea, input, a {
   border: 1px solid #5d1050cf;
   color: #ffffff;
   text-decoration: none;
-  -webkit-transition: 0.25s;
-  transition: 0.25s;
+  -webkit-transition: var(--special-transition);
+  transition: var(--special-transition);
 }
 
 .custom-button:hover {

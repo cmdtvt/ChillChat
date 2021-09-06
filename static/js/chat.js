@@ -71,14 +71,16 @@ class ChatApp extends React.Component {
 
     render() {  
         return(
-            <div className="fwrap-full ChatApp">
-                <LayoutItem Widget={<NavigationWidget/>}/>
-                <LayoutItem Widget={<UsersWidget/>}/>
-                <LayoutItem Widget={<ChatWidget MessageData={this.state.messageData}/>}/>
-                <LayoutItem Widget={<TimeWidget/>}/>
-                <LayoutItem Widget={<ChannelSelectorWidget/>}/>
-                
-                {this.LayoutItemList}
+            <div className="ChatApp">
+
+                    <LayoutItem Widget={<ChannelSelectorWidget/>}/>
+
+                    <LayoutItem Widget={<ChannelSelectorWidget/>}/>
+
+                    <LayoutItem Widget={<ChatWidget MessageData={this.state.messageData}/>}/>
+                    <LayoutItem Widget={<NavigationWidget/>}/>
+
+                    <LayoutItem Widget={<UsersWidget/>}/>
             </div>
         )
     }
