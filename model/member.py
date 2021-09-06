@@ -44,4 +44,4 @@ class Member(Messageable, MemberType):
         }
         return response
     def __repr__(self):
-        return f"<model.Member name={self.name}, servers={len(self.servers)}>"
+        return f"<model.Member id={self.id} name={self.name}, servers={len(self.servers)}>"

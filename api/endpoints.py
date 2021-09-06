@@ -1,3 +1,4 @@
+import quart
 from model.message import MessagePayload
 from quart import Blueprint, websocket, request, session
 import api.gateway
@@ -17,12 +18,19 @@ async def message_create(channel_id : int):
         msg = form['message']
         token = session.get('token')
         channel = database.channels["all"].get(channel_id)
-        member = database.members["token"][token]
-        if member:
+        member = database.members["token"].get(token)
+        if member and channel:
             mpl = MessagePayload(msg, member, channel)
             await channel.send(mpl)
             return "ok"
     return "not ok"
+@api_blueprint.route('/messages/<int:channel_id>')
+async def get_messages(channel_id : int):
+    global database
+    if session.get('token'):
+        channel = database.channels["all"].get(channel_id)
+        messages = channel.messages
+        return quart.jsonify([x.gateway_format for x in messages])
 @api_blueprint.route('/message/<int:channel_id>/<int:message_id>', methods=['DELETE', 'PUT', 'GET'])
 async def message(channel_id : int, message_id : int):
     return "hello"
@@ -31,7 +39,8 @@ async def test1():
     mem2 = database.members["id"][1]
     mem1 = database.members["id"][3]
     ser = database.servers[1]
-    await ser.create_channel("Testi-channel", "text")
+    chan = database.channels["all"][2]
+    print(chan.messages)
     print(ser, ser.channels)
     return "test1"
 @api_blueprint.route('/message/test2/<token>/<int:channel_id>/<message>')

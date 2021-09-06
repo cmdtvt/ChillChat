@@ -23,8 +23,9 @@ class Channel(Messageable, ChannelType):
 
 class TextChannel(Channel):
     database = None
-    def __init__(self, id : int, name : str, server : Optional[Server]=None, messages : Sequence[Message]=None,) -> None:
+    def __init__(self, id : int, name : str, server : Optional[Server]=None) -> None:
         super().__init__(id, name, server)
+        self.messages = []
     async def send(self, payload : MessagePayload) -> None:
         msg = await TextChannel.database.create_message(payload)
         if self.server:
@@ -35,6 +36,8 @@ class TextChannel(Channel):
                     tmp = json.dumps(tmp)
                     await i.send_via_client(tmp)
                     return "ok"
+    def __repr__(self):
+        return f"<model.TextChannel id={self.id} name={self.name} server={self.server.__repr__()}>"
 
 
         

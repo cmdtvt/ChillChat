@@ -20,7 +20,7 @@ server.owner = member1
 member2 = Member(123456, "asd2", "123", "https://s1.zerochan.net/Ceobe.600.3081523.jpg", None, {1 : server}, [], {"channel" : {
     123456789 : perm2
 }, "server" : {1 : perm2_server}})
-channel1 = TextChannel(123456789, "testichannel 1", server, [])
+channel1 = TextChannel(123456789, "testichannel 1", server)
 server.members = {987654 : member1, 123456 : member2}
 server.channels = {123456789 : channel1}
 class Db():
