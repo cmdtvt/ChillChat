@@ -7,6 +7,9 @@
 
     {{member}}<br>
     {{member.token}}<br>
+    {% for i in member.servers[1].channels[2].messages %}
+        {{i.content}}<br>
+    {% endfor %}
     {{session['token']}}
     <link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}">
 
