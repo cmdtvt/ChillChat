@@ -17,8 +17,8 @@ async def message_create(channel_id : int):
         msg = form['message']
         token = session.get('token')
         channel = database.channels["all"].get(channel_id)
-        member = database.members["token"][token]
-        if member:
+        member = database.members["token"].get(token)
+        if member and channel:
             mpl = MessagePayload(msg, member, channel)
             await channel.send(mpl)
             return "ok"
