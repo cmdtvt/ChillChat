@@ -1,4 +1,4 @@
-from quart import  Quart, render_template, session
+from quart import  Quart, render_template, session, redirect, url_for
 from instances import database
 import random
 import asyncio
@@ -14,16 +14,16 @@ async def init():
 
 @app.route('/')
 async def hello():
-
-    return await render_template("views/home.html")
-
-@app.route('/chat')
-async def chat():
     members = [database.members["id"][1], database.members["id"][3]]
     member = random.choice(members)
     if not member.token:
         database.create_token(member)
     session["token"] = member.token
-    print(database.members)
-    return await render_template('views/chat.html', member=member, session=session)
+    return await render_template("views/home.html", member=database.members["token"][session.get('token')], session=session)
+
+@app.route('/chat')
+async def chat():
+    if not session.get('token'):
+        return redirect(url_for('hello'))
+    return await render_template('views/chat.html', member=database.members["token"][session.get('token')], session=session)
 app.run(debug=True)

@@ -31,7 +31,8 @@ async def test1():
     mem2 = database.members["id"][1]
     mem1 = database.members["id"][3]
     ser = database.servers[1]
-    await ser.create_channel("Testi-channel", "text")
+    chan = database.channels["all"][2]
+    print(chan.messages)
     print(ser, ser.channels)
     return "test1"
 @api_blueprint.route('/message/test2/<token>/<int:channel_id>/<message>')

@@ -70,6 +70,7 @@ class DB_API(Database):
         
         channels = await self.load_channels()
         members = await self.load_members()
+        await self.load_messages(channels, members)
         for row in qr_servers:
             servers[row["id"]] = Server(row["id"], row["name"])
 
@@ -95,7 +96,7 @@ class DB_API(Database):
             #     channels[row["server"]] = {}
             channel = None
             if row["type"] == "text":
-                channel = TextChannel(row["id"], row["name"], None, None)
+                channel = TextChannel(row["id"], row["name"])
             channels["all"][row["id"]] = channel
         
             # channels[row["server"]][row["id"]] = channel
@@ -138,6 +139,11 @@ class DB_API(Database):
             member = Member(row["id"], row["name"],"", row["avatar"], None, {}, {}, {"channel" : channel_perms, "server" : server_perms})
             members[row["id"]] = member
         return members
+    async def load_messages(self, channels : dict[int, Channel], members : dict[int, Member]):
+        qr_messages = await self.query(self.queries["SELECT_ALL"].format(table="message"))
+        for row in qr_messages:
+            channels["all"][row["channel_id"]].messages.append(Message(row["id"], row["content"], members[row["author_id"]], channels["all"][row["channel_id"]]))
+            print(channels["all"][row["channel_id"]].messages)
     async def join_server(self, member : Member, server : Server) -> None:
         qr = await self.query(self.queries["INSERT"].format(table="server_members", columns="member_id, server_id", values="%s, %s"), (member.id, server.id))
         server.members[member.id] = member
@@ -156,6 +162,6 @@ class DB_API(Database):
         qr_server = await self.query(self.queries["INSERT"].format(table="server_channels", columns="channel_id, server_id", values="%s, %s"), (qr, server.id))
         channel = None
         if channel_type == "text":
-            channel = TextChannel(qr, name, server, [])
+            channel = TextChannel(qr, name, server)
         server.channels[channel.id] = channel
         return channel
