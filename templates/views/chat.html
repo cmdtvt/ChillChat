@@ -5,7 +5,9 @@
 
 {% block head %}
 
-
+    {{member}}<br>
+    {{member.token}}<br>
+    {{session['token']}}
     <link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}">
 
     <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
@@ -24,6 +26,7 @@
 
 
 {% block main %}
+    
     {% include themeLayoutFile %}
 {% endblock %}
 

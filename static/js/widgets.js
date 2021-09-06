@@ -10,9 +10,14 @@ class ChatWidget extends React.Component {
 		//getDerivedStateFromProps
 	}
 
-	handleKeyPress = (event) => {
+	handleKeyPress = async (event) => {
+		console.log(this.state)
 		if(event.key === 'Enter'){
-			this.setState({InputText:""});
+			let inputVal = document.querySelector(".chat-input")
+			let route = "http://127.0.0.1:5000/v1/message/2"
+			await fetch(route, {method: 'POST', body : `message=${inputVal.value}`, headers: {"Content-Type" : "application/x-www-form-urlencoded"}})
+			inputVal.value = ''
+			//this.setState({InputText:""}); // ei edes tee mitään, ku ei tuu valuee tähän ollenkaa
 		}
 	}
 
