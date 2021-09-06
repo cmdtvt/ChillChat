@@ -6,15 +6,9 @@ body {background-color: #595d66;}
     width: 100vw;
     max-width: 100vw;
 
-    //display: grid;
-    //grid-template-columns: 5% 10% auto 10%;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    //flex-direction: column;
-
-
-
 
 
 
@@ -38,15 +32,17 @@ body {background-color: #595d66;}
 
     #ChatWidget {
         flex: 2;
-        flex-basis: 80%;
-        display: flex;
+        flex-basis: 50%;
+        width: 800px;
+        display: grid;
+        max-height: 500px;
 
         //Chat text input area.
         input,input:focus {
             width:auto;
             min-height: 5vh;
+            max-height: 5vh;
             padding-left: 5px;
-            margin-top: 20px;
 
             border: 2px solid var(--color-border) !important; 
             border-radius: var(--special-border-radius) !important;
@@ -61,6 +57,7 @@ body {background-color: #595d66;}
         
         .chat-input::placeholder {
             color: var(--color-font-main);
+            bottom: 0px;
         }
 
         //Area which has chat messages
@@ -71,8 +68,8 @@ body {background-color: #595d66;}
 
         //Chat message
         .chat-item {
-            display: flex;
-
+            display: grid;
+            max-height: 150px;
             margin-bottom: 25px; 
 
             img {

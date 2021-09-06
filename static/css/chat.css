@@ -38,18 +38,19 @@ body {
   -webkit-box-flex: 2;
       -ms-flex: 2;
           flex: 2;
-  -ms-flex-preferred-size: 80%;
-      flex-basis: 80%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  -ms-flex-preferred-size: 50%;
+      flex-basis: 50%;
+  width: 800px;
+  display: -ms-grid;
+  display: grid;
+  max-height: 500px;
 }
 
 .ChatApp #ChatWidget input, .ChatApp #ChatWidget input:focus {
   width: auto;
   min-height: 5vh;
+  max-height: 5vh;
   padding-left: 5px;
-  margin-top: 20px;
   border: 2px solid var(--color-border) !important;
   border-radius: var(--special-border-radius) !important;
   background-color: var(--color-secondary);
@@ -62,18 +63,22 @@ body {
 
 .ChatApp #ChatWidget .chat-input::-webkit-input-placeholder {
   color: var(--color-font-main);
+  bottom: 0px;
 }
 
 .ChatApp #ChatWidget .chat-input:-ms-input-placeholder {
   color: var(--color-font-main);
+  bottom: 0px;
 }
 
 .ChatApp #ChatWidget .chat-input::-ms-input-placeholder {
   color: var(--color-font-main);
+  bottom: 0px;
 }
 
 .ChatApp #ChatWidget .chat-input::placeholder {
   color: var(--color-font-main);
+  bottom: 0px;
 }
 
 .ChatApp #ChatWidget .chat-area {
@@ -82,9 +87,9 @@ body {
 }
 
 .ChatApp #ChatWidget .chat-item {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  display: -ms-grid;
+  display: grid;
+  max-height: 150px;
   margin-bottom: 25px;
 }
 

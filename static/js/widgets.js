@@ -17,9 +17,24 @@ class ChatWidget extends React.Component {
 			let route = "http://127.0.0.1:5000/v1/message/2"
 			await fetch(route, {method: 'POST', body : `message=${inputVal.value}`, headers: {"Content-Type" : "application/x-www-form-urlencoded"}})
 			inputVal.value = ''
-			//this.setState({InputText:""}); // ei edes tee mitään, ku ei tuu valuee tähän ollenkaa
+			//this.setState({InputText:""}); //Empties the input after enter press.
 		}
 	}
+
+
+	// componentDidMount() {
+	// 	this.addEventListener('scroll', this.handleScroll);
+	// }
+	
+	// componentWillUnmount() {
+	// 	this.removeEventListener('scroll', this.handleScroll);
+	// }
+	
+	handleScroll = (event) =>{
+		console.log("Item has been scrolled.: "+event);
+
+	}
+
 
 	render() {
 		//console.log(this.state.messageData)

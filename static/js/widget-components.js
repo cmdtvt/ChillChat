@@ -16,6 +16,8 @@ class VisualizeMessage extends React.Component {
 
 
         //Message type should decied how "special" content is shown. Images, videos etc... Like embeding.
+
+        //<EmbedInMessage url="https://via.placeholder.com/400x900" embedText="Embed placeholder content"/>
     }
 
     render() {
@@ -27,7 +29,7 @@ class VisualizeMessage extends React.Component {
                     <span className="time">{this.date}</span><br></br>
                     <span>{this.message.content}</span>
 
-                    <EmbedInMessage url="https://via.placeholder.com/400x900" embedText="Embed placeholder content"/>
+
                 </div>
             </div>
         )
