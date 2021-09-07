@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
     <title>ChillChat</title>
 
     <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
@@ -12,7 +13,25 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+
+    <div id="devpanel" style="display: none;">
+        <p>Devzone</p>
+        <pre>
+            <code>
+                {{member}}<br>
+                {{member.token}}<br>
+                {% for i in member.servers[1].channels[2].messages %}
+                    {{i.content}}<br>
+                {% endfor %}
+                {{session['token']}}
+            </code>
+        </pre>
+    </div>
+
     <main>
+
+
+
         {% block main %}{% endblock %}
     </main>
 

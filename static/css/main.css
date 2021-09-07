@@ -75,6 +75,18 @@ button, textarea, input, a {
   background-color: #8e2abd;
 }
 
+#devpanel {
+  background-color: #afafaf;
+  font-size: 12px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  max-height: 80vh;
+  overflow-y: scroll;
+  border: 2px solid black;
+  padding: 5px;
+}
+
 .front header {
   width: 100vw;
 }

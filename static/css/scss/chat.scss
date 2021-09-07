@@ -35,6 +35,7 @@ body {background-color: #595d66;}
         flex-basis: 50%;
         width: 800px;
         display: grid;
+        grid-template-columns: 100%;
         max-height: 500px;
 
         //Chat text input area.
@@ -69,6 +70,7 @@ body {background-color: #595d66;}
         //Chat message
         .chat-item {
             display: grid;
+            grid-template-columns: 20% auto;
             max-height: 150px;
             margin-bottom: 25px; 
 

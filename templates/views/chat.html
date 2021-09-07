@@ -5,12 +5,7 @@
 
 {% block head %}
 
-    {{member}}<br>
-    {{member.token}}<br>
-    {% for i in member.servers[1].channels[2].messages %}
-        {{i.content}}<br>
-    {% endfor %}
-    {{session['token']}}
+
     <link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}">
 
     <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
@@ -20,7 +15,7 @@
     <!-- <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script> -->
 
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
 

@@ -54,18 +54,43 @@ class MessageWidget extends React.Component {
 		super(props);
 		this.props = props;
 		this.state = {
+			error: null, //If problem in fetching data.
 			messageData: []
 		}
+		this.fetchURL = "http://127.0.0.1:5000/v1/messages/2";
+
+
+		console.log(this.state);
+
 	}
 
 	//https://stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js
+
+	//http://127.0.0.1:5000/v1/messages/2
+
 	scrollToBottom = () => {
 		this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+		
 	}
-	  
+	 
+	handleNewMessages = (data) => {
+		console.log("Handling new messages: "+data);
+		this.setState({
+			messageData: this.state.messageData.concat(data)
+		})
+	}
+
 	componentDidMount() {
 		this.scrollToBottom();
-		window.addEventListener('scroll', this.handleScroll, { passive: true })
+		window.addEventListener('scroll', this.handleScroll, { passive: true });
+		fetch(this.fetchURL)
+		.then(response => response.json())
+		.then(this.handleNewMessages)
+		.catch()
+
+
+
+
 	}
 	  
 	componentDidUpdate() {
@@ -77,12 +102,16 @@ class MessageWidget extends React.Component {
 		console.log("Scrolling chat!");
 	}
 
-	render() {		
+	render() {
+		console.log("Message widget is rerendering.");
 		return(
 			<div className="chat-area hide-scrollbar">
-				{this.props.messageData.map(message => (
+				{this.state.messageData.map(message => (
 					<VisualizeMessage messageData={message}/>
 				))}
+				{!this.state.error &&
+					<h3>{this.state.error}</h3>
+				}
 				<div style={{ float:"left", clear: "both" }}
             		 ref={(el) => { this.messagesEnd = el; }}>
         		</div>

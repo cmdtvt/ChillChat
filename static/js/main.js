@@ -1,3 +1,10 @@
+
+$(document).on('keypress',function(e) {
+    if(e.which == 229) {
+        $("#devpanel").toggle();
+    }
+});
+
 function convertUnixTimestampToDate(timestamp) {
     let dt = new Date(timestamp*1000);
     return dt
