@@ -1,10 +1,4 @@
-
 let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
-
-
-
-
-
 
 class ChatApp extends React.Component {
     constructor(props) {
@@ -37,7 +31,7 @@ class ChatApp extends React.Component {
         }
 
         this.state = {
-            messageData: []
+            MessageData: []
         }
     }
 
@@ -56,29 +50,28 @@ class ChatApp extends React.Component {
             } else {
                 let parsed = JSON.parse(event.data)
                 console.log(parsed)
+                console.log("do i work?")
                 this.setState({
-                    messageData: this.state.messageData.concat(
+                    MessageData: this.state.MessageData.concat(
                         parsed
                     )
-                })
+                });
+
             }
 
         }
     }
 
 
-    render() {  
+    render() { 
+        console.log(this.state.MessageData) 
         return(
             <div className="ChatApp">
-
-                    <LayoutItem Widget={<ChannelSelectorWidget/>}/>
-
-                    <LayoutItem Widget={<ChannelSelectorWidget/>}/>
-
-                    <LayoutItem Widget={<ChatWidget MessageData={this.state.messageData}/>}/>
-                    <LayoutItem Widget={<NavigationWidget/>}/>
-
-                    <LayoutItem Widget={<UsersWidget/>}/>
+                <LayoutItem Widget={<ChannelSelectorWidget/>}/>
+                <LayoutItem Widget={<ChannelSelectorWidget/>}/>
+                <LayoutItem Widget={<ChatWidget MessageData={this.state.MessageData}/>}/>
+                <LayoutItem Widget={<NavigationWidget/>}/>
+                <LayoutItem Widget={<UsersWidget/>}/>
             </div>
         )
     }
@@ -90,14 +83,12 @@ class LayoutItem extends React.Component {
     constructor(props) {
         super(props);
         this.props = props
-
         LayoutItem.defaultProps = {
             Widget: <ErrorWidget/>
         }
 
         //this.settings = this.props.layoutSettings
         this.widgetData = this.props.widgetData
-
         this.cssClasses = "item layout-item ";
         //this.cssClasses += "layout-item-size-row-"+this.settings.maxWidgetsInRow;
     }
