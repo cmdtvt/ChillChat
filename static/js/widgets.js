@@ -5,13 +5,15 @@ class ChatWidget extends React.Component {
 		super(props);
 		this.props = props;
 		this.state = {
-			messageData: []
+			inputText: "",
+			MessageData: this.props.MessageData,
 		}
+		console.log("ChatWidget")
+		console.log(this.props.MessageData)
 		//getDerivedStateFromProps
 	}
 
 	handleKeyPress = async (event) => {
-		console.log(this.state)
 		if(event.key === 'Enter'){
 			let inputVal = document.querySelector(".chat-input")
 			let route = "http://127.0.0.1:5000/v1/message/2"
@@ -31,16 +33,17 @@ class ChatWidget extends React.Component {
 	// }
 	
 	handleScroll = (event) =>{
-		console.log("Item has been scrolled.: "+event);
-
+		console.log("Item has been scrolled: "+event);
 	}
 
 
 	render() {
 		//console.log(this.state.messageData)
+		console.log("ChatWidget")
+		console.log(this.props.MessageData)
 		return(
 			<Widget id="ChatWidget">
-				<MessageWidget messageData={this.props.MessageData}></MessageWidget>
+				<MessageWidget MessageData={this.state.MessageData}></MessageWidget>
 				<input className="chat-input" placeholder="Message" onKeyPress={this.handleKeyPress} value={this.state.InputText}></input>
 			</Widget>
 		)
@@ -55,28 +58,27 @@ class MessageWidget extends React.Component {
 		this.props = props;
 		this.state = {
 			error: null, //If problem in fetching data.
-			messageData: []
+			MessageData: this.props.MessageData
 		}
 
 
 		console.log(this.state);
-
 	}
 
 	//https://stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js
-
 	//http://127.0.0.1:5000/v1/messages/2
-
 	scrollToBottom = () => {
 		this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-		
 	}
-	 
+	
+	//Process batch of messages from server.
 	handleNewMessages = (data) => {
 		console.log("Handling new messages: "+data);
 		this.setState({
-			messageData: this.state.messageData.concat(data)
-		})
+			MessageData: this.state.MessageData.concat(data)
+		});
+		console.log(this.state.messageData);
+
 	}
 
 	componentDidMount() {
@@ -89,9 +91,13 @@ class MessageWidget extends React.Component {
 		window.removeEventListener('scroll', this.handleScroll)
 	}
 
-	handleScroll(event) {
-		console.log("Scrolling chat!");
-	}
+	handleScroll(event) {console.log("Scrolling chat!");}
+
+
+	// getDerivedStateFromProps(props, state) {
+	// 	console.log("State thungy.")
+	// 	console.log(props);
+	// }
 
 	render() {
 		console.log("Message widget is rerendering.");
@@ -127,7 +133,6 @@ class UsersWidget extends React.Component {
 				 <VisualizeUser/>
 				 <VisualizeUser/>
 				 <VisualizeUser/>
-
 			 </Widget>
 		 )
 	 }
