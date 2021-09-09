@@ -34,6 +34,7 @@ class TextChannel(Channel):
                     tmp = msg.gateway_format
                     tmp["type"] = "message"
                     tmp = json.dumps(tmp)
+                    self.messages.append(msg)
                     await i.send_via_client(tmp)
                     return "ok"
     def __repr__(self):

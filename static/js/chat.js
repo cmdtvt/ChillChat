@@ -10,8 +10,6 @@ class ChatApp extends React.Component {
     constructor(props) {
         super(props);
         this.props = props;
-        this.SocketToken = "123";
-
         //Theme data will be loaded from jinja
         this.themeData = {
             layout : {
@@ -39,11 +37,22 @@ class ChatApp extends React.Component {
         this.state = {
             messageData: []
         }
+        var lll = this.handleNewMessages
+        this.asd = async () => {
+            console.log("entering asd")
+            v
+        }
     }
-
-    //Find out what is the new way to do this.
-    //https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html
-    UNSAFE_componentWillMount() {
+    handleNewMessages(data) {
+        setState({messageData : this.state.messageData.concat(data)})
+    }
+    async UNSAFE_componentWillMount() {
+        var data = await fetch("http://127.0.0.1:5000/v1/messages/2")
+        console.log(data)
+        console.log("entering asd 2")
+        var json_data = await data.json()
+        console.log(json_data)
+        this.handleNewMessages(json_data)
         sock.onopen = async function() {
             await sock.send(`START`);
             console.log("Socket started")
@@ -56,15 +65,18 @@ class ChatApp extends React.Component {
             } else {
                 let parsed = JSON.parse(event.data)
                 console.log(parsed)
-                this.setState({
-                    messageData: this.state.messageData.concat(
-                        parsed
-                    )
-                })
+                llls(parsed)
             }
 
         }
+        console.log("exiting asd")
+
     }
+
+
+    //Find out what is the new way to do this.
+    //https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html
+    
 
 
     render() {  
@@ -115,6 +127,7 @@ class LayoutItem extends React.Component {
 class Widget extends React.Component {
     constructor(props) {
         super(props);
+        this.useEffect()
         Widget.defaultProps = {
             id: "unset_widget"
         }

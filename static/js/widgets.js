@@ -57,7 +57,6 @@ class MessageWidget extends React.Component {
 			error: null, //If problem in fetching data.
 			messageData: []
 		}
-		this.fetchURL = "http://127.0.0.1:5000/v1/messages/2";
 
 
 		console.log(this.state);
@@ -83,14 +82,6 @@ class MessageWidget extends React.Component {
 	componentDidMount() {
 		this.scrollToBottom();
 		window.addEventListener('scroll', this.handleScroll, { passive: true });
-		fetch(this.fetchURL)
-		.then(response => response.json())
-		.then(this.handleNewMessages)
-		.catch()
-
-
-
-
 	}
 	  
 	componentDidUpdate() {
@@ -104,8 +95,9 @@ class MessageWidget extends React.Component {
 
 	render() {
 		console.log("Message widget is rerendering.");
-		return(
-			<div className="chat-area hide-scrollbar">
+		console.log(this.props)
+		console.log(this.state)
+			return (<div className="chat-area hide-scrollbar">
 				{this.state.messageData.map(message => (
 					<VisualizeMessage messageData={message}/>
 				))}
