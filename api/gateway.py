@@ -5,10 +5,6 @@ import re
 import asyncio
 database = None
 gateway_blueprint = Blueprint('gateway', __name__)
-clients = {
-    "all" : set(),
-    "tokenized" : {}
-}
 tasks = {}
 class Gateway:
     IDENTIFY = "IDENTIFY"
@@ -66,20 +62,19 @@ class Client(ClientType):
         await self.queue.put(data)
 def collect_websocket(func):
     async def wrapper(*args, **kwargs):
-        global clients
+        global database
         client = Client()
-        clients["all"].add(client)
+        database.clients["all"].add(client)
         try:
             return await func(client, *args, **kwargs)
         finally:
-            clients["all"].remove(client)
+            database.clients["all"].remove(client)
             if client.token:
-                del clients["tokenized"][client.token]
+                del database.clients["tokenized"][client.token]
     return wrapper
 @gateway_blueprint.websocket("/")
 @collect_websocket
 async def gateway(client):
-    global clients
     global tasks
     global database
     websocket.headers
@@ -88,15 +83,16 @@ async def gateway(client):
             if session:
                 if session.get('token'):
                     token = session.get('token')
-                    if token in database.members["token"]:
+                    member = await database.members(token=token)
+                    if member:
                         if client not in tasks:
                             tasks[client] = asyncio.create_task(websocket.receive())
-                        if token not in clients["tokenized"]:
+                        if token not in database.clients["tokenized"]:
                             client.token = token
-                            clients["tokenized"][client.token] = client
-                            database.members["token"][token].set_client(client)
-                            for i, server in database.members["token"][token].servers.items():
-                                server.clients.add(database.members["token"][token])
+                            database.clients["tokenized"][client.token] = client
+                            # database.members["token"][token].set_client(client)
+                            # for i, server in database.members["token"][token].servers.items():
+                            #     server.clients.add(database.members["token"][token])
                         if tasks[client].done():
                             await client.process(websocket, tasks[client].result())
                             del tasks[client]

@@ -1,15 +1,21 @@
 import quart
+from model.abc import Database_API_Type
 from model.message import MessagePayload
 from quart import Blueprint, websocket, request, session
 import api.gateway
 import asyncio
-database = None
+database : Database_API_Type = None
 async def set_database(db):
     global database
     database = db
     api.gateway.database = database
 api_blueprint = Blueprint('api', __name__)
 api_blueprint.register_blueprint(api.gateway.gateway_blueprint, url_prefix="/gateway")
+
+#TODO:
+# Make database.channels and members into properties(fancy functions) or 
+# functions to use to make use of database more andnot storing everthing into memory
+
 @api_blueprint.route('/message/<int:channel_id>', methods=['POST'])
 async def message_create(channel_id : int):
     global database
@@ -17,8 +23,8 @@ async def message_create(channel_id : int):
     if 'message' in form:
         msg = form['message']
         token = session.get('token')
-        channel = database.channels["all"].get(channel_id)
-        member = database.members["token"].get(token)
+        channel = await database.channels(channel_id=channel_id)
+        member = await database.members(token=token)
         if member and channel:
             mpl = MessagePayload(msg, member, channel)
             await channel.send(mpl)
@@ -28,8 +34,8 @@ async def message_create(channel_id : int):
 async def get_messages(channel_id : int):
     global database
     if session.get('token'):
-        channel = database.channels["all"].get(channel_id)
-        messages = channel.messages
+        channel = await database.channels(channel_id=channel_id)
+        messages = await channel.messages()
         return quart.jsonify([x.gateway_format for x in messages])
 @api_blueprint.route('/message/<int:channel_id>/<int:message_id>', methods=['DELETE', 'PUT', 'GET'])
 async def message(channel_id : int, message_id : int):

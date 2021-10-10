@@ -14,16 +14,19 @@
 </head>
 <body>
 
-    <div id="devpanel" style="display: none;">
+    <div id="devpanel">
         <p>Devzone</p>
         <pre>
             <code>
                 {{member}}<br>
                 {{member.token}}<br>
-                {% for i in member.servers[1].channels[2].messages %}
-                    {{i.content}}<br>
+                {{member.servers}}
+                {% for i in member.servers.values() %}
+                    {{i.channels}}
                 {% endfor %}
-                {{session['token']}}
+                <!--  for i in member.servers[1].channels[2].messages %}
+                    i.content}}<br>
+                 endfor %} -->
             </code>
         </pre>
     </div>
