@@ -55,7 +55,7 @@ class TextChannel(Channel):
                 else:
                     tmp[i["author_id"]] = await Channel.database.members(id=i["author_id"])
                     messages_list.append(Message(i["id"], i["content"], tmp[i["author_id"]], self))
-            print("=>3", messages_list)
+            print("=>3")
             return messages_list
                     
     def __repr__(self):
