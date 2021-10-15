@@ -27,9 +27,12 @@ class Database:
             "SELECT_WHERE_ORDER" : "SELECT * FROM {table} WHERE {where} ORDER BY {order}",
             "SELECT_JOIN" : "SELECT {columns} FROM {table1} JOIN {table2} WHERE {where}",
         }
+        self.pool = None
         
     async def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[asyncpg.Record]:
-        conn = await asyncpg.connect(user=self.username, password=self.password, database=self.database, host=self.host)
+        if self.pool is None:
+            self.pool = await asyncpg.create_pool(user=self.username, password=self.password, database=self.database, host=self.host)
+        conn = await self.pool.acquire()
         try:
             if sql.startswith("SELECT") or sql.endswith("RETURNING id"):
                 if params:
@@ -42,7 +45,7 @@ class Database:
                 else:
                     await conn.execute(sql)
         finally:
-            await conn.close()
+            await self.pool.release(conn)
 class DB_API(Database, Database_API_Type):
     def __init__(self, host : str, username : str, password :str, database : str, port : int=5432) -> None:
         super().__init__(host, username, password, database, port)
