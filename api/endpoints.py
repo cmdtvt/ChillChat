@@ -12,34 +12,45 @@ async def set_database(db):
 api_blueprint = Blueprint('api', __name__)
 api_blueprint.register_blueprint(api.gateway.gateway_blueprint, url_prefix="/gateway")
 
-#TODO:
-# Make database.channels and members into properties(fancy functions) or 
-# functions to use to make use of database more andnot storing everthing into memory
 
-@api_blueprint.route('/message/<int:channel_id>', methods=['POST'])
+@api_blueprint.route("/channel/<int:channel_id>", methods=["GET"])
+async def get_channel(channel_id):
+    global database
+    if channel_id:
+        channel = await database.channels(channel_id=channel_id)
+        if channel:
+            return channel.gateway_format
+    return "not ok"
+@api_blueprint.route("/channel/<int:channel_id>/message", methods="POST")
 async def message_create(channel_id : int):
     global database
     form = await request.form
     if 'message' in form:
         msg = form['message']
         token = session.get('token')
-        channel = await database.channels(channel_id=channel_id)
-        member = await database.members(token=token)
-        if member and channel:
-            mpl = MessagePayload(msg, member, channel)
-            await channel.send(mpl)
-            return "ok"
+        if token:
+            channel = await database.channels(channel_id=channel_id)
+            member = await database.members(token=token)
+            if member and channel:
+                mpl = MessagePayload(msg, member, channel)
+                await channel.send(mpl)
+                return "ok"
     return "not ok"
-@api_blueprint.route('/messages/<int:channel_id>')
+@api_blueprint.route("/channel/<int:channel_id>/message/<int:message_id>", methods=['DELETE', 'PUT', 'GET'])
+async def message(channel_id : int, message_id : int):
+    return "hello"
+@api_blueprint.route('/channel/<int:channel_id>/messages')
 async def get_messages(channel_id : int):
     global database
     if session.get('token'):
         channel = await database.channels(channel_id=channel_id)
-        messages = await channel.messages()
-        return quart.jsonify([x.gateway_format for x in messages])
-@api_blueprint.route('/message/<int:channel_id>/<int:message_id>', methods=['DELETE', 'PUT', 'GET'])
-async def message(channel_id : int, message_id : int):
-    return "hello"
+        print(channel)
+        if channel:
+            messages = await channel.messages()
+            return quart.jsonify([x.gateway_format for x in messages])
+
+
+
 @api_blueprint.route('/test')
 async def test1():
     mem2 = database.members["id"][1]

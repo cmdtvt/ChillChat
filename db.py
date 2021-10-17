@@ -29,7 +29,7 @@ class Database:
         }
         self.pool = None
         
-    async def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[asyncpg.Record]:
+    async def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[Sequence[Any]]:
         if self.pool is None:
             self.pool = await asyncpg.create_pool(user=self.username, password=self.password, database=self.database, host=self.host)
         conn = await self.pool.acquire()
@@ -103,7 +103,7 @@ class DB_API(Database, Database_API_Type):
                         server_qr = server_qr[0]
                         server = await self.servers(server_id=server_qr["server_id"])
                     return TextChannel(channel_data["id"], channel_data["name"], server)
-        raise NotImplementedError
+        return None
     async def servers(self, *, server_id=None) -> Optional[Server]:
         if server_id:
             server_data = await self.query(self.queries["SELECT_WHERE"].format(
