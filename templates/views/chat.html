@@ -1,47 +1,38 @@
-{% set themeLayoutFile ="chat_layouts/default/layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+	<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+	<script crossorigin src="https://unpkg.com/@babel/standalone@7.15.8/babel.min.js"></script>
 
-
-{% extends "base.html" %}
-
-{% block head %}
-
-
-    <link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}">
-
-    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-
-    <!--Minified react for deployment -->
-    <!-- <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script> -->
-
-
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <title>ReactChat</title>
+	<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/style.css">
+	<script src="http://127.0.0.1:5000/static/js/chat.js" type="text/babel"></script>
 
 
 
-{% endblock %}
+</head>
+<body>
+	<main class="box">
+		<div class="item servers" id="servers">
+			<p>WEEEEE</p>
+		</div>
 
+		<div class="item chat" id="chat">
+			<p>Woooooo</p>
+		</div>
 
-{% block main %}
-    
-    {% include themeLayoutFile %}
-{% endblock %}
+		<div class="item contacts" id="contacts">
+			<p>Wpppppppp</p>
+		</div>
 
+		<div class="item mobile-contacts">
+			<span class="mobile-menu-toggle">☰</span>
+		</div>
 
-
-
-
-
-
-{% block endbody %}
-<script type="text/babel" src="{{url_for('static', filename='js/widget-components.js')}}"></script>
-<script type="text/babel" src="{{url_for('static', filename='js/widgets.js')}}"></script>
-<script type="text/babel" src="{{url_for('static', filename='js/chat.js')}}"></script>
-{% endblock %}
-
-
-
-
-
-
+	</main>
+</body>
+</html>

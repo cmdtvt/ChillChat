@@ -1,9 +1,10 @@
 from quart import Blueprint, websocket, session
 from typing import Union, Any
 from model.abc import ClientType
+import instances
 import re
 import asyncio
-database = None
+database = instances.database
 gateway_blueprint = Blueprint('gateway', __name__)
 tasks = {}
 class Gateway:
@@ -36,8 +37,15 @@ class Client(ClientType):
                 result = await self.send(Gateway.HEARTBEAT)
                 self._missed_heartbeats_in_row += 1
                 if self._missed_heartbeats_in_row >= 5:
-                    await self.ws.close(400)
+                    await self._stop()
+                    break
             await asyncio.sleep(5)
+        
+    async def _stop(self,):
+        self.process_queue_task.stop()
+        await self.ws.close(400)
+
+        
     async def _process_queue(self,):
         while True:
             if self.ws and self.queue:
@@ -56,8 +64,8 @@ class Client(ClientType):
         if data == Gateway.ACK_HEARTBEAT:
             self._missed_heartbeats_in_row -= 1
         if self._missed_heartbeats_in_row >= 5:
-            
-            await ws.close(400)
+            await self._stop()
+            self.heartbeat_task.cancel()
     async def send(self, data : str) -> Any:
         await self.queue.put(data)
 def collect_websocket(func):

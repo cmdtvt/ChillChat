@@ -45,7 +45,7 @@ class TextChannel(Channel):
                 table="message",
                 where="channel_id=$1::BIGINT",
                 order="id"
-            ), self.id)
+            ), (self.id,))
             print("=>2")
             messages_list = []
             tmp = {}

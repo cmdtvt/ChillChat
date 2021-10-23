@@ -19,7 +19,7 @@ class Server(ServerType):
                     table2="channel ON channel.id=server_channels.channel_id",
                     where="server_channels.server_id=$1::bigint"
                 ),
-                self.id
+                (self.id,)
             )
             for i in channel_data:
                 channel = None
@@ -27,11 +27,11 @@ class Server(ServerType):
                     channel = TextChannel(i["id"], i["name"], self)
                 if channel is not None:
                     self.channels[i["id"]] = channel
-    async def load_client_members() -> Sequence[MemberType]:
+    async def load_client_members(self,) -> Sequence[MemberType]:
         if Server.database is not None:
             members = []
             for i in Server.database.clients["tokenized"]:
-                members.append(await Server.database.load_member(i))
+                members.append(await Server.database.members(token=i))
             return members
     @property
     def gateway_format(self,):

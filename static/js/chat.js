@@ -1,55 +1,45 @@
-let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
+const gateway = "127.0.0.1:5000/v1";
+//"http://127.0.0.1:5000/v1/messages/2"
+let sock;
 
-class ChatApp extends React.Component {
-    constructor(props) {
-        super(props);
-        this.props = props;
-        //Theme data will be loaded from jinja
-        this.themeData = {
-            layout : {
-                settings: {
-                    
-                },
+ReactDOM.render(
+    <VisualizeUser/>,
+    document.getElementById("servers")
+);
+
+ReactDOM.render(
+    <Chat/>,
+    document.getElementById("chat")
+);
+
+ReactDOM.render(
+    <p>bööööp</p>,
+    document.getElementById("contacts")
+);
+
+
+
+function Chat() {
+    //const [isPaused, setPause] = useState(false);
+    const [messages, setMessages] = React.useState([]);
+    const [socket, setSocket] = React.useState(true)
+    console.log(messages);
+    // 
     
-                widLayout: [
-                    {id:0,size:4,widget:"userinfo"},
-                    {id:1,size:4,widget:"userinfo"},
-                    {id:2,size:2,widget:"userinfo"},
-                    {id:3,size:2,widget:"userinfo"},
-                    {id:4,size:2,widget:"userinfo"},
-                    {id:5,size:2,widget:"userinfo"},
-                    {id:5,size:2,widget:"userinfo"},
-                    {id:5,size:2,widget:"userinfo"},
-                ]
-            },
+    React.useEffect(() => {
+        
+    }, [messages])
+    React.useEffect(() => {
+        sock = new WebSocket(`ws://${gateway}/gateway/`);
+        sock.onopen = async () => {
+            var fetch_it = await fetch(`http://${gateway}/channel/2/messages`)
+            if(fetch_it.status == 200) {
+                fetch_it = await fetch_it.json();
     
-            styles : {
-    
+                setMessages(fetch_it)
+                console.table(messages)
             }
-        }
-
-        this.state = {
-            MessageData: []
-        }
-        var lll = this.handleNewMessages
-        this.asd = async () => {
-            console.log("entering asd")
-            v
-        }
-    }
-    handleNewMessages(data) {
-        setState({messageData : this.state.messageData.concat(data)})
-    }
-    async UNSAFE_componentWillMount() {
-        var data = await fetch("http://127.0.0.1:5000/v1/messages/2")
-        console.log(data)
-        console.log("entering asd 2")
-        var json_data = await data.json()
-        console.log(json_data)
-        this.handleNewMessages(json_data)
-        sock.onopen = async function() {
-            await sock.send(`START`);
-            console.log("Socket started")
+            sock.send(`START`);
         }
 
         sock.onmessage = async (event) => {
@@ -59,84 +49,76 @@ class ChatApp extends React.Component {
             } else {
                 let parsed = JSON.parse(event.data)
                 console.log(parsed)
-                llls(parsed)
+                /*TODO: Handle different incoming data from the socket.
+                Not everything is always just messages.*/
+                messages.push(parsed)
+                setMessages(messages)
+                //llls(parsed)
             }
-
         }
-        console.log("exiting asd")
+    }, [socket])
 
+    const handleKeyDown = async (event) => {
+        if (event.key === 'Enter') {
+            console.log("SENDING MESSAGE")
+            let formData = new FormData();
+            formData.append('message', event.target.value)
+            await fetch(`http://${gateway}/channel/2/message`,
+            {
+                method: 'post',
+                body: formData
+            })
+            event.target.value = ""
+        }
     }
 
+    return(
+        
+        <div className="component-chat">
+            <div className="chat-area">
+                {messages.map(m => (
+                    <Message message={m.content} username={m.author.name} avatar={m.author.avatar}/>
+                ))} 
+            </div>
+            <div className="chat-input">
+                <input type="text" placeholder="message..." onKeyDown={handleKeyDown}></input>
+            </div>
+        </div>
+    );
+}
 
-    //Find out what is the new way to do this.
-    //https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html
+//Pass username message and avatar in props.
+function Message(props) {
+    return(
+        <div className="component-message" data-user-id="{{props.userID}}" data-message-id="{{props.messageID}}">
+            <VisualizeUser username={props.username} avatar={props.avatar}/>
+            <span>{props.message}</span>
+        </div>
+    );
+}
+
+/*Visualize user data on page. Depending on passed props.type render them differenty. Defaultly use same rendering as in chat message*/
+function VisualizeUser(props) {
+    switch (props.type) {
+        case "chat":
+            return(
+                <div className="component-visualize-user-chat">
+                    <img src="{props.avatar}"></img>
+                    <span>{props.username}</span>
+                </div>
+            )
+            break;
+
+        case "large-popup":
+            break;
     
-
-
-    render() { 
-        console.log(this.state.MessageData) 
-        return(
-            <div className="ChatApp">
-                <LayoutItem Widget={<ChannelSelectorWidget/>}/>
-                <LayoutItem Widget={<ChannelSelectorWidget/>}/>
-                <LayoutItem Widget={<ChatWidget MessageData={this.state.MessageData}/>}/>
-                <LayoutItem Widget={<NavigationWidget/>}/>
-                <LayoutItem Widget={<UsersWidget/>}/>
-            </div>
-        )
+        default:
+            return(
+                <div className="component-visualize-user-chat">
+                    <img src={props.avatar}></img>
+                    <span>{props.username}</span>
+                </div>
+            );
+            break;
     }
 }
-
-
-class LayoutItem extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.props = props
-        LayoutItem.defaultProps = {
-            Widget: <ErrorWidget/>
-        }
-
-        //this.settings = this.props.layoutSettings
-        this.widgetData = this.props.widgetData
-        this.cssClasses = "item layout-item ";
-        //this.cssClasses += "layout-item-size-row-"+this.settings.maxWidgetsInRow;
-    }
-
-    render() {
-        return(
-            <div className={this.cssClasses}>
-                {this.props.Widget}
-            </div>
-        )
-    }
-}
-
-//Basicly wrapper for custom widgets.
-class Widget extends React.Component {
-    constructor(props) {
-        super(props);
-        this.useEffect()
-        Widget.defaultProps = {
-            id: "unset_widget"
-        }
-        this.props = props;
-        this.widgetName = this.props.id;
-    }
-
-    render() {
-        return (
-            <div className="widget" id={this.widgetName}>
-                {this.props.children}
-            </div>
-        )
-    }
-}
-
-
-
-ReactDOM.render( 
-    <ChatApp/>,
-    document.querySelector('main')
-);
-

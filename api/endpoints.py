@@ -3,12 +3,10 @@ from model.abc import Database_API_Type
 from model.message import MessagePayload
 from quart import Blueprint, websocket, request, session
 import api.gateway
+import instances
+import api.status_codes
 import asyncio
-database : Database_API_Type = None
-async def set_database(db):
-    global database
-    database = db
-    api.gateway.database = database
+database : Database_API_Type = instances.database
 api_blueprint = Blueprint('api', __name__)
 api_blueprint.register_blueprint(api.gateway.gateway_blueprint, url_prefix="/gateway")
 
@@ -20,8 +18,8 @@ async def get_channel(channel_id):
         channel = await database.channels(channel_id=channel_id)
         if channel:
             return channel.gateway_format
-    return "not ok"
-@api_blueprint.route("/channel/<int:channel_id>/message", methods="POST")
+    return api.status_codes.BadRequest()
+@api_blueprint.route("/channel/<int:channel_id>/message", methods=["POST"])
 async def message_create(channel_id : int):
     global database
     form = await request.form
@@ -34,9 +32,9 @@ async def message_create(channel_id : int):
             if member and channel:
                 mpl = MessagePayload(msg, member, channel)
                 await channel.send(mpl)
-                return "ok"
-    return "not ok"
-@api_blueprint.route("/channel/<int:channel_id>/message/<int:message_id>", methods=['DELETE', 'PUT', 'GET'])
+                return api.status_codes.OK()
+    return api.status_codes.BadRequest()
+@api_blueprint.route("/channel/<int:channel_id>/message21/<int:message_id>", methods=['DELETE', 'PUT', 'GET'])
 async def message(channel_id : int, message_id : int):
     return "hello"
 @api_blueprint.route('/channel/<int:channel_id>/messages')
@@ -44,11 +42,13 @@ async def get_messages(channel_id : int):
     global database
     if session.get('token'):
         channel = await database.channels(channel_id=channel_id)
-        print(channel)
         if channel:
             messages = await channel.messages()
-            return quart.jsonify([x.gateway_format for x in messages])
-
+            if messages:
+                return quart.jsonify([x.gateway_format for x in messages])
+            else:
+                return api.status_codes.NotFound()
+    return api.status_codes.BadRequest()
 
 
 @api_blueprint.route('/test')

@@ -66,6 +66,23 @@ class Database_API_Type:
     channels : dict[str, dict[int, ChannelType]]
     roles : dict[int, RoleType]
     queries : dict[str, str]
-
+    def create_token(self,) -> str:
+        raise NotImplementedError
     async def create_message(self, mpl : MessageType):
+        raise NotImplementedError
+    async def members(self, *, token : str=None, id : int=None) -> Optional[MemberType]:
+        raise NotImplementedError
+    async def channels(self, *, channel_id : int=None) -> Optional[ChannelType]:
+        raise NotImplementedError
+    async def servers(self, *, server_id : int=None) -> Optional[ServerType]:
+        raise NotImplementedError
+    async def join_server(self, member : MemberType, server : ServerType) -> None:
+        raise NotImplementedError
+    async def create_member(self, name : str, avatar : str) -> MemberType:
+        raise NotImplementedError
+    async def create_server(self, name : str, owner : MemberType) -> ServerType:
+        raise NotImplementedError
+    async def create_server_channel(self, name : str, channel_type : str, server : ServerType) -> ChannelType:
+        raise NotImplementedError
+    async def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[Sequence[Any]]:
         raise NotImplementedError
