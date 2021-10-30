@@ -21,7 +21,7 @@ ReactDOM.render(
 
 function Chat() {
     //const [isPaused, setPause] = useState(false);
-    const [messages, setMessages] = React.useState([]);
+    const [messages, setMessages] = React.useState({list : []});
     const [socket, setSocket] = React.useState(true)
     console.log(messages);
     // 
@@ -35,8 +35,9 @@ function Chat() {
             var fetch_it = await fetch(`http://${gateway}/channel/2/messages`)
             if(fetch_it.status == 200) {
                 fetch_it = await fetch_it.json();
-    
-                setMessages(fetch_it)
+                var tmp = messages.list
+                tmp.push(...fetch_it)
+                setMessages({list : tmp})
                 console.table(messages)
             }
             sock.send(`START`);
@@ -51,8 +52,8 @@ function Chat() {
                 console.log(parsed)
                 /*TODO: Handle different incoming data from the socket.
                 Not everything is always just messages.*/
-                messages.push(parsed)
-                setMessages(messages)
+                messages.list.push(parsed)
+                setMessages({list:messages.list})
                 //llls(parsed)
             }
         }
@@ -63,12 +64,12 @@ function Chat() {
             console.log("SENDING MESSAGE")
             let formData = new FormData();
             formData.append('message', event.target.value)
+            event.target.value = ""
             await fetch(`http://${gateway}/channel/2/message`,
             {
                 method: 'post',
                 body: formData
             })
-            event.target.value = ""
         }
     }
 
@@ -76,8 +77,10 @@ function Chat() {
         
         <div className="component-chat">
             <div className="chat-area">
-                {messages.map(m => (
-                    <Message message={m.content} username={m.author.name} avatar={m.author.avatar}/>
+                
+                {messages.list.map(m => (
+                    
+                    <Message key={m.id} message={m.content} author={m.author} id={m.id}/>
                 ))} 
             </div>
             <div className="chat-input">
@@ -90,8 +93,8 @@ function Chat() {
 //Pass username message and avatar in props.
 function Message(props) {
     return(
-        <div className="component-message" data-user-id="{{props.userID}}" data-message-id="{{props.messageID}}">
-            <VisualizeUser username={props.username} avatar={props.avatar}/>
+        <div className="component-message" data-user-id={props.author.id} data-message-id={props.id}>
+            <VisualizeUser username={props.author.name} avatar={props.author.avatar}/>
             <span>{props.message}</span>
         </div>
     );
@@ -100,18 +103,8 @@ function Message(props) {
 /*Visualize user data on page. Depending on passed props.type render them differenty. Defaultly use same rendering as in chat message*/
 function VisualizeUser(props) {
     switch (props.type) {
-        case "chat":
-            return(
-                <div className="component-visualize-user-chat">
-                    <img src="{props.avatar}"></img>
-                    <span>{props.username}</span>
-                </div>
-            )
-            break;
-
         case "large-popup":
             break;
-    
         default:
             return(
                 <div className="component-visualize-user-chat">

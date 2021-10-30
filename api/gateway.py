@@ -34,7 +34,7 @@ class Client(ClientType):
     async def heartbeat(self,):
         while True:
             if self.ws:
-                result = await self.send(Gateway.HEARTBEAT)
+                await self.send(Gateway.HEARTBEAT)
                 self._missed_heartbeats_in_row += 1
                 if self._missed_heartbeats_in_row >= 5:
                     await self._stop()
@@ -42,7 +42,7 @@ class Client(ClientType):
             await asyncio.sleep(5)
         
     async def _stop(self,):
-        self.process_queue_task.stop()
+        self.process_queue_task.cancel()
         await self.ws.close(400)
 
         

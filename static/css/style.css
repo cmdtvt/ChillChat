@@ -14,7 +14,7 @@
 	/*Padding and margin settings*/
 	--setting-padding: 20px;
 	--setting-margin: 10px;
-	--setting-margin-seperate: 20px; //How much between messages?
+	--setting-margin-seperate: 20px;
 
 	/*Fonts*/
 	--font-main: 'Nunito Sans', sans-serif;
@@ -90,10 +90,13 @@ main {
 
 .component-chat {
     height: 100%;
+    max-height: 100%;
 }
 
 .chat-area {
-    min-height: 95%;
+    height: 95%;
+    max-height: 95%;
+    overflow-y:scroll;
 }
 
 .chat-input {

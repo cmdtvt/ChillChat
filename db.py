@@ -5,14 +5,16 @@ import asyncio
 import asyncpg
 
 import os, binascii
+import utilities
 from model.permissions import ChannelPermissions, ServerPermissions
 from model.message import MessagePayload, Message
 from model.member import Member
 from model.channel import Channel, TextChannel
 from model.server import Server
 from model.role import Role
-
+cache = utilities.Cache()
 class DB_API(Database_API_Type):
+    
     def __init__(self : Database_API_Type, host : str, username : str, password :str, database : str, port : int=5432) -> None:
         self.host : str = host
         self.username : str = username
@@ -33,7 +35,6 @@ class DB_API(Database_API_Type):
         Server.database = self
         Channel.database = self
         Member.database = self
-
     def create_token(self : Database_API_Type,) -> str:
         return binascii.b2a_hex(os.urandom(50)).decode('utf8')
     async def create_message(self : Database_API_Type, payload : MessagePayload) -> Message:
@@ -45,6 +46,7 @@ class DB_API(Database_API_Type):
         ), (payload.content, payload.author.id, payload.channel.id))
         message = Message(message_id[0]["id"], payload.content, payload.author, payload.channel)
         return message
+    @cache.async_cached(timeout=30)
     async def members(self : Database_API_Type, *, token : str=None, id : int=None) -> Optional[Member]:
         if token or id:
             if token:
@@ -62,6 +64,7 @@ class DB_API(Database_API_Type):
                 member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
                 return member
         return None
+    @cache.async_cached(timeout=30)
     async def channels(self : Database_API_Type, *, channel_id : int=None) -> Optional[Channel]:
         #todo
         if channel_id:
@@ -82,6 +85,7 @@ class DB_API(Database_API_Type):
                         server = await self.servers(server_id=server_qr["server_id"])
                     return TextChannel(channel_data["id"], channel_data["name"], server)
         return None
+    @cache.async_cached(timeout=30)
     async def servers(self : Database_API_Type, *, server_id : int=None) -> Optional[Server]:
         if server_id:
             server_data = await self.query(self.queries["SELECT_WHERE"].format(
