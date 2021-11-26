@@ -12,12 +12,14 @@ api_blueprint.register_blueprint(api.gateway.gateway_blueprint, url_prefix="/gat
 
 
 @api_blueprint.route("/channel/<int:channel_id>", methods=["GET"])
-async def get_channel(channel_id):
+async def get_channel(channel_id : int):
     global database
     if channel_id:
         channel = await database.channels(channel_id=channel_id)
         if channel:
             return channel.gateway_format
+        else:
+            return api.status_codes.NotFound()
     return api.status_codes.BadRequest()
 @api_blueprint.route("/channel/<int:channel_id>/message", methods=["POST"])
 async def message_create(channel_id : int):
@@ -37,7 +39,7 @@ async def message_create(channel_id : int):
 @api_blueprint.route("/channel/<int:channel_id>/message21/<int:message_id>", methods=['DELETE', 'PUT', 'GET'])
 async def message(channel_id : int, message_id : int):
     return "hello"
-@api_blueprint.route('/channel/<int:channel_id>/messages')
+@api_blueprint.route('/channel/<int:channel_id>/messages', methods=["GET"])
 async def get_messages(channel_id : int):
     global database
     if session.get('token'):
@@ -49,6 +51,29 @@ async def get_messages(channel_id : int):
             else:
                 return api.status_codes.NotFound()
     return api.status_codes.BadRequest()
+@api_blueprint.route('/server/<int:server_id>', methods=["GET"])
+async def get_server(server_id : int):
+    global database
+    if server_id:
+        server = await database.servers(server_id=server_id)
+        if server:
+            return server.gateway_format
+        else:
+            return api.status_codes.NotFound()
+    return api.status_codes.BadRequest()
+@api_blueprint.route('/server/<int:server_id>/channels', methods=['GET'])
+async def get_server_channels(server_id : int):
+    global database
+    if server_id:
+        server = await database.servers(server_id=server_id)
+        if server:
+            await server.load_channels()
+            return [x.gateway_format for x in server.channels.values()]
+        else:
+            return api.status_codes.NotFound()
+    return api.status_codes.BadRequest()
+
+
 
 
 @api_blueprint.route('/test')
