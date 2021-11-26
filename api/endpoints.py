@@ -68,7 +68,10 @@ async def get_server_channels(server_id : int):
         server = await database.servers(server_id=server_id)
         if server:
             await server.load_channels()
-            return [x.gateway_format for x in server.channels.values()]
+            print("xxxx")
+            channels =[x.gateway_format for x in server.channels.values()]
+            print(channels)
+            return quart.jsonify(channels)
         else:
             return api.status_codes.NotFound()
     return api.status_codes.BadRequest()
