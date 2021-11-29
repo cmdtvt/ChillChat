@@ -47,18 +47,18 @@ class DB_API(Database_API_Type):
         message = Message(message_id[0]["id"], payload.content, payload.author, payload.channel)
         return message
     @cache.async_cached(timeout=30)
-    async def members(self : Database_API_Type, *, token : str=None, id : int=None) -> Optional[Member]:
-        if token or id:
+    async def members(self : Database_API_Type, *, token : str=None, channel_id: int=None) -> Optional[Member]:
+        if token or channel_id:
             if token:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
                     where="token=$1::text LIMIT 1"
                 ), (token,))
-            elif id:
+            elif channel_id:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
                     where="id=$1::BIGINT LIMIT 1"
-                ), (id,))
+                ), (channel_id,))
             if member_data:
                 member_data = member_data[0]
                 member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
@@ -97,14 +97,12 @@ class DB_API(Database_API_Type):
                 return Server(server_data["id"], server_data["name"])
     async def join_server(self : Database_API_Type, member : Member, server : Server) -> None:
         qr = await self.query(self.queries["INSERT"].format(table="server_members", columns="member_id, server_id", values="$1::bigint, $2::bigint"), (member.id, server.id))
-        server.members[member.id] = member
-        member.servers[server.id] = server
     async def create_member(self : Database_API_Type, name : str, avatar : str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member", columns="name, avatar", values="$1::text, $2::text", returning="id"), (name, avatar))
         return Member(qr, name, None, avatar, None, {}, {}, {})
     async def create_server(self : Database_API_Type, name : str, owner : Member) -> Server:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server", columns="name, owner", values="$1::text, $2::bigint", returning="id"), (name, owner.id))
-        result = Server(qr, name)
+        result = Server(qr[0]["id"], name)
         result.owner = owner
         await self.join_server(owner, result)
         return result

@@ -44,8 +44,6 @@ class Client(ClientType):
     async def _stop(self,):
         self.process_queue_task.cancel()
         await self.ws.close(400)
-
-        
     async def _process_queue(self,):
         while True:
             if self.ws and self.queue:
