@@ -18,18 +18,13 @@ ReactDOM.render(
 );
 
 
-
 function Chat() {
     //const [isPaused, setPause] = useState(false);
     const [messages, setMessages] = React.useState({list : []});
     const [socket, setSocket] = React.useState(true)
     console.log(messages);
     // 
-    
-    React.useEffect(() => {
-        
-    }, [messages])
-    React.useEffect(() => {
+    var createWebsocket = async() => {
         sock = new WebSocket(`ws://${gateway}/gateway/`);
         sock.onopen = async () => {
             var fetch_it = await fetch(`http://${gateway}/channel/2/messages`)
@@ -57,7 +52,20 @@ function Chat() {
                 //llls(parsed)
             }
         }
+        sock.onclose = async () => {
+            await createWebsocket()
+        }
+        sock.onerror = async () => {
+            await createWebsocket()
+        }
+    }
+    React.useEffect(() => {
+        
+    }, [messages])
+    React.useEffect(() => {
+        createWebsocket().then()
     }, [socket])
+
 
     const handleKeyDown = async (event) => {
         if (event.key === 'Enter') {
