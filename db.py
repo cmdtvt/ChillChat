@@ -97,14 +97,12 @@ class DB_API(Database_API_Type):
                 return Server(server_data["id"], server_data["name"])
     async def join_server(self : Database_API_Type, member : Member, server : Server) -> None:
         qr = await self.query(self.queries["INSERT"].format(table="server_members", columns="member_id, server_id", values="$1::bigint, $2::bigint"), (member.id, server.id))
-        server.members[member.id] = member
-        member.servers[server.id] = server
     async def create_member(self : Database_API_Type, name : str, avatar : str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member", columns="name, avatar", values="$1::text, $2::text", returning="id"), (name, avatar))
         return Member(qr, name, None, avatar, None, {}, {}, {})
     async def create_server(self : Database_API_Type, name : str, owner : Member) -> Server:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server", columns="name, owner", values="$1::text, $2::bigint", returning="id"), (name, owner.id))
-        result = Server(qr, name)
+        result = Server(qr[0]["id"], name)
         result.owner = owner
         await self.join_server(owner, result)
         return result

@@ -61,6 +61,21 @@ async def get_server(server_id : int):
         else:
             return api.status_codes.NotFound()
     return api.status_codes.BadRequest()
+
+@api_blueprint.route('/member/<int:member_id>/servers', methods=["GET"])
+async def get_member_servers(member_id : int):
+    global database
+    if member_id:
+        member = await database.members(id=member_id)
+        if member:
+            await member.get_servers()
+            servers = [x.gateway_format for x in member.servers.values()]
+            return quart.jsonify(servers)
+        else:
+            return api.status_codes.NotFound()
+    return api.status_codes.BadRequest()
+
+
 @api_blueprint.route('/server/<int:server_id>/channels', methods=['GET'])
 async def get_server_channels(server_id : int):
     global database
@@ -88,6 +103,17 @@ async def test1():
     print(chan.messages)
     print(ser, ser.channels)
     return "test1"
+
+@api_blueprint.route('/cmdtvt_debug/<int:member_id>/')
+async def test_createserver(member_id):
+    member = await database.members(id=member_id)
+    if member:
+        server = await database.create_server("Taateliparatiisi",member)
+        return "Server created: "+server.name+" | "+str(server.id)
+    else:
+        return "aw snap cmdtvt coded something wrong -_-"
+
+
 @api_blueprint.route('/message/test2/<token>/<int:channel_id>/<message>')
 async def test2(token, channel_id, message):
     if token in database.members["token"] and channel_id in database.channels:

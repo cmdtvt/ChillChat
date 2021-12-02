@@ -3,7 +3,7 @@ const gateway = "127.0.0.1:5000/v1";
 let sock;
 
 ReactDOM.render(
-    <VisualizeUser/>,
+    <Servers/>,
     document.getElementById("servers")
 );
 
@@ -113,5 +113,33 @@ function VisualizeUser(props) {
                 </div>
             );
             break;
+    }
+}
+
+function Servers(props) {
+    return(
+        <div className="component-server">
+        </div>
+    );
+    //<VisualizeServer name={props.author.name} avatar={props.author.avatar}/>
+}
+
+function VisualizeServer(props) {
+    switch (props.type) {
+        case "large-panel":
+            break;
+
+        //Show server info in chat if linked to it.
+        case "in-chat":
+            return(
+                <div>Not implemented.</div>
+            );
+
+        default:
+            return(
+                <div className="component-visualize-server-sidebar">
+                    <img src={props.avatar}></img> 
+                </div>  
+            );
     }
 }
