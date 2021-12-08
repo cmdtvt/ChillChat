@@ -41,9 +41,7 @@ function initialize() {
             }
         }
         sock.onclose = async () => {
-            await createWebsocket()
-        }
-        sock.onerror = async () => {
+            sock = null
             await createWebsocket()
         }
     }
