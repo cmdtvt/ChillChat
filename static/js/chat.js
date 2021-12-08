@@ -1,7 +1,9 @@
 console.log("Chat script loaded.");
 var data = new Map();
 var settings = new Object();
-settings["gateway"] = "http://127.0.0.1:5000/v1/";
+settings["baseurl"] = "127.0.0.1:5000/v1/";
+settings["gateway"] = "http://"+settings["baseurl"];
+settings["websocket"] = "ws://"+settings["baseurl"]+"gateway/";
 settings["userid"] = 3;
 settings["current_channel"] = 2;
 settings["current_server"] = 0;
@@ -27,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
         var createWebsocket = async() => {
             //FIXME: Make this gateway use gateway from settings.
-            sock = new WebSocket(`ws://127.0.0.1:5000/v1/gateway/`);
+            sock = new WebSocket(settings["websocket"]);
             sock.onopen = async () => {
                 sock.send(`START`);
             }
@@ -58,6 +60,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         updateServers();
         updateMessages();
         createWebsocket();
+        ActionMessagesOpen(3);
         console.log(data);
     
     }
@@ -88,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 break;
             default:
                 return(`
-                    <div className="component-visualize-user-chat">
+                    <div class="component-visualize-user-chat">
                         <img src=${avatar}></img>
                         <span>${username}</span>
                     </div>
@@ -103,15 +106,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
         serverData = data.get("servers");
         console.log(serverData);
 
+        var temp = "";
         for (const server in serverData) {
-            element.innerHTML += VisualizeServer(null,server);
+             temp += VisualizeServer(null,server,serverData[server]['icon']);
         }
-
+        
+        element.innerHTML = temp;
         console.log(element);
     }
     
     
-    function VisualizeServer(type=null,id=null,avatar="https://via.placeholder.com/50x50") {
+    function VisualizeServer(type=null,id=null,icon="https://via.placeholder.com/50x50") {
         if(id==null) {
             return "Server not defined";
         }
@@ -127,8 +132,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
             default:
                 return(`
-                    <div className="component-visualize-server-sidebar" onclick="ActionServerOpen(${id});">
-                        <img src="${avatar}"></img> 
+                    <div class="component-visualize-server-sidebar" onclick="ActionServerOpen(${id});">
+                        <img src="${icon}"></img> 
                     </div>  
                 `);
         }
@@ -136,12 +141,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
     //Pass username message and avatar in props.
-    function VisualizeMessage(author,messageID,messageText) {
+    function VisualizeMessage(author,messageID,content) {
         return(`
-            <div className="component-message" data-user-id=${author['id']} data-message-id=${messageID}>
+            <div class="component-message" data-user-id=${author['id']} data-message-id=${messageID}>
                 ${VisualizeUser(author['name'],author['avatar'])}
-                <span>${messageText}</span>
+                <span>${content}</span>
             </div>
+            <hr>
         `);
     }
 
@@ -156,13 +162,28 @@ function ActionServerOpen(id) {
 
 //Display messages by channel and server id
 function ActionMessagesOpen(id) {
-    element = document.querySelector("#chat");
-    messageData = data.get("messages");
+    var element = document.querySelector("#chat");
+    var messageData = data.get("messages");
 
+    var html = "";
     for (const message in messageData) {
-        temp = messageData[message];
-        element.innerHTML += VisualizeMessage(temp['author'],temp['id'],temp['content'])
+        var temp = messageData[message];
+        html += VisualizeMessage(temp['author'],temp['id'],temp['content'])
     }
+    html += '<div class="component-message" id="chat_bottom"></div>';
+    element.innerHTML = html;
+
+
+    
+    /*Scroll to bottom when co messages are loaded.
+    This needs to be delayed because images take time to load and javascript wont
+    Know to true height of the div so scroll fails*/
+    
+    var bottom = document.querySelector("#chat_bottom");
+    setTimeout(() => {
+        bottom.scrollIntoView({ behavior: "smooth" });
+    }, 1000);
 
     console.log(element); 
 }
+
