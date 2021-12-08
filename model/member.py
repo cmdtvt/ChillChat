@@ -26,7 +26,7 @@ class Member(MemberType):
             await self.own_channel.send(payload)
     async def send_via_client(self, data : str):
         if Member.database and self.token in Member.database.clients["tokenized"]:
-            await Member.database.clients.send(data)
+            await Member.database.clients["tokenized"][self.token].send(data)
     async def join_server(self, server : Server) -> bool:
         await Member.database.join_server(self, server)
         return True
@@ -41,7 +41,7 @@ class Member(MemberType):
                     table2="server ON server.id=server_members.server_id",
                     where="server_members.member_id=$1::bigint"
                 ),
-                self.id
+                (self.id,)
             )
             servers = {}
             for i in server_data:

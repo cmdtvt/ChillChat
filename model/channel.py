@@ -39,23 +39,16 @@ class TextChannel(Channel):
                     await i.send_via_client(tmp)
                     return "ok"
     async def messages(self,):
-        print("=>1")
         if Channel.database is not None:
             msgs = await Channel.database.query(Channel.database.queries["SELECT_WHERE_ORDER"].format(
                 table="message",
                 where="channel_id=$1::BIGINT",
                 order="id"
-            ), self.id)
-            print("=>2")
+            ), (self.id,))
             messages_list = []
-            tmp = {}
             for i in msgs:
-                if i["author_id"] in tmp:
-                    messages_list.append(Message(i["id"], i["content"], tmp[i["author_id"]], self))
-                else:
-                    tmp[i["author_id"]] = await Channel.database.members(id=i["author_id"])
-                    messages_list.append(Message(i["id"], i["content"], tmp[i["author_id"]], self))
-            print("=>3")
+                author = await Channel.database.members(member_id=i["author_id"])
+                messages_list.append(Message(i["id"], i["content"], author, self))
             return messages_list
                     
     def __repr__(self):

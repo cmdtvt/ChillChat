@@ -14,6 +14,7 @@ class Message:
             "content" : self.content,
             "author" : self.author.gateway_format,
             "channel" : self.channel.gateway_format,
+            "server" : self.channel.server.gateway_format,
             "time" : time.time()
         }
         return response

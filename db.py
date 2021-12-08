@@ -1,18 +1,21 @@
 from model.abc import Database_API_Type, ClientType
 from typing import Optional, Sequence, Any
+from collections.abc import Iterable
 import asyncio
 import asyncpg
 
 import os, binascii
+import utilities
 from model.permissions import ChannelPermissions, ServerPermissions
 from model.message import MessagePayload, Message
 from model.member import Member
 from model.channel import Channel, TextChannel
 from model.server import Server
 from model.role import Role
-
-class Database:
-    def __init__(self, host : str, username : str, password :str, database : str, port : int=5432) -> None:
+cache = utilities.Cache()
+class DB_API(Database_API_Type):
+    
+    def __init__(self : Database_API_Type, host : str, username : str, password :str, database : str, port : int=5432) -> None:
         self.host : str = host
         self.username : str = username
         self.password : str = password
@@ -27,105 +30,83 @@ class Database:
             "SELECT_WHERE_ORDER" : "SELECT * FROM {table} WHERE {where} ORDER BY {order}",
             "SELECT_JOIN" : "SELECT {columns} FROM {table1} JOIN {table2} WHERE {where}",
         }
-        
-    async def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[asyncpg.Record]:
-        conn = await asyncpg.connect(user=self.username, password=self.password, database=self.database, host=self.host)
-        try:
-            if sql.startswith("SELECT") or sql.endswith("RETURNING id"):
-                if params:
-                    return await conn.fetch(sql, params)
-                else:
-                    return await conn.fetch(sql)
-            else:
-                if params:
-                    await conn.execute(sql, params)
-                else:
-                    await conn.execute(sql)
-        finally:
-            await conn.close()
-class DB_API(Database, Database_API_Type):
-    def __init__(self, host : str, username : str, password :str, database : str, port : int=5432) -> None:
-        super().__init__(host, username, password, database, port)
+        self.pool = None
         self.clients : dict[str, dict[str, ClientType]] = {"tokenized" : {}, "all" : set()}
         Server.database = self
         Channel.database = self
         Member.database = self
-
-    def create_token(self,) -> str:
+    def create_token(self : Database_API_Type,) -> str:
         return binascii.b2a_hex(os.urandom(50)).decode('utf8')
-
-    async def create_message(self, payload : MessagePayload) -> Message:
+    async def create_message(self : Database_API_Type, payload : MessagePayload) -> Message:
         message_id = await self.query(self.queries["INSERT_RETURNING"].format(
             table="message",
             columns="content, author_id, channel_id",
             values="$1::text, $2::bigint, $3::bigint",
             returning="id"
         ), (payload.content, payload.author.id, payload.channel.id))
-        message = Message(message_id, payload.content, payload.author, payload.channel)
+        message = Message(message_id[0]["id"], payload.content, payload.author, payload.channel)
         return message
-
-    async def members(self, *, token=None, id=None) -> Optional[Member]:
-        if token or id:
+    @cache.async_cached(timeout=30)
+    async def members(self : Database_API_Type, *, token : str=None, member_id: int=None) -> Optional[Member]:
+        if token or member_id:
             if token:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
                     where="token=$1::text LIMIT 1"
-                ), token)
-            elif id:
+                ), (token,))
+            elif member_id:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
                     where="id=$1::BIGINT LIMIT 1"
-                ), id)
+                ), (member_id,))
             if member_data:
                 member_data = member_data[0]
                 member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
                 return member
         return None
-    async def channels(self, *, channel_id=None) -> Optional[Channel]:
+    @cache.async_cached(timeout=30)
+    async def channels(self : Database_API_Type, *, channel_id : int=None) -> Optional[Channel]:
         #todo
         if channel_id:
             channel_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="channel",
                 where="id=$1::BIGINT LIMIT 1",
-            ), channel_id)
+            ), (channel_id,))
             if channel_data:
                 channel_data = channel_data[0]
                 if channel_data["type"] == "text":
                     server_qr = await self.query(self.queries["SELECT_WHERE"].format(
                         table="server_channels",
                         where="channel_id=$1::BIGINT"
-                    ), channel_id)
+                    ), (channel_id,))
                     server = None
                     if server_qr:
                         server_qr = server_qr[0]
                         server = await self.servers(server_id=server_qr["server_id"])
                     return TextChannel(channel_data["id"], channel_data["name"], server)
-        raise NotImplementedError
-    async def servers(self, *, server_id=None) -> Optional[Server]:
+        return None
+    @cache.async_cached(timeout=30)
+    async def servers(self : Database_API_Type, *, server_id : int=None) -> Optional[Server]:
         if server_id:
             server_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="server",
                 where="id=$1::BIGINT LIMIT 1",
-            ), server_id)
+            ), (server_id,))
             if server_data:
                 server_data = server_data[0]
                 return Server(server_data["id"], server_data["name"])
-
-
-    async def join_server(self, member : Member, server : Server) -> None:
+    async def join_server(self : Database_API_Type, member : Member, server : Server) -> None:
         qr = await self.query(self.queries["INSERT"].format(table="server_members", columns="member_id, server_id", values="$1::bigint, $2::bigint"), (member.id, server.id))
-        server.members[member.id] = member
-        member.servers[server.id] = server
-    async def create_member(self, name : str, avatar : str) -> Member:
+    async def create_member(self : Database_API_Type, name : str, avatar : str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member", columns="name, avatar", values="$1::text, $2::text", returning="id"), (name, avatar))
         return Member(qr, name, None, avatar, None, {}, {}, {})
-    async def create_server(self, name : str, owner : Member) -> Server:
+    async def create_server(self : Database_API_Type, name : str, owner : Member) -> Server:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server", columns="name, owner", values="$1::text, $2::bigint", returning="id"), (name, owner.id))
-        result = Server(qr, name)
+        result = Server(qr[0]["id"], name)
         result.owner = owner
         await self.join_server(owner, result)
         return result
-    async def create_server_channel(self, name : str, channel_type : str, server : Server) -> Channel:
+    async def create_server_channel(self : Database_API_Type, name : str, channel_type : str, server : Server) -> Channel:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="channel", columns="name, type", values="$1::text, $2::bigint", returning="id"), (name, channel_type))
         qr_server = await self.query(self.queries["INSERT"].format(table="server_channels", columns="channel_id, server_id", values="$1::text, $2::bigint"), (qr, server.id))
         channel = None
@@ -133,8 +114,24 @@ class DB_API(Database, Database_API_Type):
             channel = TextChannel(qr, name, server)
         server.channels[channel.id] = channel
         return channel
-
-
+    async def query(self : Database_API_Type, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[Sequence[Any]]:
+        if self.pool is None:
+            self.pool = await asyncpg.create_pool(user=self.username, password=self.password, database=self.database, host=self.host)
+        conn = await self.pool.acquire()
+        try:
+            if sql.startswith("SELECT") or sql.endswith("RETURNING id"):
+                if params:
+                    
+                    return await conn.fetch(sql, *params)
+                else:
+                    return await conn.fetch(sql,)
+            else:
+                if params:
+                    await conn.execute(sql, *params)
+                else:
+                    await conn.execute(sql)
+        finally:
+            await self.pool.release(conn)
     # async def load_all(self,):
     #     servers = {}
     #     qr_servers = await self.query(self.queries["SELECT_ALL"].format(table="server"))

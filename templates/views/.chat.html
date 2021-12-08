@@ -1,0 +1,47 @@
+{% set themeLayoutFile ="chat_layouts/default/layout.html" %}
+
+
+{% extends "base.html" %}
+
+{% block head %}
+
+
+    <link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}">
+
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+    <!--Minified react for deployment -->
+    <!-- <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script> -->
+
+
+    <!--<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>-->
+
+
+
+{% endblock %}
+
+
+{% block main %}
+    
+    {% include themeLayoutFile %}
+{% endblock %}
+
+
+
+
+
+
+
+{% block endbody %}
+<script type="text/javascript" src="{{url_for('static', filename='js/widget-components.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/widgets.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/chat.js')}}"></script>
+{% endblock %}
+
+
+
+
+
+

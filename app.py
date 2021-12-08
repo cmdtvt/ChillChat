@@ -8,9 +8,6 @@ app = Quart(__name__, static_folder="static")
 app.jinja_options["enable_async"] = True
 app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
-@app.before_serving
-async def init():
-    await api.endpoints.set_database(database)
 
 @app.route('/')
 async def hello():
