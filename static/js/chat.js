@@ -65,23 +65,28 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
     }
     initialize();
-    
-});  
-    
-    function Chat() {
+
+
+
+    document.querySelector("#chat-input").addEventListener("keydown",function(event){
         const handleKeyDown = async (event) => {
-            if (event.key === 'Enter') {
-                console.log("SENDING MESSAGE")
-                let formData = new FormData();
-                formData.append('message', event.target.value)
-                event.target.value = "";
-                await fetch(settings["gateway"]+"/channel/"+settings["current_channel"]+"/message", {
-                    method: 'post',
-                    body: formData
-                })
-            }
+            let formData = new FormData();
+            formData.append('message', this.value)
+            await fetch(settings["gateway"]+"/channel/"+settings["current_channel"]+"/message", {
+                method: 'post',
+                body: formData
+            })
         }
-    }
+
+        if(event.key == "Enter") {
+            handleKeyDown();
+            this.value = ""; 
+            return false;
+        }
+        
+    });
+    
+});
     
     
     /*Visualize user data on page. Depending on passed props.type render them differenty. Defaultly use same rendering as in chat message*/
@@ -145,9 +150,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         return(`
             <div class="component-message" data-user-id=${author['id']} data-message-id=${messageID}>
                 ${VisualizeUser(author['name'],author['avatar'])}
-                <span>${content}</span>
+                <p class="message">${content}</p>
             </div>
-            <hr>
         `);
     }
 
@@ -162,7 +166,7 @@ function ActionServerOpen(id) {
 
 //Display messages by channel and server id
 function ActionMessagesOpen(id) {
-    var element = document.querySelector("#chat");
+    var element = document.querySelector("#message-area");
     var messageData = data.get("messages");
 
     var html = "";
@@ -170,7 +174,8 @@ function ActionMessagesOpen(id) {
         var temp = messageData[message];
         html += VisualizeMessage(temp['author'],temp['id'],temp['content'])
     }
-    html += '<div class="component-message" id="chat_bottom"></div>';
+    //This element is used to atomaticly scroll to the bottom of the chat area.
+    html += '<div class="component-message" id="chat-bottom"></div>';
     element.innerHTML = html;
 
 
@@ -178,8 +183,8 @@ function ActionMessagesOpen(id) {
     /*Scroll to bottom when co messages are loaded.
     This needs to be delayed because images take time to load and javascript wont
     Know to true height of the div so scroll fails*/
-    
-    var bottom = document.querySelector("#chat_bottom");
+
+    var bottom = document.querySelector("#chat-bottom");
     setTimeout(() => {
         bottom.scrollIntoView({ behavior: "smooth" });
     }, 1000);
