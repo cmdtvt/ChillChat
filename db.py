@@ -47,18 +47,18 @@ class DB_API(Database_API_Type):
         message = Message(message_id[0]["id"], payload.content, payload.author, payload.channel)
         return message
     @cache.async_cached(timeout=30)
-    async def members(self : Database_API_Type, *, token : str=None, channel_id: int=None) -> Optional[Member]:
-        if token or channel_id:
+    async def members(self : Database_API_Type, *, token : str=None, member_id: int=None) -> Optional[Member]:
+        if token or member_id:
             if token:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
                     where="token=$1::text LIMIT 1"
                 ), (token,))
-            elif channel_id:
+            elif member_id:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
                     where="id=$1::BIGINT LIMIT 1"
-                ), (channel_id,))
+                ), (member_id,))
             if member_data:
                 member_data = member_data[0]
                 member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])

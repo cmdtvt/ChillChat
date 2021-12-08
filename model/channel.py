@@ -47,7 +47,7 @@ class TextChannel(Channel):
             ), (self.id,))
             messages_list = []
             for i in msgs:
-                author = await Channel.database.members(id=i["author_id"])
+                author = await Channel.database.members(member_id=i["author_id"])
                 messages_list.append(Message(i["id"], i["content"], author, self))
             return messages_list
                     
