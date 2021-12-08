@@ -20,8 +20,40 @@ function initialize() {
         fetch_it = await fetch_it.json();
         data.set("messages",fetch_it);
     }
+
+
+    var createWebsocket = async() => {
+        sock = new WebSocket(`ws://127.0.0.1:5000/v1/gateway/`);
+        sock.onopen = async () => {
+            sock.send(`START`);
+        }
+
+        sock.onmessage = async (event) => {
+            if (event.data == "HEARTBEAT") {
+                sock.send("ACK_HEARTBEAT");
+                console.log("Acknowledging heartbeat");
+            } else {
+                let parsed = JSON.parse(event.data)
+                console.log(parsed)
+                /*TODO: Handle different incoming data from the socket.
+                Not everything is always just messages.*/
+                //messages.list.push(parsed)
+            }
+        }
+        sock.onclose = async () => {
+            await createWebsocket()
+        }
+        sock.onerror = async () => {
+            await createWebsocket()
+        }
+    }
+
+
+
+
     updateServers();
     updateMessages();
+    createWebsocket();
     console.log(data);
 
 }
