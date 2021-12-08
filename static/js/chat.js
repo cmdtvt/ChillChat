@@ -3,21 +3,27 @@ var data = new Map();
 var settings = new Object();
 settings["gateway"] = "http://127.0.0.1:5000/v1/";
 settings["userid"] = 3;
-//Manage all fetched data.
-function fetchManager(){
+settings["current_channel"] = 2;
+settings["current_server"] = 0;
 
-}
-
-data.set("messages",new Map());
+//data.set("messages",new Map());
 
 
 function initialize() {
     var updateServers = async() => {
         var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
         data.set("servers",await fetch_it.json());
-        console.log(data);
+    };
+
+    var updateMessages = async() => {
+        var fetch_it = await fetch(settings['gateway']+"/channel/"+settings["current_channel"]+"/messages");
+        fetch_it = await fetch_it.json();
+        data.set("messages",fetch_it);
     }
     updateServers();
+    updateMessages();
+    console.log(data);
+
 }
 initialize();
 
@@ -26,8 +32,8 @@ const handleKeyDown = async (event) => {
         console.log("SENDING MESSAGE")
         let formData = new FormData();
         formData.append('message', event.target.value)
-        event.target.value = ""
-        await fetch(`http://${gateway}/channel/2/message`, {
+        event.target.value = "";
+        await fetch(settings["gateway"]+"/channel/"+settings["current_channel"]+"/message", {
             method: 'post',
             body: formData
         })
