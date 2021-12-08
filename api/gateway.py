@@ -1,6 +1,7 @@
+from asyncio.queues import Queue
 from quart import Blueprint, websocket, session
 from typing import Union, Any
-from model.abc import ClientType
+from model.abc import ClientType, MemberType
 import instances
 import re
 import asyncio
@@ -21,10 +22,11 @@ class Gateway:
 
 class Client(ClientType):
     def __init__(self,):
-        self.token = None
-        self.heartbeat_task = None
-        self.process_queue_task = None
-        self.queue = None
+        self.token : str = None
+        self.member : MemberType = None
+        self.heartbeat_task : asyncio.Task = None
+        self.process_queue_task : asyncio.Task = None
+        self.queue : Queue = None
         self.ws = None
         self._missed_heartbeats_in_row = 0
     def authenticated(self,):
@@ -55,6 +57,8 @@ class Client(ClientType):
             self.queue = asyncio.Queue()
         if not self.ws:
             self.ws = ws
+            if self.member:
+                self.send(self.member.gateway_format)
         if not self.heartbeat_task:
             self.heartbeat_task = asyncio.get_event_loop().create_task(self.heartbeat())
         if not self.process_queue_task:
@@ -95,6 +99,7 @@ async def gateway(client):
                             tasks[client] = asyncio.create_task(websocket.receive())
                         if token not in database.clients["tokenized"]:
                             client.token = token
+                            client.member = member
                             database.clients["tokenized"][client.token] = client
                             # database.members["token"][token].set_client(client)
                             # for i, server in database.members["token"][token].servers.items():
