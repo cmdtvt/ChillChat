@@ -72,9 +72,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
             sock.onclose = async () => {
                 await createWebsocket()
             }
-            sock.onerror = async () => {
-                await createWebsocket()
-            }
         }
     
     
