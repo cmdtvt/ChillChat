@@ -11,12 +11,6 @@ settings["current_server"] = 0;
 document.addEventListener("DOMContentLoaded", function(event) { 
     function initialize() {
 
-        //Get all servers the user is on and update the GUI
-        var updateServers = async() => {
-            var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
-            data.set("servers",await fetch_it.json());
-            Servers();
-        };
         
         //Get all messages from the currently open server.
         //Identified by settings["current_server"]
@@ -24,11 +18,36 @@ document.addEventListener("DOMContentLoaded", function(event) {
             var fetch_it = await fetch(settings['gateway']+"/channel/"+settings["current_channel"]+"/messages");
             fetch_it = await fetch_it.json();
             data.set("messages",fetch_it);
+            console.log(data.get("messages"));
         }
+
+        //Get all servers and their channels.
+        var updateServers = async() => {
+
+            
+            var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
+            temp = await fetch_it.json();
+            for (const server in temp) {
+                s = temp[server];
+                s.channels = new Map();
+
+
+                //Get server's channels and add them to the server object.
+                var fetch_channels = await fetch(settings["gateway"]+'server/'+s.id+'/channels');
+                temp_channels = await fetch_channels.json();
+                for (const channel in temp_channels) {
+                    s.channels.set(temp_channels[channel].id,temp_channels[channel])
+                }
+
+                data.set(s.id,s) 
+            }
+            console.log(data);
+            updateMessages();
+            Servers();
+        };
     
     
         var createWebsocket = async() => {
-            //FIXME: Make this gateway use gateway from settings.
             sock = new WebSocket(settings["websocket"]);
             sock.onopen = async () => {
                 sock.send(`START`);
@@ -40,10 +59,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     console.log("Acknowledging heartbeat");
                 } else {
                     let parsed = JSON.parse(event.data);
+                    console.log("New message");
                     console.log(parsed);
                     /*TODO: Handle different incoming data from the socket.
                     Not everything is always just messages.*/
                     //messages.list.push(parsed)
+                    data.set("messages",data.get("messages").push(parsed));
+                    console.log(data.get("messages"));
+                    
                 }
             }
             sock.onclose = async () => {
@@ -56,9 +79,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
     
     
-        //TODO: Clean thse up.
+        //TODO: Clean these up.
         updateServers();
-        updateMessages();
+        //Message first time update is done in updateServers because async reasons.
         createWebsocket();
         ActionMessagesOpen(3);
         console.log(data);
@@ -107,13 +130,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
     
     function Servers(anchorid="#servers"){
-        element = document.querySelector(anchorid);
-        serverData = data.get("servers");
-        console.log(serverData);
+        console.log("SERVERS");
+        element = document.querySelector(anchorid); 
+        console.log(data);
 
         var temp = "";
-        for (const server in serverData) {
-             temp += VisualizeServer(null,server,serverData[server]['icon']);
+        for (let value of data.values()) {
+             temp += VisualizeServer(null,value,value['icon']);
         }
         
         element.innerHTML = temp;
@@ -161,7 +184,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 function ActionServerOpen(id) {
     settings["current_server"] = id;
-    ActionMessagesOpen(id); 
+    ActionMessagesOpen(id);
+}
+
+function ActionToggleChannelMenu() {
+
 }
 
 //Display messages by channel and server id
