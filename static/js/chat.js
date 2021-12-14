@@ -61,6 +61,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     sock.send("ACK_HEARTBEAT");
                     console.log("Acknowledging heartbeat");
                 } else {
+
+                    /*
+                        {payload: asdasdasdasdas, type : message/server/channel etc etc}
+                    */
                     let parsed = JSON.parse(event.data);
                     console.log("New message");
                     console.log(parsed);
@@ -257,12 +261,13 @@ function ActionMessagesOpen(id) {
 
     console.log("id: "+id);
     console.log(messages);
+    console.log(element)
     
 
 
     //Fetch messages from channel and store them in given array.
     var fetchMessages = async(messages) => {
-        var fetch_messages = await fetch(settings['gateway']+"/channel/"+settings["current_channel"]+"/messages");
+        var fetch_messages = await fetch(`${settings['gateway']}/channel/${settings["current_channel"]}/messages`);
         if(fetch_messages.status == 200) {
             fetch_messages = await fetch_messages.json();
             console.log(fetch_messages);
@@ -278,23 +283,33 @@ function ActionMessagesOpen(id) {
     
     //If channel has no messages display a message about it.
     //TODO: Move fetching new messages away from here.
+    var visualize = () => {
+        var html = "";
+        
+        for (const m in messages) {
+            var temp = messages[m];
+            html += VisualizeMessage(temp['author'],temp['id'],temp['content']);
+        }
+        if(html.length == "0") {
+            html += VisualizeMessage(cauthor=null,messageID=null,content="No messages",type="chat-system");
+        }
+        html += '<div class="component-message" id="chat-bottom"></div>';
+        element.innerHTML = html;
+        
+        var bottom = document.querySelector("#chat-bottom");
+        setTimeout(() => {
+            bottom.scrollIntoView({ behavior: "smooth" });
+        }, 1000);
+        
+    }
     if(messages.length == 0) { 
-        html += VisualizeMessage(cauthor=null,messageID=null,content="No messages",type="chat-system");
-        fetchMessages(messages);
+        
+        fetchMessages(messages).then(visualize);
 
-        //console.log(tempMessages);
+    } else {
+        visualize()
     }
-
-    var html = "";
-    for (const m in messages) {
-        var temp = messages[m];
-        html += VisualizeMessage(temp['author'],temp['id'],temp['content']);
-    }
-
-
     //This element is used to atomaticly scroll to the bottom of the chat area.
-    html += '<div class="component-message" id="chat-bottom"></div>';
-    element.innerHTML = html;
 
     
     /*Scroll to bottom when co messages are loaded.
@@ -302,10 +317,7 @@ function ActionMessagesOpen(id) {
     Know the true height of the div so scrolling fails partly*/
 
     
-    var bottom = document.querySelector("#chat-bottom");
-    setTimeout(() => {
-        bottom.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
     
+
 }
 

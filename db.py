@@ -107,11 +107,11 @@ class DB_API(Database_API_Type):
         await self.join_server(owner, result)
         return result
     async def create_server_channel(self : Database_API_Type, name : str, channel_type : str, server : Server) -> Channel:
-        qr = await self.query(self.queries["INSERT_RETURNING"].format(table="channel", columns="name, type", values="$1::text, $2::bigint", returning="id"), (name, channel_type))
-        qr_server = await self.query(self.queries["INSERT"].format(table="server_channels", columns="channel_id, server_id", values="$1::text, $2::bigint"), (qr, server.id))
+        qr = await self.query(self.queries["INSERT_RETURNING"].format(table="channel", columns="name, type", values="$1::text, $2::text", returning="id"), (name, channel_type))
+        qr_server = await self.query(self.queries["INSERT"].format(table="server_channels", columns="channel_id, server_id", values="$1::bigint, $2::bigint"), (qr[0]["id"], server.id))
         channel = None
         if channel_type == "text":
-            channel = TextChannel(qr, name, server)
+            channel = TextChannel(qr[0]["id"], name, server)
         server.channels[channel.id] = channel
         return channel
     async def query(self : Database_API_Type, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[Sequence[Any]]:

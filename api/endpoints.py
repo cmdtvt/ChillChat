@@ -103,16 +103,14 @@ async def test1():
     print(ser, ser.channels)
     return "test1"
 
-'''
 @api_blueprint.route('/cmdtvt_debug/<int:member_id>/')
 async def test_createserver(member_id):
-    member = await database.members(id=member_id)
+    member = await database.servers(server_id=member_id)
     if member:
-        server = await database.create_server("Taateliparatiisi",member)
-        return "Server created: "+server.name+" | "+str(server.id)
+        server = await database.create_server_channel("Sarzun saatana ja suloisuus Oyaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "text", member)
+        return "Server channel created: "+server.name+" | "+str(server.id)
     else:
         return "aw snap cmdtvt coded something wrong -_-"
-'''
 
 @api_blueprint.route('/message/test2/<token>/<int:channel_id>/<message>')
 async def test2(token, channel_id, message):
