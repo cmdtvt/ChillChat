@@ -7,6 +7,7 @@ settings["websocket"] = "ws://"+settings["baseurl"]+"gateway/";
 settings["userid"] = 3;
 settings["current_channel"] = 2;
 settings["current_server"] = 0;
+settings["channel_list_open"] = false;
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
@@ -244,7 +245,10 @@ function ActionToggleVisibility(id) {
 function ActionServerOpen(id) {
     settings["current_server"] = id;
     ActionLoadingAnimation("#channels");
-    ActionToggleVisibility("#channels");
+    if(!settings["channel_list_open"]) {
+        ActionToggleVisibility("#channels");
+        settings["channel_list_open"] = true;
+    }
     Channels(id);
 }
 
