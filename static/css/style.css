@@ -6,6 +6,7 @@
     --color-light: #373c46;
 	--color-decoration: #21252B;
 	--color-border: black;
+    --color-loader: rgb(255, 255, 255);
 
 	--color-attention-bad: #eb4034;
 	--color-attention-warning: #fcba03;
@@ -69,6 +70,111 @@ main {
     background: #555; 
 }
 
+.lds-roller {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.lds-roller div {
+    animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    transform-origin: 40px 40px;
+}
+
+.lds-roller div:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-loader);
+    margin: -4px 0 0 -4px;
+}
+
+.lds-roller div:nth-child(1) {
+    animation-delay: -0.036s;
+}
+
+.lds-roller div:nth-child(1):after {
+    top: 63px;
+    left: 63px;
+}
+
+.lds-roller div:nth-child(2) {
+    animation-delay: -0.072s;
+}
+
+.lds-roller div:nth-child(2):after {
+    top: 68px;
+    left: 56px;
+}
+
+.lds-roller div:nth-child(3) {
+    animation-delay: -0.108s;
+}
+
+.lds-roller div:nth-child(3):after {
+    top: 71px;
+    left: 48px;
+}
+
+.lds-roller div:nth-child(4) {
+    animation-delay: -0.144s;
+}
+
+.lds-roller div:nth-child(4):after {
+    top: 72px;
+    left: 40px;
+}
+
+.lds-roller div:nth-child(5) {
+    animation-delay: -0.18s;
+}
+
+.lds-roller div:nth-child(5):after {
+    top: 71px;
+    left: 32px;
+}
+
+.lds-roller div:nth-child(6) {
+    animation-delay: -0.216s;
+}
+
+.lds-roller div:nth-child(6):after {
+    top: 68px;
+    left: 24px;
+}
+
+.lds-roller div:nth-child(7) {
+    animation-delay: -0.252s;
+}
+
+.lds-roller div:nth-child(7):after {
+    top: 63px;
+    left: 17px;
+}
+
+.lds-roller div:nth-child(8) {
+    animation-delay: -0.288s;
+}
+
+.lds-roller div:nth-child(8):after {
+    top: 56px;
+    left: 12px;
+}
+
+@keyframes lds-roller {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+  
+
 /*Flex item*/
 .item {
     background-color: var(--color-background);
@@ -82,6 +188,11 @@ main {
 }
 .servers{
     background-color:var(--color-dark);
+}
+
+.channels {
+    background-color: var(--color-light);
+    border-right: 5px solid var(--color-dark);
 }
 
 .mobile-contacts {
@@ -120,7 +231,6 @@ main {
 
 .chat-input-area {
     min-height: 7%;
-    
     padding-top: 5px;
     background-color: var(--color-dark);
 }
@@ -133,13 +243,10 @@ main {
     padding: 0 10px 0 0px;
 }
 
-
-
 .message-area {
     height: 90%;
     overflow-y: scroll;
 }
-
 
 .component-visualize-user-chat {
     margin-bottom: var(--setting-margin);
@@ -151,8 +258,19 @@ main {
 }
 .component-visualize-server-sidebar {
     margin-top: var(--setting-margin);
-
 }
+
+.component-visualize-channel-sidebar p {
+    opacity: 0.7;
+    font-size: 0.9em;
+    cursor:pointer;
+}
+
+.component-visualize-channel-sidebar p:hover {
+    opacity: 1.0;
+    transition: var(--special-transition);
+}
+
 .component-visualize-server-sidebar img {
     max-height: auto;
     max-width: auto;

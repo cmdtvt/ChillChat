@@ -1,4 +1,4 @@
-console.log("Chat script loaded.");
+
 var data = new Map();
 var settings = new Object();
 settings["baseurl"] = "127.0.0.1:5000/v1/";
@@ -8,7 +8,9 @@ settings["userid"] = 3;
 settings["current_channel"] = 2;
 settings["current_server"] = 0;
 
-document.addEventListener("DOMContentLoaded", function(event) { 
+document.addEventListener("DOMContentLoaded", function(event) {
+
+
     function initialize() {
 
         
@@ -17,8 +19,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var updateMessages = async() => {
             var fetch_it = await fetch(settings['gateway']+"/channel/"+settings["current_channel"]+"/messages");
             fetch_it = await fetch_it.json();
-            data.set("messages",fetch_it);
-            console.log(data.get("messages"));
+            data.set(settings["current_server"],fetch_it);
         }
 
         //Get all servers and their channels.
@@ -36,7 +37,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 var fetch_channels = await fetch(settings["gateway"]+'server/'+s.id+'/channels');
                 temp_channels = await fetch_channels.json();
                 for (const channel in temp_channels) {
-                    s.channels.set(temp_channels[channel].id,temp_channels[channel])
+                    temp_channels[channel].messages = [];
+                    s.channels.set(temp_channels[channel].id,temp_channels[channel]);
+                    
                 }
 
                 data.set(s.id,s) 
@@ -64,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     /*TODO: Handle different incoming data from the socket.
                     Not everything is always just messages.*/
                     //messages.list.push(parsed)
-                    data.set("messages",data.get("messages").push(parsed));
+                    //data.set("messages",data.get("messages").push(parsed));
                     console.log(data.get("messages"));
                     
                 }
@@ -79,10 +82,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         //TODO: Clean these up.
         updateServers();
         //Message first time update is done in updateServers because async reasons.
-        createWebsocket();
-        ActionMessagesOpen(3);
-        console.log(data);
-    
+        createWebsocket(); 
     }
     initialize();
 
@@ -125,7 +125,39 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     }
     
+    //Give server id and element id where channels are placed.
+    function Channels(serverid,anchorid="#channels") {
+        console.log("CHANNELS");
+        element = document.querySelector(anchorid);
+        var temp = "";
+        console.log(data.get(serverid)['channels']);
+        for (let [key,value] of data.get(serverid)['channels'].entries()) {
+            console.log("VALUE")
+            console.log(key);
+            temp += VisualizeChannel(null,value.id,value['name']);
+        }
+        element.innerHTML = temp;
+    }
+
+    function VisualizeChannel(type=null,id=null,name=null) {
+        if(id==null) {
+            return "Channel not defined";
+        }
+
+        switch (type) {
+            //Show server info in chat if linked to it.
+            case "in-chat":
+                return(`<div>Not implemented.</div>`);
     
+            default:
+                return(`
+                    <div class="component-visualize-channel-sidebar" onclick="ActionMessagesOpen(${id});">
+                        <p>${name}</p>
+                    </div>  
+                `);
+        }
+    }
+
     function Servers(anchorid="#servers"){
         console.log("SERVERS");
         element = document.querySelector(anchorid); 
@@ -133,11 +165,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         var temp = "";
         for (let value of data.values()) {
-             temp += VisualizeServer(null,value,value['icon']);
+             temp += VisualizeServer(null,value.id,value['icon']);
         }
         
         element.innerHTML = temp;
-        console.log(element);
     }
     
     
@@ -166,53 +197,89 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
     //Pass username message and avatar in props.
-    function VisualizeMessage(author,messageID,content) {
-        return(`
-            <div class="component-message" data-user-id=${author['id']} data-message-id=${messageID}>
-                ${VisualizeUser(author['name'],author['avatar'])}
-                <p class="message">${content}</p>
-            </div>
-        `);
+    
+    function VisualizeMessage(author=null,messageID=null,content=null,type=null) {
+        console.log(type);
+        switch (type) {
+            
+            //System message in chat.
+            case "chat-system":
+                return(`
+                    <div class="component-message">
+                        <p class="message">${content}</p>
+                    </div>
+                `);
+
+            default:
+                return(`
+                    <div class="component-message" data-user-id=${author['id']} data-message-id=${messageID}>
+                        ${VisualizeUser(author['name'],author['avatar'])}
+                        <p class="message">${content}</p>
+                    </div>
+                `);
+        }
     }
 
-
-
-
-
-function ActionServerOpen(id) {
-    settings["current_server"] = id;
-    ActionMessagesOpen(id);
+//Give element id where loading animation is added.
+function ActionLoadingAnimation(id) {
+    var element = document.querySelector(id);
+    element.innerHTML = '<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>';
 }
 
-function ActionToggleChannelMenu() {
+//Toggle element visibility on off with display:none;
+function ActionToggleVisibility(id) {
+    var element = document.querySelector(id);
+    var display = element.style.display;
+    if(display == "none") {
+        element.style.display = "block";
+    } else {
+        element.style.display = "none";
+    }
+}
 
+//Open server
+function ActionServerOpen(id) {
+    settings["current_server"] = id;
+    ActionLoadingAnimation("#channels");
+    ActionToggleVisibility("#channels");
+    Channels(id);
+    //ActionMessagesOpen(settings["current_channel"]);
 }
 
 //Display messages by channel and server id
 function ActionMessagesOpen(id) {
+    ActionLoadingAnimation("#message-area");
+    console.log("Opening messages");
     var element = document.querySelector("#message-area");
-    var messageData = data.get("messages");
-
+    var server = data.get(settings['current_server']);
+    var messages = server['channels'].get(id)['messages'];
+    
     var html = "";
-    for (const message in messageData) {
-        var temp = messageData[message];
-        html += VisualizeMessage(temp['author'],temp['id'],temp['content'])
+    for (const m in messages) {
+        var temp = messages[m];
+        html += VisualizeMessage(temp['author'],temp['id'],temp['content']);
+    }
+
+    if(messages.length == 0) {
+        console.log("small");   
+        html += VisualizeMessage(cauthor=null,messageID=null,content="No messages",type="chat-system");
     }
     //This element is used to atomaticly scroll to the bottom of the chat area.
     html += '<div class="component-message" id="chat-bottom"></div>';
     element.innerHTML = html;
-
+    console.log(html);
+    
 
     
     /*Scroll to bottom when co messages are loaded.
-    This needs to be delayed because images take time to load and javascript wont
-    Know to true height of the div so scroll fails*/
+    This needs to be delayed because images take time to load and javascript won't
+    Know the true height of the div so scrolling fails partly*/
 
+    /*
     var bottom = document.querySelector("#chat-bottom");
     setTimeout(() => {
         bottom.scrollIntoView({ behavior: "smooth" });
     }, 1000);
-
-    console.log(element); 
+    */
 }
 
