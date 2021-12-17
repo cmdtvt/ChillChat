@@ -48,7 +48,6 @@ function processUrl(link) {
             html = `<a href="${link}" target="_blank">${link}</a>`;
             break;
     }
-    console.log(html);
     return html;
 
 }
@@ -167,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 return(`
                     <div class="component-visualize-user-chat">
                         <img src=${avatar}></img>
-                        <span>${username}</span>
+                        <p>${username}</p>
                     </div>
                 `);
                 break;
@@ -249,17 +248,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     function VisualizeMessage(author=null,messageID=null,content=null,type=null) {
         //https://developer.mozilla.org/en-US/docs/Web/API/URL
 
-        console.log("message");
         var isUrl = isValidUrl(content)
         if(!isUrl == false) {
-            console.log(isUrl);
-            
-            //var temp = '';
             content = content.replace(content,processUrl(content));
+            type = "chat-embed";
         }
 
         switch (type) {
-            
             //System message in chat.
             case "chat-system":
                 return(`
@@ -267,6 +262,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         <p class="message">${content}</p>
                     </div>
                 `);
+
+            case "chat-embed":
+                return(`
+                    <div class="component-message chat-embed" data-user-id=${author['id']} data-message-id=${messageID}>
+                        ${VisualizeUser(author['name'],author['avatar'])}
+                        <div class="chat-embed-content">${content}</div>
+                    </div>
+                `);    
 
             default:
                 return(`
@@ -317,7 +320,6 @@ function ActionMessagesOpen(id) {
     settings["current_channel"] = id;
 
     ActionLoadingAnimation("#message-area");
-    console.log("Opening messages");
     var element = document.querySelector("#message-area");
     var server = data.get(settings['current_server']);
     var messages = server['channels'].get(id)['messages'];
