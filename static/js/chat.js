@@ -1,4 +1,3 @@
-
 var data = new Map();
 var settings = new Object();
 settings["baseurl"] = "127.0.0.1:5000/v1/";
@@ -9,9 +8,54 @@ settings["current_channel"] = 2;
 settings["current_server"] = 0;
 settings["channel_list_open"] = false;
 
+
+//TODO: Move these to seperate file
+function isValidUrl(string) {
+    let url;
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;  
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
+}
+
+//Check the correct embed for a link.
+function processUrl(link) {
+    var extension = link.split(/[#?]/)[0].split('.').pop().trim();
+    var templates = new Object();
+
+    var html = "";
+    switch (extension) {
+        case "mp4":
+            html = `
+                <video width="400" controls onerror=ActionFailedLinkLoad(this)>
+                    <source src="${link}" type="video/mp4">
+                </video>`
+            break;
+
+        //Im using the case fallthrough here if this looks bit weird.
+        case "png":
+        case "jpg":
+        case "jpeg":
+        case "gif":
+            html = `
+                <img src="${link}" onerror=ActionFailedLinkLoad(this);>
+            `;
+            break;
+
+        default:
+            html = `<a href="${link}" target="_blank">${link}</a>`;
+            break;
+    }
+    console.log(html);
+    return html;
+
+}
+
+//#############################################
+
 document.addEventListener("DOMContentLoaded", function(event) {
-
-
     function initialize() {
 
         
@@ -203,7 +247,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     //Pass username message and avatar in props.
     function VisualizeMessage(author=null,messageID=null,content=null,type=null) {
-        console.log(type);
+        //https://developer.mozilla.org/en-US/docs/Web/API/URL
+
+        console.log("message");
+        var isUrl = isValidUrl(content)
+        if(!isUrl == false) {
+            console.log(isUrl);
+            
+            //var temp = '';
+            content = content.replace(content,processUrl(content));
+        }
+
         switch (type) {
             
             //System message in chat.
@@ -241,6 +295,11 @@ function ActionToggleVisibility(id) {
     }
 }
 
+function ActionFailedLinkLoad(element) {
+    element.parentElement.innerHTML = '<a href="'+element.src+'" target="_blank">'+element.src+'</a>';
+    //alert("Failed to load image");
+}
+
 //Open server
 function ActionServerOpen(id) {
     settings["current_server"] = id;
@@ -263,23 +322,14 @@ function ActionMessagesOpen(id) {
     var server = data.get(settings['current_server']);
     var messages = server['channels'].get(id)['messages'];
 
-    console.log("id: "+id);
-    console.log(messages);
-    console.log(element)
-    
-
-
     //Fetch messages from channel and store them in given array.
     var fetchMessages = async(messages) => {
         var fetch_messages = await fetch(`${settings['gateway']}/channel/${settings["current_channel"]}/messages`);
         if(fetch_messages.status == 200) {
             fetch_messages = await fetch_messages.json();
-            console.log(fetch_messages);
-
             for(const message in fetch_messages) {
                 messages.push(fetch_messages[message]);
             }
-
             return true;
         }
         return false;
@@ -289,17 +339,22 @@ function ActionMessagesOpen(id) {
     //TODO: Move fetching new messages away from here.
     var visualize = () => {
         var html = "";
-        
         for (const m in messages) {
             var temp = messages[m];
             html += VisualizeMessage(temp['author'],temp['id'],temp['content']);
         }
+
         if(html.length == "0") {
             html += VisualizeMessage(cauthor=null,messageID=null,content="No messages",type="chat-system");
         }
+
+        //This element is used to atomaticly scroll to the bottom of the chat area.
         html += '<div class="component-message" id="chat-bottom"></div>';
         element.innerHTML = html;
         
+        /*Scroll to bottom when co messages are loaded.
+        This needs to be delayed because images take time to load and javascript won't
+        Know the true height of the div so scrolling fails partly*/
         var bottom = document.querySelector("#chat-bottom");
         setTimeout(() => {
             bottom.scrollIntoView({ behavior: "smooth" });
@@ -307,18 +362,13 @@ function ActionMessagesOpen(id) {
         
     }
     if(messages.length == 0) { 
-        
         fetchMessages(messages).then(visualize);
-
     } else {
         visualize()
     }
-    //This element is used to atomaticly scroll to the bottom of the chat area.
 
     
-    /*Scroll to bottom when co messages are loaded.
-    This needs to be delayed because images take time to load and javascript won't
-    Know the true height of the div so scrolling fails partly*/
+
 
     
     
