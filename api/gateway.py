@@ -57,8 +57,9 @@ class Client(ClientType):
     async def process(self, ws, data):
         if not self.queue:
             self.queue = asyncio.Queue()
-            member_data = json.dumps(self.member.gateway_format)
+            member_data = self.member.gateway_format
             member_data = {"payload" : member_data, "type" : "member_data", "action" : None}
+            member_data = json.dumps(member_data)
             await self.send(member_data)
         if not self.ws:
             self.ws = ws

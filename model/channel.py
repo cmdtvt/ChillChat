@@ -33,10 +33,10 @@ class TextChannel(Channel):
                     #TODO:
                     #PERMISSIONS
                     #if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
-                    tmp = {"payload":json.dumps(msg.gateway_format)}
+                    tmp = {"payload":msg.gateway_format}
                     tmp["type"] = "message"
                     tmp["action"] = "new"
-                    await i.send_via_client(tmp)
+                    await i.send_via_client(json.dumps(tmp))
                     return "ok"
     async def messages(self,):
         if Channel.database is not None:
