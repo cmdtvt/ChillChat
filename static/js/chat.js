@@ -23,7 +23,7 @@ function isValidUrl(string) {
 //Check the correct embed for a link.
 function processUrl(link) {
     var extension = link.split(/[#?]/)[0].split('.').pop().trim();
-    var templates = new Object();
+    var photoRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]).(?:jpg|gif|png)/ig
 
     var html = "";
     switch (extension) {
@@ -88,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
                 data.set(s.id,s) 
             }
-            console.log(data);
             updateMessages();
             Servers();
         };
@@ -114,9 +113,31 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     console.log(parsed);
                     /*TODO: Handle different incoming data from the socket.
                     Not everything is always just messages.*/
+
+                    var messages = data.get(settings['current_server']).channels.get(settings['current_channel']).messages;
+                    messages.push(parsed);
+                    //TODO: Render newly created message.
+                    ActionRenderNewMessage(parsed);
+                    
+                    
+                    /*
+                    if("type" in parsed) {
+                        switch(parsed.type) {
+                            case "message":
+                                var messages = data.get(settings['current_server']).get(settings['current_channel']).get('messages');
+
+                                messages.push(parsed);
+                                console.log("Message recieved.")
+                        }
+                    } else {
+
+                        
+                    }
+                    */
+
                     //messages.list.push(parsed)
                     //data.set("messages",data.get("messages").push(parsed));
-                    console.log(data.get("messages"));
+                    //console.log(data.get("messages"));
                     
                 }
             }
@@ -175,13 +196,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
     //Give server id and element id where channels are placed.
     function Channels(serverid,anchorid="#channels") {
-        console.log("CHANNELS");
         element = document.querySelector(anchorid);
         var temp = "";
-        console.log(data.get(serverid)['channels']);
         for (let [key,value] of data.get(serverid)['channels'].entries()) {
-            console.log("VALUE")
-            console.log(key);
             temp += VisualizeChannel(null,value.id,value['name']);
         }
         element.innerHTML = temp;
@@ -300,7 +317,33 @@ function ActionToggleVisibility(id) {
 
 function ActionFailedLinkLoad(element) {
     element.parentElement.innerHTML = '<a href="'+element.src+'" target="_blank">'+element.src+'</a>';
-    //alert("Failed to load image");
+}
+
+function ActionRenderNewMessage(message) {
+    var html = VisualizeMessage(message['author'],message['id'],message['content']);
+    document.querySelector("#chat-bottom").insertAdjacentHTML('beforebegin', html)
+    ActionScroll("#chat-bottom","intoview-ifbottom");
+}
+
+
+function ActionScroll(anchor=null,behavior=null,scrollDelay=500){
+    element = document.querySelector(anchor);
+    setTimeout(() => {
+        switch (behavior) {
+            case "intoview":
+                element.scrollIntoView({ behavior: "smooth" });
+                break;
+
+            case "intoview-ifbottom":
+                break;
+        
+            default:
+                console.log("Scroll behavior was not set.")
+                break;
+        }
+    }, scrollDelay);
+
+
 }
 
 //Open server
@@ -323,6 +366,9 @@ function ActionMessagesOpen(id) {
     var element = document.querySelector("#message-area");
     var server = data.get(settings['current_server']);
     var messages = server['channels'].get(id)['messages'];
+
+    //TODO: Add a check if there are new messages.
+    //Maby create a endpoint which returns the id of the newest message.
 
     //Fetch messages from channel and store them in given array.
     var fetchMessages = async(messages) => {
