@@ -33,9 +33,9 @@ class TextChannel(Channel):
                     #TODO:
                     #PERMISSIONS
                     #if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
-                    tmp = msg.gateway_format
+                    tmp = {"payload":json.dumps(msg.gateway_format)}
                     tmp["type"] = "message"
-                    tmp = json.dumps(tmp)
+                    tmp["action"] = "new"
                     await i.send_via_client(tmp)
                     return "ok"
     async def messages(self,):

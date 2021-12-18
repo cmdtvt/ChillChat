@@ -5,6 +5,7 @@ import asyncio
 import asyncpg
 
 import os, binascii
+from markupsafe import Markup, escape
 import utilities
 from model.permissions import ChannelPermissions, ServerPermissions
 from model.message import MessagePayload, Message
@@ -12,6 +13,7 @@ from model.member import Member
 from model.channel import Channel, TextChannel
 from model.server import Server
 from model.role import Role
+
 cache = utilities.Cache()
 class DB_API(Database_API_Type):
     
@@ -38,13 +40,14 @@ class DB_API(Database_API_Type):
     def create_token(self : Database_API_Type,) -> str:
         return binascii.b2a_hex(os.urandom(50)).decode('utf8')
     async def create_message(self : Database_API_Type, payload : MessagePayload) -> Message:
+        content = escape(payload.content)
         message_id = await self.query(self.queries["INSERT_RETURNING"].format(
             table="message",
             columns="content, author_id, channel_id",
             values="$1::text, $2::bigint, $3::bigint",
             returning="id"
-        ), (payload.content, payload.author.id, payload.channel.id))
-        message = Message(message_id[0]["id"], payload.content, payload.author, payload.channel)
+        ), (content, payload.author.id, payload.channel.id))
+        message = Message(message_id[0]["id"], content, payload.author, payload.channel)
         return message
     @cache.async_cached(timeout=30)
     async def members(self : Database_API_Type, *, token : str=None, member_id: int=None) -> Optional[Member]:
@@ -118,6 +121,8 @@ class DB_API(Database_API_Type):
         if self.pool is None:
             self.pool = await asyncpg.create_pool(user=self.username, password=self.password, database=self.database, host=self.host)
         conn = await self.pool.acquire()
+        print(sql)
+        print(params)
         try:
             if sql.startswith("SELECT") or sql.endswith("RETURNING id"):
                 if params:
