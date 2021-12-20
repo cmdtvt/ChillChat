@@ -66,27 +66,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
 
         //Get all servers and their channels.
-<<<<<<< HEAD
-        var updateServers = async() => {
-            var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
-            temp = await fetch_it.json();
-            for (const server in temp) {
-                s = temp[server];
-                s.channels = new Map();
-
-                //Get server's channels and add them to the server object.
-                var fetch_channels = await fetch(settings["gateway"]+'server/'+s.id+'/channels');
-                temp_channels = await fetch_channels.json();
-                for (const channel in temp_channels) {
-                    temp_channels[channel].messages = [];
-                    s.channels.set(temp_channels[channel].id,temp_channels[channel]); 
-                }
-                data.set(s.id,s) 
-            }
-            updateMessages();
-            Servers();
-        };
-=======
         // var updateServers = async() => {
 
             
@@ -111,7 +90,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
         //     updateMessages();
         //     Servers();
         // };
->>>>>>> 62897d1b426d74d467c4726b9344e0a3b5e724d2
     
         var createWebsocket = async() => {
             sock = new WebSocket(settings["websocket"]);
@@ -127,26 +105,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 } else {
 
                     let parsed = JSON.parse(event.data);
-<<<<<<< HEAD
-                    if("type" in parsed) {
-                        switch(parsed.type) {
-                            case "message":
-                                var messages = data.get(settings['current_server']).channels.get(settings['current_channel']).messages;
-                                messages.push(parsed.payload);
-                                ActionRenderNewMessage(parsed.payload);
-                                break;
-
-                            case "member_data":
-                                settings['userid'] = parsed.payload.id;
-                                console.log("Logged in as: "+parsed.payload.name+" | "+parsed.payload.id);
-                                break;
-
-                            default:
-                                console.log("Invalid format.");
-                                break;
-                        }
-                    }
-=======
                     if (parsed.type == "member_data") {
                         settings["userid"] = parsed.payload.id
                         var servers = parsed.payload.servers
@@ -171,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     //messages.list.push(parsed)
                     //data.set("messages",data.get("messages").push(parsed));
                     console.log(data.get("messages"));
->>>>>>> 62897d1b426d74d467c4726b9344e0a3b5e724d2
                     
                 }
             }
@@ -182,14 +139,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
     
-<<<<<<< HEAD
-        updateServers();
-        //Message first time update is done in updateServers because async reasons.
-=======
     
     
         //TODO: Clean these up.
->>>>>>> 62897d1b426d74d467c4726b9344e0a3b5e724d2
         createWebsocket(); 
         // updateServers();
         //Message first time update is done in updateServers because async reasons.
