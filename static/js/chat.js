@@ -7,6 +7,7 @@ settings["userid"] = 3;
 settings["current_channel"] = 2;
 settings["current_server"] = 0;
 settings["channel_list_open"] = false;
+settings['chatIsScrolledBottom'] = false;
 
 
 //TODO: Move these to seperate file
@@ -56,8 +57,6 @@ function processUrl(link) {
 
 document.addEventListener("DOMContentLoaded", function(event) {
     function initialize() {
-
-        
         //Get all messages from the currently open server.
         //Identified by settings["current_server"]
         var updateMessages = async() => {
@@ -68,35 +67,30 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         //Get all servers and their channels.
         var updateServers = async() => {
-
-            
             var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
             temp = await fetch_it.json();
             for (const server in temp) {
                 s = temp[server];
                 s.channels = new Map();
 
-
                 //Get server's channels and add them to the server object.
                 var fetch_channels = await fetch(settings["gateway"]+'server/'+s.id+'/channels');
                 temp_channels = await fetch_channels.json();
                 for (const channel in temp_channels) {
                     temp_channels[channel].messages = [];
-                    s.channels.set(temp_channels[channel].id,temp_channels[channel]);
-                    
+                    s.channels.set(temp_channels[channel].id,temp_channels[channel]); 
                 }
-
                 data.set(s.id,s) 
             }
             updateMessages();
             Servers();
         };
     
-    
         var createWebsocket = async() => {
             sock = new WebSocket(settings["websocket"]);
             sock.onopen = async () => {
                 sock.send(`START`);
+                console.log("Socket started!");
             }
     
             sock.onmessage = async (event) => {
@@ -105,39 +99,25 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     console.log("Acknowledging heartbeat");
                 } else {
 
-                    /*
-                        {payload: asdasdasdasdas, type : message/server/channel etc etc}
-                    */
                     let parsed = JSON.parse(event.data);
-                    console.log("New message");
-                    console.log(parsed);
-                    /*TODO: Handle different incoming data from the socket.
-                    Not everything is always just messages.*/
-
-                    var messages = data.get(settings['current_server']).channels.get(settings['current_channel']).messages;
-                    messages.push(parsed);
-                    //TODO: Render newly created message.
-                    ActionRenderNewMessage(parsed);
-                    
-                    
-                    /*
                     if("type" in parsed) {
                         switch(parsed.type) {
                             case "message":
-                                var messages = data.get(settings['current_server']).get(settings['current_channel']).get('messages');
+                                var messages = data.get(settings['current_server']).channels.get(settings['current_channel']).messages;
+                                messages.push(parsed.payload);
+                                ActionRenderNewMessage(parsed.payload);
+                                break;
 
-                                messages.push(parsed);
-                                console.log("Message recieved.")
+                            case "member_data":
+                                settings['userid'] = parsed.payload.id;
+                                console.log("Logged in as: "+parsed.payload.name+" | "+parsed.payload.id);
+                                break;
+
+                            default:
+                                console.log("Invalid format.");
+                                break;
                         }
-                    } else {
-
-                        
                     }
-                    */
-
-                    //messages.list.push(parsed)
-                    //data.set("messages",data.get("messages").push(parsed));
-                    //console.log(data.get("messages"));
                     
                 }
             }
@@ -145,17 +125,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 await createWebsocket()
             }
         }
+
+
     
-    
-    
-        //TODO: Clean these up.
         updateServers();
         //Message first time update is done in updateServers because async reasons.
         createWebsocket(); 
     }
     initialize();
-
-
 
     document.querySelector("#chat-input").addEventListener("keydown",function(event){
         const handleKeyDown = async (event) => {
@@ -174,6 +151,31 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
         
     });
+
+
+    document.querySelector("#message-area").addEventListener('wheel', function(event){
+        if(findScrollDir(event)) {
+            settings['chatIsScrolledBottom'] = true;
+        } else {
+            settings['chatIsScrolledBottom'] = false;
+        }
+        console.log(settings['chatIsScrolledBottom']);
+    });
+    
+    //Returns true of scrolling up. false if down.
+    function findScrollDir(event){
+        var delta;
+        if (event.wheelDelta){delta = event.wheelDelta;
+        } else{delta = -1 *event.deltaY;}
+
+        if (delta < 0){
+            return false;
+        }else if (delta > 0){
+            return true;
+            
+        }
+    }
+
     
 });
     
@@ -224,15 +226,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     function Servers(anchorid="#servers"){
-        console.log("SERVERS");
         element = document.querySelector(anchorid); 
-        console.log(data);
-
         var temp = "";
         for (let value of data.values()) {
              temp += VisualizeServer(null,value.id,value['icon']);
-        }
-        
+        }   
         element.innerHTML = temp;
     }
     
@@ -322,19 +320,25 @@ function ActionFailedLinkLoad(element) {
 function ActionRenderNewMessage(message) {
     var html = VisualizeMessage(message['author'],message['id'],message['content']);
     document.querySelector("#chat-bottom").insertAdjacentHTML('beforebegin', html)
-    ActionScroll("#chat-bottom","intoview-ifbottom");
+    ActionScroll("#message-area","#chat-bottom","intoview");
 }
 
 
-function ActionScroll(anchor=null,behavior=null,scrollDelay=500){
-    element = document.querySelector(anchor);
+function ActionScroll(anchor=null,scrollto=null,behavior=null,scrollDelay=500){
+    console.log("Scrolling");
+    var element = document.querySelector(anchor);
+    var scrollTo = document.querySelector(scrollto);
     setTimeout(() => {
         switch (behavior) {
             case "intoview":
-                element.scrollIntoView({ behavior: "smooth" });
+                scrollTo.scrollIntoView({ behavior: "smooth" });
                 break;
 
             case "intoview-ifbottom":
+                if (settings['chatIsScrolledBottom']) {
+                    scrollTo.scrollIntoView({ behavior: "smooth" });
+                    console.log("yeet");
+                }
                 break;
         
             default:
