@@ -3,7 +3,7 @@ var settings = new Object();
 settings["baseurl"] = "127.0.0.1:5000/v1/";
 settings["gateway"] = "http://"+settings["baseurl"];
 settings["websocket"] = "ws://"+settings["baseurl"]+"gateway/";
-settings["userid"] = 3;
+settings["userid"] = null;
 settings["current_channel"] = 2;
 settings["current_server"] = 0;
 settings["channel_list_open"] = false;
@@ -67,31 +67,30 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
 
         //Get all servers and their channels.
-        var updateServers = async() => {
+        // var updateServers = async() => {
 
             
-            var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
-            temp = await fetch_it.json();
-            for (const server in temp) {
-                s = temp[server];
-                s.channels = new Map();
+        //     var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
+        //     temp = await fetch_it.json();
+        //     for (const server in temp) {
+        //         s = temp[server];
+        //         s.channels = new Map();
 
 
-                //Get server's channels and add them to the server object.
-                var fetch_channels = await fetch(settings["gateway"]+'server/'+s.id+'/channels');
-                temp_channels = await fetch_channels.json();
-                for (const channel in temp_channels) {
-                    temp_channels[channel].messages = [];
-                    s.channels.set(temp_channels[channel].id,temp_channels[channel]);
+        //         //Get server's channels and add them to the server object.
+        //         var fetch_channels = await fetch(settings["gateway"]+'server/'+s.id+'/channels');
+        //         temp_channels = await fetch_channels.json();
+        //         for (const channel in temp_channels) {
+        //             temp_channels[channel].messages = [];
+        //             s.channels.set(temp_channels[channel].id,temp_channels[channel]);
                     
-                }
-
-                data.set(s.id,s) 
-            }
-            console.log(data);
-            updateMessages();
-            Servers();
-        };
+        //         }
+        //         data.set(s.id,s) 
+        //     }
+        //     console.log(data);
+        //     updateMessages();
+        //     Servers();
+        // };
     
     
         var createWebsocket = async() => {
@@ -110,6 +109,23 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         {payload: asdasdasdasdas, type : message/server/channel etc etc}
                     */
                     let parsed = JSON.parse(event.data);
+                    if (parsed.type == "member_data") {
+                        settings["userid"] = parsed.payload.id
+                        var servers = parsed.payload.servers
+                        for (var server of servers) {
+                            server.channels = new Map()
+                            var channels = await fetch(`${settings["gateway"]}server/${server.id}/channels`);
+                            channels = await channels.json();
+                            for(var channel in channels) {
+                                channel = channels[channel]
+                                channel.messages = []
+                                server.channels.set(channel.id, channel)
+                            }
+                            data.set(server.id, server)
+                        }
+                        updateMessages();
+                        Servers();
+                    }
                     console.log("New message");
                     console.log(parsed);
                     /*TODO: Handle different incoming data from the socket.
@@ -128,25 +144,27 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
     
         //TODO: Clean these up.
-        updateServers();
-        //Message first time update is done in updateServers because async reasons.
         createWebsocket(); 
+        // updateServers();
+        //Message first time update is done in updateServers because async reasons.
+        
     }
     initialize();
 
 
 
     document.querySelector("#chat-input").addEventListener("keydown",function(event){
-        const handleKeyDown = async (event) => {
-            let formData = new FormData();
-            formData.append('message', this.value)
-            await fetch(settings["gateway"]+"/channel/"+settings["current_channel"]+"/message", {
-                method: 'post',
-                body: formData
-            })
-        }
+
 
         if(event.key == "Enter") {
+            const handleKeyDown = async (event) => {
+                let formData = new FormData();
+                formData.append('message', this.value)
+                await fetch(settings["gateway"]+"/channel/"+settings["current_channel"]+"/message", {
+                    method: 'post',
+                    body: formData
+                })
+            }
             handleKeyDown();
             this.value = ""; 
             return false;

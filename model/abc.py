@@ -1,4 +1,11 @@
 from typing import Any, Optional, Sequence, Set
+class Payload:
+    pl_type : str
+    payload : object
+    action : str
+    def __init__(self, pl_type : str, payload : object, action : str) -> None:
+        pass
+    
 class Messageable:
     async def send(self):
         raise NotImplementedError
@@ -22,8 +29,7 @@ class ServerType:
     def gateway_format():
         raise NotImplementedError
     async def create_channel():
-        raise NotImplementedError
-    
+        raise NotImplementedError   
 class RoleType:
     id : int
 class MemberType(Messageable):
@@ -41,11 +47,6 @@ class MemberType(Messageable):
         raise NotImplementedError
     async def get_servers(self,):
         raise NotImplementedError
-    
-    
-
-
-
 class MessageType:
     id : int
     channel : ChannelType

@@ -63,18 +63,18 @@ async def get_server(server_id : int):
             return api.status_codes.NotFound()
     return api.status_codes.BadRequest()
 
-@api_blueprint.route('/member/<int:member_id>/servers', methods=["GET"])
-async def get_member_servers(member_id : int):
-    global database
-    if member_id:
-        member = await database.members(member_id=member_id)
-        if member:
-            await member.get_servers()
-            servers = [x.gateway_format for x in member.servers.values()]
-            return quart.jsonify(servers)
-        else:
-            return api.status_codes.NotFound()
-    return api.status_codes.BadRequest()
+# @api_blueprint.route('/member/<int:member_id>/servers', methods=["GET"])
+# async def get_member_servers(member_id : int):
+#     global database
+#     if member_id:
+#         member = await database.members(member_id=member_id)
+#         if member:
+#             await member.get_servers()
+#             servers = [x.gateway_format for x in member.servers.values()]
+#             return quart.jsonify(servers)
+#         else:
+#             return api.status_codes.NotFound()
+#     return api.status_codes.BadRequest()
 
 
 @api_blueprint.route('/server/<int:server_id>/channels', methods=['GET'])

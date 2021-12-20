@@ -22,7 +22,6 @@ class Channel(ChannelType):
         return result
 
 class TextChannel(Channel):
-    
     def __init__(self, id : int, name : str, server : Optional[ServerType]=None) -> None:
         super().__init__(id, name, server)
     async def send(self, payload : MessagePayload) -> None:
@@ -30,9 +29,6 @@ class TextChannel(Channel):
             msg = await Channel.database.create_message(payload)
             if self.server:
                 for i in await self.server.load_client_members():
-                    #TODO:
-                    #PERMISSIONS
-                    #if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
                     tmp = {"payload":msg.gateway_format}
                     tmp["type"] = "message"
                     tmp["action"] = "new"
