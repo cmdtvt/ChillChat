@@ -108,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     if (parsed.type == "member_data") {
                         settings["userid"] = parsed.payload.id
                         var servers = parsed.payload.servers
+
                         for (var server of servers) {
                             server.channels = new Map()
                             var channels = await fetch(`${settings["gateway"]}server/${server.id}/channels`);
@@ -118,17 +119,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
                                 server.channels.set(channel.id, channel)
                             }
                             data.set(server.id, server)
-                        }
+                        } 
                         updateMessages();
                         Servers();
+
+                    } else if (parsed.type == "message") {
+                        var messages = data.get(settings['current_server']).channels.get(settings['current_channel']).messages;
+                        messages.push(parsed.payload);
+                        ActionRenderNewMessage(parsed.payload);
                     }
                     console.log("New message");
                     console.log(parsed);
-                    /*TODO: Handle different incoming data from the socket.
-                    Not everything is always just messages.*/
-                    //messages.list.push(parsed)
-                    //data.set("messages",data.get("messages").push(parsed));
-                    console.log(data.get("messages"));
                     
                 }
             }
@@ -136,21 +137,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 await createWebsocket()
             }
         }
-
-
     
-    
-    
-        //TODO: Clean these up.
         createWebsocket(); 
-        // updateServers();
-        //Message first time update is done in updateServers because async reasons.
-        
     }
     initialize();
 
     document.querySelector("#chat-input").addEventListener("keydown",function(event){
-
 
         if(event.key == "Enter") {
             const handleKeyDown = async (event) => {
@@ -165,7 +157,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
             this.value = ""; 
             return false;
         }
-        
     });
 
 
@@ -201,6 +192,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         switch (type) {
             case "large-popup":
                 break;
+
             default:
                 return(`
                     <div class="component-visualize-user-chat">
@@ -224,13 +216,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     function VisualizeChannel(type=null,id=null,name=null) {
         if(id==null) {
-            return "Channel not defined";
+            return '<div class="error">Channel not defined</div>';
         }
 
         switch (type) {
             //Show server info in chat if linked to it.
             case "in-chat":
-                return(`<div>Not implemented.</div>`);
+                return(`<div class="error">Not implemented</div>`);
     
             default:
                 return(`
@@ -253,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
     function VisualizeServer(type=null,id=null,icon="https://via.placeholder.com/50x50") {
         if(id==null) {
-            return "Server not defined";
+            return '<div class="error">Server not defined.</div>';
         }
         switch (type) {
             case "large-panel":
@@ -434,12 +426,4 @@ function ActionMessagesOpen(id) {
     } else {
         visualize()
     }
-
-    
-
-
-    
-    
-
 }
-
