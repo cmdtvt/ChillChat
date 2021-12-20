@@ -62,7 +62,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var updateMessages = async() => {
             var fetch_it = await fetch(settings['gateway']+"/channel/"+settings["current_channel"]+"/messages");
             fetch_it = await fetch_it.json();
-            data.set(settings["current_server"],fetch_it);
+            var currentData = data.get(settings["current_server"])
+            currentData.channels.get(settings["current_channel"]).messages = fetch_it
         }
 
         //Get all servers and their channels.
@@ -108,6 +109,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     if (parsed.type == "member_data") {
                         settings["userid"] = parsed.payload.id
                         var servers = parsed.payload.servers
+                        if(servers) {
+                            settings['current_server'] = servers[0].id
+                        }
                         for (var server of servers) {
                             server.channels = new Map()
                             var channels = await fetch(`${settings["gateway"]}server/${server.id}/channels`);
@@ -119,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                             }
                             data.set(server.id, server)
                         }
-                        updateMessages();
+                        await updateMessages();
                         Servers();
                     }
                     console.log("New message");
