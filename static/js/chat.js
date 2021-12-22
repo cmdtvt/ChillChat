@@ -62,34 +62,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var updateMessages = async() => {
             var fetch_it = await fetch(settings['gateway']+"/channel/"+settings["current_channel"]+"/messages");
             fetch_it = await fetch_it.json();
-            data.set(settings["current_server"],fetch_it);
+            var currentData = data.get(settings["current_server"])
+            currentData.channels.get(settings["current_channel"]).messages = fetch_it
         }
-
-        //Get all servers and their channels.
-        // var updateServers = async() => {
-
-            
-        //     var fetch_it = await fetch(settings["gateway"]+'/member/'+settings["userid"]+'/servers');
-        //     temp = await fetch_it.json();
-        //     for (const server in temp) {
-        //         s = temp[server];
-        //         s.channels = new Map();
-
-
-        //         //Get server's channels and add them to the server object.
-        //         var fetch_channels = await fetch(settings["gateway"]+'server/'+s.id+'/channels');
-        //         temp_channels = await fetch_channels.json();
-        //         for (const channel in temp_channels) {
-        //             temp_channels[channel].messages = [];
-        //             s.channels.set(temp_channels[channel].id,temp_channels[channel]);
-                    
-        //         }
-        //         data.set(s.id,s) 
-        //     }
-        //     console.log(data);
-        //     updateMessages();
-        //     Servers();
-        // };
     
         var createWebsocket = async() => {
             sock = new WebSocket(settings["websocket"]);
@@ -108,7 +83,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     if (parsed.type == "member_data") {
                         settings["userid"] = parsed.payload.id
                         var servers = parsed.payload.servers
-
+                        if(servers) {
+                            settings['current_server'] = servers[0].id
+                        }
                         for (var server of servers) {
                             server.channels = new Map()
                             var channels = await fetch(`${settings["gateway"]}server/${server.id}/channels`);
@@ -119,8 +96,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
                                 server.channels.set(channel.id, channel)
                             }
                             data.set(server.id, server)
-                        } 
-                        updateMessages();
+                        }
+                        await updateMessages();
                         Servers();
 
                     } else if (parsed.type == "message") {
@@ -137,9 +114,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 await createWebsocket()
             }
         }
-    
         createWebsocket(); 
     }
+
+    function popout(id=null) {
+        console.log("Starting popout");
+        if(id==null) {return "unset";}
+        var element = document.querySelector(id);
+        
+        var html = `<div class="popout-container" id="popout-0"></div>`;
+        document.querySelector("#popouts").insertAdjacentHTML('beforebegin', html);
+        
+        var popout = document.querySelector("#popout-0");
+        popout.innerHTML = element.innerHTML;
+
+    }
+    //popout("#servers");
     initialize();
 
     document.querySelector("#chat-input").addEventListener("keydown",function(event){
@@ -173,17 +163,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
     function findScrollDir(event){
         var delta;
         if (event.wheelDelta){delta = event.wheelDelta;
-        } else{delta = -1 *event.deltaY;}
+        } else {delta = -1 *event.deltaY;}
 
         if (delta < 0){
             return false;
-        }else if (delta > 0){
+        } else if (delta > 0){
             return true;
-            
         }
     }
-
-    
 });
     
     
