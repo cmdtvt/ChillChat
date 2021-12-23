@@ -141,7 +141,8 @@ document.addEventListener("DOMContentLoaded", async function(event) {
                         }
                         //await updateMessages();
                         Servers();
-                    } else if(parsed.type == "message") {
+
+                    } else if (parsed.type == "message") {
                         if(parsed.action == "new") {
                             var messages = server['channels'].get(id)['messages'];
                             messages.set(parsed.payload.id, ActionRenderNewMessage(parsed.payload))
@@ -160,18 +161,24 @@ document.addEventListener("DOMContentLoaded", async function(event) {
                 await createWebsocket()
             }
         }
-
-
-    
-    
-    
         await createWebsocket(); 
+    }
+
+    function popout(id=null) {
+        console.log("Starting popout");
+        if(id==null) {return "unset";}
+        var element = document.querySelector(id);
         
+        var html = `<div class="popout-container" id="popout-0"></div>`;
+        document.querySelector("#popouts").insertAdjacentHTML('beforebegin', html);
+        
+        var popout = document.querySelector("#popout-0");
+        popout.innerHTML = element.innerHTML;
+
     }
     await initialize();
 
     document.querySelector("#chat-input").addEventListener("keydown",async function(event){
-
 
         if(event.key == "Enter") {
             const handleKeyDown = async (event) => {
@@ -186,7 +193,6 @@ document.addEventListener("DOMContentLoaded", async function(event) {
             this.value = ""; 
             return false;
         }
-        
     });
 
 
@@ -203,17 +209,14 @@ document.addEventListener("DOMContentLoaded", async function(event) {
     function findScrollDir(event){
         var delta;
         if (event.wheelDelta){delta = event.wheelDelta;
-        } else{delta = -1 *event.deltaY;}
+        } else {delta = -1 *event.deltaY;}
 
         if (delta < 0){
             return false;
-        }else if (delta > 0){
+        } else if (delta > 0){
             return true;
-            
         }
     }
-
-    
 });
     
     
@@ -222,6 +225,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
         switch (type) {
             case "large-popup":
                 break;
+
             default:
                 return(`
                     <div class="component-visualize-user-chat">
@@ -245,13 +249,13 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 
     function VisualizeChannel(type=null,id=null,name=null) {
         if(id==null) {
-            return "Channel not defined";
+            return '<div class="error">Channel not defined</div>';
         }
 
         switch (type) {
             //Show server info in chat if linked to it.
             case "in-chat":
-                return(`<div>Not implemented.</div>`);
+                return(`<div class="error">Not implemented</div>`);
     
             default:
                 return(`
@@ -274,7 +278,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
     
     function VisualizeServer(type=null,id=null,icon="https://via.placeholder.com/50x50") {
         if(id==null) {
-            return "Server not defined";
+            return '<div class="error">Server not defined.</div>';
         }
         switch (type) {
             case "large-panel":
@@ -438,4 +442,3 @@ function ActionMessagesOpen(id) {
         }
         fetchMessages(messages);
 }
-

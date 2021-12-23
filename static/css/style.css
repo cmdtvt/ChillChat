@@ -42,6 +42,11 @@ body {
     color: var(--color-font-main);
 }
 
+.error {
+    color: rgb(255, 0, 0);
+    font-size: bold;
+}
+
 .box {
     height: 100%;
     background-color: rgb(76, 71, 85);
@@ -338,6 +343,15 @@ main {
 .component-message .content {
     flex-grow: 4.0;
 }
+
+.popout-container {
+    position: absolute;
+    z-index: 9;
+    background-color: #f1f1f1;
+    border: 1px solid #d3d3d3;
+    text-align: center;
+}
+
 .component-message .chat-embed-content {
     display: block;
     flex-basis:100%;
