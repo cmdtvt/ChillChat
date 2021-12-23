@@ -31,19 +31,18 @@ function parseMessage(message) {
     //videoregex returns the same kind, but has 2 elements, one for extension
     var photolinks = [...message.matchAll(photoRegex)]
     var videolinks = [...message.matchAll(videoRegex)]
-    var links = [...message.matchAll(linkRegex)]
+    var links = Array.from(message.matchAll(linkRegex), m => m[0])
     var content = message
-    
     for(var x of new Set(links)) {
-        content = content.replace(x, `<a href="${x}" target="_blank">${x}</a>`)
+
+        content = content.replaceAll(x, `<a href="${x}" target="_blank">${x}</a>`)
     }
-    console.log(photolinks)
-    console.log(videolinks)
+
     if(photolinks.length > 0 || videolinks.length > 0) {
         var holderElement = document.createElement("div")
         holderElement.classList.add("chat-embed-content")
         for(var x of photolinks) {
-            console.log(x)
+
             var ele = document.createElement("img")
             ele.onerror = () => {
                 ActionFailedLinkLoad(this)
@@ -52,7 +51,6 @@ function parseMessage(message) {
             holderElement.appendChild(ele)
         }
         for(var x of videolinks) {
-            console.log(x)
             var ele = document.createElement("video")
             ele.controls = true
             ele.onerror = () => {
@@ -136,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
                             channels = await channels.json();
                             for(var channel in channels) {
                                 channel = channels[channel]
-                                channel.messages = []
+                                channel.messages = new Map()
                                 server.channels.set(channel.id, channel)
                             }
                             data.set(server.id, server)
@@ -145,7 +143,8 @@ document.addEventListener("DOMContentLoaded", async function(event) {
                         Servers();
                     } else if(parsed.type == "message") {
                         if(parsed.action == "new") {
-                            ActionRenderNewMessage(parsed.payload)
+                            var messages = server['channels'].get(id)['messages'];
+                            messages.set(parsed.payload.id, ActionRenderNewMessage(parsed.payload))
                         }
                     }
                     console.log("New message");
@@ -154,7 +153,6 @@ document.addEventListener("DOMContentLoaded", async function(event) {
                     Not everything is always just messages.*/
                     //messages.list.push(parsed)
                     //data.set("messages",data.get("messages").push(parsed));
-                    console.log(data.get("messages"));
                     
                 }
             }
@@ -353,6 +351,7 @@ function ActionRenderNewMessage(message) {
     var element = VisualizeMessage(message['author'],message['id'],message['content']);
     document.querySelector("#chat-bottom").insertAdjacentHTML('beforebegin', element.outerHTML)
     ActionScroll("#message-area","#chat-bottom","intoview");
+    return element
 }
 
 
@@ -410,25 +409,19 @@ function ActionMessagesOpen(id) {
         var fetch_messages = await fetch(`${settings['api']}/channel/${settings["current_channel"]}/messages`);
         if(fetch_messages.status == 200) {
             fetch_messages = await fetch_messages.json();
-            for(const message in fetch_messages) {
-                messages.push(fetch_messages[message]);
-            }
-            return true;
+            if(fetch_messages) {
+                for(const message in fetch_messages) {
+                    var temp = fetch_messages[message]
+                    var ele = VisualizeMessage(temp['author'],temp['id'],temp['content'])
+                    element.appendChild(ele);
+                    messages.set(temp['id'], ele);
+                }
+             } else {
+                element.appendChild(VisualizeMessage(cauthor=null,messageID=null,content="No messages",type="chat-system"));
+             }
         }
-        return false;
-    }
-    
     //If channel has no messages display a message about it.
     //TODO: Move fetching new messages away from here.
-    var visualize = () => {
-        for (const m in messages) {
-            var temp = messages[m];
-            element.appendChild(VisualizeMessage(temp['author'],temp['id'],temp['content']));
-        }
-
-        if(!messages) {
-            element.appendChild(VisualizeMessage(cauthor=null,messageID=null,content="No messages",type="chat-system"));
-        }
 
         //This element is used to atomaticly scroll to the bottom of the chat area.
         var bottomArea = document.createElement("div")
@@ -442,19 +435,7 @@ function ActionMessagesOpen(id) {
         setTimeout(() => {
             bottomArea.scrollIntoView({ behavior: "smooth" });
         }, 1000);
-        
-    }
-    if(messages.length == 0) { 
-        fetchMessages(messages).then(visualize);
-    } else {
-        visualize()
-    }
-
-    
-
-
-    
-    
-
+        }
+        fetchMessages(messages);
 }
 
