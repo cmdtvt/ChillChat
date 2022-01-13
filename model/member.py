@@ -1,7 +1,7 @@
 from model.permissions import ChannelPermissions, ServerPermissions
 from model.message import MessagePayload, Message
 from typing import Any, Sequence, Union, Optional
-from .abc import Database_API_Type, MemberType, Messageable, ClientType
+from .abc import Database_API_Type, MemberType, Messageable, ClientType, PayloadType
 from .server import Server
 from .role import Role
 from .channel import TextChannel, VoiceChannel
@@ -24,9 +24,9 @@ class Member(MemberType):
         elif not channel and self.own_channel:
             payload = MessagePayload(content, self, self.own_channel)
             await self.own_channel.send(payload)
-    async def send_via_client(self, data : str):
+    async def send_via_client(self, payload : Union[PayloadType, str]):
         if Member.database and self.token in Member.database.clients["tokenized"]:
-            await Member.database.clients["tokenized"][self.token].send(data)
+            await Member.database.clients["tokenized"][self.token].send(str(payload))
     async def join_server(self, server : Server) -> bool:
         await Member.database.join_server(self, server)
         return True

@@ -86,3 +86,6 @@ class Database_API_Type:
         raise NotImplementedError
     async def query(self, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[Sequence[Any]]:
         raise NotImplementedError
+class PayloadType:
+    payload_type : str
+    data : Any
