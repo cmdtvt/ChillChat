@@ -12,7 +12,7 @@ app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
 @app.route('/')
 async def hello():
     member_tokens = ["8c4427adf8476719ce6b31b980c41c8b7c913b3955791180713511f4b868fcb632a0c7f144dd06064a804e6599a018eeb8f5", "7a7c1d7a49a5ebf4d44ca2c91b2f7d24831a049d466104b5ba319ffc692053d994d3fc05d94c852f1f8fea1d1c3c98c355e2"]
-    member : MemberType = await database.members(token=member_tokens[0])
+    member : MemberType = await database.members(token=member_tokens[1])
     await member.get_servers()
     for i in member.servers.values():
         await i.load_channels()

@@ -1,3 +1,4 @@
+
 from model.permissions import ChannelPermissions, ServerPermissions
 from model.message import MessagePayload, Message
 from typing import Any, Sequence, Union, Optional
@@ -32,7 +33,6 @@ class Member(MemberType):
         return True
     
     async def get_servers(self,):
-        # "SELECT_JOIN" : "SELECT {columns} FROM {table1} JOIN {table2} WHERE {where}"
         if Member.database:
             server_data = await Member.database.query(
                 Member.database.queries["SELECT_JOIN"].format(
@@ -48,6 +48,8 @@ class Member(MemberType):
                 servers[i["id"]] = Server(i["id"], i["name"])
 
             self.servers = servers
+            return self.servers
+        return None
     @property
     def gateway_format(self,):
         response = {

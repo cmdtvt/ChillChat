@@ -38,6 +38,7 @@ class Server(ServerType):
         result = {
             "id" : self.id,
             "name" : self.name,
+            "icon" : "https://via.placeholder.com/350x350?text="+self.name,
         }
         return result
     async def create_channel(self, name, channel_type) -> ChannelType:

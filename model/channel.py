@@ -23,7 +23,6 @@ class Channel(ChannelType):
         return result
 
 class TextChannel(Channel):
-    
     def __init__(self, id : int, name : str, server : Optional[ServerType]=None) -> None:
         super().__init__(id, name, server)
     async def send(self, payload : MessagePayload) -> None:
@@ -46,7 +45,7 @@ class TextChannel(Channel):
             ), (self.id,))
             messages_list = []
             for i in msgs:
-                author = await Channel.database.members(id=i["author_id"])
+                author = await Channel.database.members(member_id=i["author_id"])
                 messages_list.append(Message(i["id"], i["content"], author, self))
             return messages_list
                     
