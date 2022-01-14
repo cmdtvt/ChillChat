@@ -52,6 +52,10 @@ body {
     background-color: rgb(76, 71, 85);
 }
 
+.icon-close {font-size: 1.80em; float: right;}
+.icon-close:hover {cursor: pointer; color: #ff4000; transition: var(--item-transition);}
+.icon-close::after {content: " X";}
+
 main {
     display: flex;
     flex-direction:row;
@@ -204,6 +208,14 @@ main {
 
 }
 
+.modal {
+    position: absolute;
+    z-index: 200;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(155, 155, 155, 0.356);
+}
+
 .mobile-contacts {
     display: none;
 }
@@ -266,8 +278,8 @@ main {
 }
 
 .chat-embed-content img {
-    max-width:5%;
-    max-height:5%;
+    max-width:100%;
+    max-height:100%;
     border-radius: var(--special-border-radius);
     cursor: pointer;
     filter: opacity(90%);

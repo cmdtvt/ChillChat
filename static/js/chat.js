@@ -37,17 +37,20 @@ function parseMessage(message) {
     for(var x of new Set(links)) {
         content = content.replace(x, `<a href="${x}" target="_blank">${x}</a>`)
     }
-    console.log(photolinks)
-    console.log(videolinks)
+
     if(photolinks.length > 0 || videolinks.length > 0) {
         var holderElement = document.createElement("div")
         holderElement.classList.add("chat-embed-content")
         for(var x of photolinks) {
-            console.log(x)
             var ele = document.createElement("img")
             ele.onerror = () => {
                 ActionFailedLinkLoad(this)
             }
+
+            ele.onclick = () => {
+                ActionModalOpen(x[0],"image");
+            }
+
             ele.src = x[0] 
             holderElement.appendChild(ele)
         }
@@ -204,6 +207,10 @@ document.addEventListener("DOMContentLoaded", async function(event) {
         }
         console.log(settings['chatIsScrolledBottom']);
     });
+
+    document.querySelector("#modal-icon-close").addEventListener('click',function(event) {
+        ActionToggleVisibility("#modal");
+    });
     
     //Returns true of scrolling up. false if down.
     function findScrollDir(event){
@@ -347,6 +354,24 @@ function ActionToggleVisibility(id) {
     }
 }
 
+//Get content = rendered data, type = how is rendered.
+function ActionModalOpen(content,type=null) {
+    switch (type) {
+        case "image":
+            document.querySelector("#modal-content").innerHTML = `<img src="${content}">`;
+            
+            break;
+
+        case "video":
+            break;
+    
+        default:
+            console.log("Error in opening modal type not defined.");
+            break;
+    }
+    ActionToggleVisibility("#modal");
+}
+
 function ActionFailedLinkLoad(element) {
     element.parentElement.innerHTML = '<a href="'+element.src+'" target="_blank">'+element.src+'</a>';
 }
@@ -371,7 +396,6 @@ function ActionScroll(anchor=null,scrollto=null,behavior=null,scrollDelay=500){
             case "intoview-ifbottom":
                 if (settings['chatIsScrolledBottom']) {
                     scrollTo.scrollIntoView({ behavior: "smooth" });
-                    console.log("yeet");
                 }
                 break;
         
