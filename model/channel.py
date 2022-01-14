@@ -1,8 +1,9 @@
 from typing import Sequence, Optional
 from .abc import Messageable, MemberType, ChannelType, Database_API_Type, ServerType
 from .message import MessagePayload, Message
+from .payload import Payload
 from .permissions import ChannelPermissions
-import json
+
 class Channel(ChannelType):
     database : Database_API_Type = None
     def __init__(self, id : int, name : str, server : Optional[ServerType]=None) -> None:
@@ -29,10 +30,11 @@ class TextChannel(Channel):
             msg = await Channel.database.create_message(payload)
             if self.server:
                 for i in await self.server.load_client_members():
-                    tmp = {"payload":msg.gateway_format}
-                    tmp["type"] = "message"
-                    tmp["action"] = "new"
-                    await i.send_via_client(json.dumps(tmp))
+                    #TODO:
+                    #PERMISSIONS
+                    #if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
+                    payload = Payload("message", msg.gateway_format)
+                    await i.send_via_client(payload)
                     return "ok"
     async def messages(self,):
         if Channel.database is not None:
