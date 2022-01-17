@@ -1,15 +1,14 @@
 
-$(document).on('keypress',function(e) {
-    if(e.which == 229) {
-        $("#devpanel").toggle();
-    }
-});
 
 function convertUnixTimestampToDate(timestamp) {
     let dt = new Date(timestamp*1000);
     return dt
 }
-
+function killChildren(ele) {
+    while(ele.firstChild) {
+        ele.firstChild.remove()
+    }
+}
 function convertDatetoFormat(dateObject) {
     let hours = dateObject.getHours();
     let minutes = dateObject.getMinutes();
@@ -55,4 +54,15 @@ function checkUrlForImage(url, callback, timeout) {
         img.src = "//!!!!/test.jpg";
         callback(url, "timeout");
     }, timeout); 
+}
+function findScrollDir(event){
+    var delta;
+    if (event.wheelDelta){delta = event.wheelDelta;
+    } else {delta = -1 *event.deltaY;}
+
+    if (delta < 0){
+        return false;
+    } else if (delta > 0){
+        return true;
+    }
 }
