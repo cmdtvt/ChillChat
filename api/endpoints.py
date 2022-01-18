@@ -1,10 +1,10 @@
 import quart
-from model.abc import Database_API_Type
-from model.message import MessagePayload
+from model.abc import Database_API_Type # pylint: disable=import-error
+from model.message import MessagePayload # pylint: disable=import-error
 from quart import Blueprint, websocket, request, session
-import api.gateway
-import instances
-import api.status_codes
+import api.gateway # pylint: disable=import-error
+import instances # pylint: disable=import-error
+import api.status_codes # pylint: disable=import-error
 import asyncio
 database : Database_API_Type = instances.database
 api_blueprint = Blueprint('api', __name__)

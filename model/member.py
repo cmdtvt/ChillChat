@@ -1,6 +1,6 @@
 
-from model.permissions import ChannelPermissions, ServerPermissions
-from model.message import MessagePayload, Message
+from .permissions import ChannelPermissions, ServerPermissions
+from .message import MessagePayload, Message
 from typing import Any, Sequence, Union, Optional
 from .abc import Database_API_Type, MemberType, Messageable, ClientType, PayloadType
 from .server import Server

@@ -1,13 +1,13 @@
-from typing import Sequence, Optional
-from .abc import Messageable, MemberType, ChannelType, Database_API_Type, ServerType
+from typing import Optional
+from .abc import ChannelType, Database_API_Type, ServerType
 from .message import MessagePayload, Message
 from .payload import Payload
 from .permissions import ChannelPermissions
 
 class Channel(ChannelType):
     database : Database_API_Type = None
-    def __init__(self, id : int, name : str, server : Optional[ServerType]=None) -> None:
-        self.id = id
+    def __init__(self, cid : int, name : str, server : Optional[ServerType]=None) -> None:
+        self.id = cid
         self.name = name
         self.server = server
         self.default_permissions = ChannelPermissions()
@@ -23,8 +23,6 @@ class Channel(ChannelType):
         return result
 
 class TextChannel(Channel):
-    def __init__(self, id : int, name : str, server : Optional[ServerType]=None) -> None:
-        super().__init__(id, name, server)
     async def send(self, payload : MessagePayload) -> None:
         if Channel.database is not None:
             msg = await Channel.database.create_message(payload)
@@ -56,8 +54,8 @@ class TextChannel(Channel):
         
 
 class VoiceChannel(Channel):
-    def __init__(self, id : int, name : str) -> None:
-        super().__init__(id, name)
+    def __init__(self, vcid : int, name : str) -> None:
+        super().__init__(vcid, name)
 class TemporaryChannel(TextChannel):
-    def __init__(self, id : int, name : str) -> None:
-        super().__init__(id, name)
+    def __init__(self, tcid : int, name : str) -> None:
+        super().__init__(tcid, name)

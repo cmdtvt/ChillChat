@@ -39,7 +39,7 @@ function ActionFailedLinkLoad(element) {
 function ActionRenderNewMessage(message) {
     var element = VisualizeMessage(message['author'],message['id'],message['content']);
     document.querySelector("#chat-bottom").insertAdjacentHTML('beforebegin', element.outerHTML)
-    ActionScroll("#message-area","#chat-bottom","intoview");
+    ActionScroll("#message-area","#chat-bottom","intoview-ifbottom", 100);
     return element
 }
 

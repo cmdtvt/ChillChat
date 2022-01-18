@@ -56,13 +56,5 @@ function checkUrlForImage(url, callback, timeout) {
     }, timeout); 
 }
 function findScrollDir(event){
-    var delta;
-    if (event.wheelDelta){delta = event.wheelDelta;
-    } else {delta = -1 *event.deltaY;}
-
-    if (delta < 0){
-        return false;
-    } else if (delta > 0){
-        return true;
-    }
+    return Math.ceil(event.target.scrollHeight-event.target.scrollTop) === event.target.clientHeight
 }

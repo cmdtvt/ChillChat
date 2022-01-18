@@ -22,8 +22,7 @@ async function createWebsocket(wsFunc, data, settings) {
                     }
                     for (let server of servers) {
                         server.channels = new Map()
-                        var channels = await fetch(`${settings["api"]}/server/${server.id}/channels`);
-                        channels = await channels.json();
+                        var channels = await fetchChannels(server, settings.api)
                         for(var channel in channels) {
                             channel = channels[channel]
                             channel.messages = new Map()

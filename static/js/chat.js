@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
             return false;
         }
     });
-    document.querySelector("#message-area").addEventListener('wheel', function(event){
+    document.querySelector("#message-area").addEventListener('scroll', function(event){
         if(findScrollDir(event)) {
             settings['chatIsScrolledBottom'] = true;
         } else {

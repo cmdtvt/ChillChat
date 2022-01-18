@@ -1,9 +1,9 @@
-from model.abc import MemberType, ChannelType
+from .abc import MemberType, ChannelType
 from typing import Union
 import time
 class Message:
-    def __init__(self, id : int, content : str, author : MemberType, channel : ChannelType) -> None:
-        self.id = id
+    def __init__(self, mid : int, content : str, author : MemberType, channel : ChannelType) -> None:
+        self.id = mid
         self.content = content
         self.author = author
         self.channel = channel

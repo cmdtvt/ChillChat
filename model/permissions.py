@@ -13,6 +13,12 @@ class Permissions:
     def is_allowed(self, key : str) -> bool:
         if self._keys and key in self._keys:
             return self._keys[key]
+    @property
+    def keys(self,) -> dict:
+        return self._keys
+    @keys.setter
+    def keys(self, keys : dict) -> None:
+        self._keys = keys
 
     @property
     def gateway_format(self,):
@@ -25,7 +31,7 @@ class ServerPermissions(Permissions):
         super().__init__(_keys)
     def clone(self,):
         result = ServerPermissions()
-        result._keys = self._keys
+        result.keys = super().keys()
         return result
     def __iter__(self,):
         return iter(self._keys.items())
@@ -40,5 +46,5 @@ class ChannelPermissions(Permissions):
         return iter(self._keys.items())
     def clone(self,):
         result = ChannelPermissions()
-        result._keys = self._keys
+        result.keys = super().keys()
         return result

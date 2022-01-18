@@ -1,5 +1,5 @@
 
-from model.permissions import ServerPermissions, ChannelPermissions
+from .permissions import ServerPermissions, ChannelPermissions
 
 
 class Role:
