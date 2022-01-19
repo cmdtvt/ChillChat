@@ -1,3 +1,40 @@
+handleMemberData = async (parsed, settings, wsFunc) => {
+    settings["userid"] = parsed.payload.id
+    var servers = parsed.payload.servers
+    if(servers) {
+        settings['current_server'] = servers[0].id
+    }
+    for (let server of servers) {
+        server.channels = new Map()
+        var channels = await fetchChannels(server, settings.api)
+        for(var channel in channels) {
+            channel = channels[channel]
+            channel.messages = new Map()
+            server.channels.set(channel.id, channel)
+        }
+        data.set(server.id, server)
+    }
+    //await updateMessages();
+    wsFunc();
+
+}
+handleMessages = (parsed) => {
+    if(parsed.action == "new") {
+        console.log(parsed.payload)
+        let messages = data.get(parsed.payload.server.id).channels.get(parsed.payload.channel.id).messages;
+        messages.set(parsed.payload.id, ActionRenderNewMessage(parsed.payload))
+    }
+}
+handleChannels = (parsed, settings) => {
+    if(parsed.action == "new") {
+        let channels = data.get(parsed.payload.server.id).channels
+        parsed.payload.messages = new Map()
+        channels.set(parsed.payload.id, parsed.payload)
+        if(settings['current_server'] == parsed.payload.server.id) {
+            ActionServerOpen(settings['current_server'])
+        }
+    }
+}
 async function createWebsocket(wsFunc, data, settings) {
     console.trace(settings)
     if(settings) {
@@ -15,30 +52,11 @@ async function createWebsocket(wsFunc, data, settings) {
 
                 let parsed = JSON.parse(event.data);
                 if (parsed.type == "member_data") {
-                    settings["userid"] = parsed.payload.id
-                    var servers = parsed.payload.servers
-                    if(servers) {
-                        settings['current_server'] = servers[0].id
-                    }
-                    for (let server of servers) {
-                        server.channels = new Map()
-                        var channels = await fetchChannels(server, settings.api)
-                        for(var channel in channels) {
-                            channel = channels[channel]
-                            channel.messages = new Map()
-                            server.channels.set(channel.id, channel)
-                        }
-                        data.set(server.id, server)
-                    }
-                    //await updateMessages();
-                    wsFunc();
-
+                    handleMemberData(parsed, settings, wsFunc)
                 } else if (parsed.type == "message") {
-                    if(parsed.action == "new") {
-                        console.log(parsed.payload)
-                        var messages = data.get(parsed.payload.server.id).channels.get(parsed.payload.channel.id).messages;
-                        messages.set(parsed.payload.id, ActionRenderNewMessage(parsed.payload))
-                    }
+                    handleMessages(parsed)
+                } else if (parsed.type == "channel") {
+                    handleChannels(parsed, settings)
                 }
                 console.log("New message");
                 console.log(parsed);

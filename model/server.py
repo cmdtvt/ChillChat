@@ -1,6 +1,7 @@
-from .abc import MemberType, ChannelType, Database_API_Type, ServerType
+from .abc import MemberType, ChannelType, Database_API_Type, Payload, ServerType
 from .permissions import ServerPermissions
 from .channel import TextChannel
+from .payload import Payload
 from typing import Sequence
 class Server(ServerType):
     database : Database_API_Type = None
@@ -41,5 +42,11 @@ class Server(ServerType):
             "icon" : "https://via.placeholder.com/350x350?text="+self.name,
         }
         return result
+    async def broadcast(self, payload : Payload):
+        members = await self.load_client_members()
+        for member in members:
+            await member.send_via_client(payload)
     async def create_channel(self, name, channel_type) -> ChannelType:
-        return await Server.database.create_server_channel(name, channel_type, self)
+        channel = await Server.database.create_server_channel(name, channel_type, self)
+        payload = Payload("channel", channel.gateway_format, "new")
+        await self.broadcast(payload)
