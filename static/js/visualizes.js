@@ -8,21 +8,22 @@ function VisualizeUser(username, avatar, type = null) {
             break;
 
         default:
-            element.classList.add("component-visualize-user-chat")
+            element.classList.add("user")
             let avatarElement = document.createElement("img")
             avatarElement.src = avatar
-            let usernameP = document.createElement("p")
-            usernameP.innerText = username
+            //let usernameP = document.createElement("p")
+            //usernameP.innerText = username
             element.appendChild(avatarElement)
-            element.appendChild(usernameP)
+            //element.appendChild(usernameP)
     }
     return element
 }
+
 function VisualizeChannel(type = null, id = null, name = null) {
     let element = document.createElement("div")
     if (id == null) {
-        element.classList.add("error")
-        element.innerText = "Channel not Found"
+        element.classList.add("error");
+        element.innerText = "Channel not Found";
     } else {
         switch (type) {
             //Show server info in chat if linked to it.
@@ -30,22 +31,26 @@ function VisualizeChannel(type = null, id = null, name = null) {
                 element.classList.add("error")
                 element.innerText = "Not implemented"
             default:
-                element.classList.add("component-visualize-channel-sidebar")
+
+                element.classList.add("chat-component-channel")
+                
                 element.onclick = () => {
-                    ActionMessagesOpen(id)
+                    ActionMessagesOpen(id);
                 }
+
                 let serverName = document.createElement("p")
                 serverName.innerText = name
                 element.appendChild(serverName)
         }
     }
-    return element
+    return element;
 }
+
 function VisualizeServer(type = null, id = null, icon = "https://via.placeholder.com/50x50") {
-    let element = document.createElement("div")
+    let element = document.createElement("div");
     if (id == null) {
-        element.classList.add("error")
-        element.innerText = "Server not defined."
+        element.classList.add("error");
+        element.innerText = "Server not defined.";
     } else {
         switch (type) {
             case "large-panel":
@@ -53,41 +58,45 @@ function VisualizeServer(type = null, id = null, icon = "https://via.placeholder
 
             //Show server info in chat if linked to it.
             case "in-chat":
-                element.innerText = "Not implemented."
+                element.innerText = "Not implemented.";
+                break;
 
             default:
-                element.classList.add("component-visualize-server-sidebar")
+
+                element.classList.add("chat-component-server");
                 element.onclick = () => {
                     ActionServerOpen(id)
                 }
-                let serverIcon = document.createElement("img")
-                serverIcon.src = icon
-                element.appendChild(serverIcon)
+                element.alt = "teppo";
+                let serverIcon = document.createElement("img");
+                serverIcon.classList.add("fluid-image");
+                serverIcon.classList.add("image-hoverable");
+                serverIcon.src = icon;
+                element.appendChild(serverIcon);
         }
     }
-    return element
+    return element;
 }
+
 //Pass username message and avatar in props.
 function VisualizeMessage(author = null, messageID = null, content = null, type = null) {
-    //https://developer.mozilla.org/en-US/docs/Web/API/URL
-    var parsed = parseMessage(content)
-    content = parsed.content
-    var message = document.createElement("div")
-    message.classList.add("component-message")
-    message.setAttribute("data-message-id", messageID)
-    if (type == "chat-system") {
-        message.setAttribute("data-user-id", author['id'])
-    }
+    /*
+    var parsed = parseMessage(content);
+    content = parsed.content;
+    var message = document.createElement("div");
+    message.classList.add("chat-component-message");
+    message.setAttribute("data-message-id", messageID);
+
     let messageContent = document.createElement("p")
     messageContent.classList.add("message")
     switch (type) {
         //System message in chat.
         case "chat-system":
-            messageContent.innerHTML = content
+            messageContent.innerHTML = content;
             break;
         default:
-            messageContent.innerHTML = content
-            message.appendChild(VisualizeUser(author['name'], author['avatar']))
+            messageContent.innerHTML = content;
+            message.appendChild(VisualizeUser(author['name'], author['avatar']));
             break;
     }
     message.appendChild(messageContent)
@@ -95,4 +104,27 @@ function VisualizeMessage(author = null, messageID = null, content = null, type 
         message.appendChild(parsed.holder)
     }
     return message
+    */
+
+
+    var parsed = parseMessage(content);
+
+    switch (type) {
+        case "chat-system":
+            break;
+        
+        default:
+            var element = document.createElement("div");
+            element.classList.add("chat-component-message");
+            element.setAttribute("data-message-id", messageID);
+            element.appendChild(VisualizeUser(author['name'], author['avatar']));
+            var contentElement = document.createElement("p");
+            contentElement.innerHTML = parsed.content;
+            element.appendChild(contentElement);
+            break;
+    }
+
+    return element;
+
+
 }

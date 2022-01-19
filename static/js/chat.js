@@ -7,7 +7,6 @@ var settings = {
     userid : null,
     current_server : null,
     current_channel : null,
-    channel_list_open : false,
     chatIsScrolledBottom : false
 }
 //Check the correct embed for a link.
@@ -59,38 +58,14 @@ function parseMessage(message) {
     } else {
         return {holder: null, content: content};
     }
-    // var html = "";
-    // switch (extension) {
-    //     case "mp4":
-    //         html = `
-    //             <video width="400" controls onerror=ActionFailedLinkLoad(this)>
-    //                 <source src="${message}" type="video/mp4">
-    //             </video>`
-    //         break;
-
-    //     //Im using the case fallthrough here if this looks bit weird.
-    //     case "png":
-    //     case "jpg":
-    //     case "jpeg":
-    //     case "gif":
-    //         html = `
-    //             <img src="${message}" onerror=ActionFailedLinkLoad(this);>
-    //         `;
-    //         break;
-
-    //     default:
-    //         html = `<a href="${message}" target="_blank">${message}</a>`;
-    //         break;
-    // }
-    // return html;
 
 }
 document.addEventListener("DOMContentLoaded", async function(event) {
     async function initialize() {
-        
         await createWebsocket(Servers, data, settings); 
     }
     await initialize();
+
 
     document.querySelector("#chat-input").addEventListener("keydown",async function(event){
         if(event.key == "Enter") {
@@ -102,6 +77,18 @@ document.addEventListener("DOMContentLoaded", async function(event) {
             return false;
         }
     });
+
+    //FIXME: Make button send message from textbox and clear it.
+    //Currently does absolutely nothing.
+    document.querySelector("#send-message").addEventListener("onclick",async function(event){
+        const handleKeyDown = async (event) => {
+            await sendMessage(settings["current_channel"], this.value, settings["api"])
+        }
+        await handleKeyDown();
+        this.value = ""; 
+        return false;  
+    });
+
     document.querySelector("#message-area").addEventListener('scroll', function(event){
         if(findScrollDir(event)) {
             settings['chatIsScrolledBottom'] = true;
@@ -109,10 +96,6 @@ document.addEventListener("DOMContentLoaded", async function(event) {
             settings['chatIsScrolledBottom'] = false;
         }
         console.log(settings['chatIsScrolledBottom']);
-    });
-
-    document.querySelector("#modal-icon-close").addEventListener('click',function(event) {
-        ActionToggleVisibility("#modal");
     });
 });
     //Give server id and element id where channels are placed.
@@ -123,11 +106,12 @@ document.addEventListener("DOMContentLoaded", async function(event) {
             element.appendChild(VisualizeChannel(null,value.id,value['name']));
         }
     }
-    function Servers(anchorid="#servers"){
-        let element = document.querySelector(anchorid); 
+    function Servers(anchorid="#servers") {
+        let element = document.querySelector(anchorid);
         killChildren(element)
         for (let value of data.values()) {
             element.appendChild(VisualizeServer(null,value.id,value['icon']));
-        }   
+        }
+        ActionInterfaceSwitchPage("#page-chat");
     }
 

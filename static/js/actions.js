@@ -73,10 +73,6 @@ function ActionScroll(anchor=null,scrollto=null,behavior=null,scrollDelay=500){
 function ActionServerOpen(id) {
     settings["current_server"] = id;
     ActionLoadingAnimation("#channels");
-    if(!settings["channel_list_open"]) {
-        ActionToggleVisibility("#channels");
-        settings["channel_list_open"] = true;
-    }
     Channels(id);
 }
 //Display messages by channel and server id
@@ -102,6 +98,7 @@ function ActionMessagesOpen(id) {
                     var ele = VisualizeMessage(temp['author'],temp['id'],temp['content'])
                     element.appendChild(ele);
                     messages.set(temp['id'], ele);
+                    console.log("me"+ele);
                 }
              } else {
                 element.appendChild(VisualizeMessage(cauthor=null, messageID=null, content="No messages", type="chat-system"));
