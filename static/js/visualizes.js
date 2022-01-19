@@ -8,13 +8,13 @@ function VisualizeUser(user, type="default") {
             break;
 
         default:
-            element.classList.add("component-visualize-user-chat")
+            element.classList.add("user")
             let avatarElement = document.createElement("img")
             avatarElement.src = user.avatar
             let usernameP = document.createElement("p")
             usernameP.innerText = user.name
             element.appendChild(avatarElement)
-            element.appendChild(usernameP)
+            //element.appendChild(usernameP)
     }
     return element
 }
@@ -30,7 +30,9 @@ function VisualizeChannel(channel, type="default") {
                 element.classList.add("error")
                 element.innerText = "Not implemented"
             default:
-                element.classList.add("component-visualize-channel-sidebar")
+
+                element.classList.add("chat-component-channel")
+                
                 element.onclick = () => {
                     ActionMessagesOpen(channel.id)
                 }
@@ -39,7 +41,7 @@ function VisualizeChannel(channel, type="default") {
                 element.appendChild(channelName)
         }
     }
-    return element
+    return element;
 }
 function VisualizeServer(server, type="default") {
     let element = document.createElement("div")
@@ -53,10 +55,12 @@ function VisualizeServer(server, type="default") {
 
             //Show server info in chat if linked to it.
             case "in-chat":
-                element.innerText = "Not implemented."
+                element.innerText = "Not implemented.";
+                break;
 
             default:
-                element.classList.add("component-visualize-server-sidebar")
+
+                element.classList.add("chat-component-server");
                 element.onclick = () => {
                     ActionServerOpen(server.id)
                 }
@@ -65,8 +69,9 @@ function VisualizeServer(server, type="default") {
                 element.appendChild(serverIcon)
         }
     }
-    return element
+    return element;
 }
+
 //Pass username message and avatar in props.
 function VisualizeMessage(message, type="default") {
     //https://developer.mozilla.org/en-US/docs/Web/API/URL
@@ -83,7 +88,7 @@ function VisualizeMessage(message, type="default") {
     switch (type) {
         //System message in chat.
         case "chat-system":
-            messageContent.innerHTML = content
+            messageContent.innerHTML = content;
             break;
         default:
             messageContent.innerHTML = content

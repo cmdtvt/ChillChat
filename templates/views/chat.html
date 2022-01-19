@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>ChillChat</title>
-	<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/style.css">
+	<!--<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/style.css">-->
 	<script src="http://127.0.0.1:5000/static/js/api.js" defer></script>
 	<script src="http://127.0.0.1:5000/static/js/websocket.js" defer></script>
 	<script src="http://127.0.0.1:5000/static/js/visualizes.js" defer></script>
@@ -14,43 +14,96 @@
 	<script src="http://127.0.0.1:5000/static/js/actions.js" defer></script>
 	<script src="http://127.0.0.1:5000/static/js/chat.js" defer></script>
 
+	<!--Interface things.-->
+	<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/style.css">
+	<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/loading.css">
+	<script src="http://127.0.0.1:5000/static/js/interface.js"></script>
+
 </head>
 <body>
-	<main class="box">
-		<div class="modal" id="modal" style="display:none;">
-			<div class="modal-controls" id="modal-controls">¨
-				<span class="icon-close" id="modal-icon-close"></span>
+	<main>
+        <div class="modal-wrapper" id="modal-wrapper" style="display:none";></div>
+        <div class="show-mobile mobile-navigation">
+            <p class="burger-menu">&#9776</p>
+            <div>adad</div>
+            <p> > </p>
+        </div>
+        <div class="page" id="page-chat">
+            <div class="chat-servers hide-mobile scrollable-vertical">
+                
+				<div class="chat-component-server home-icon" data-pageTarget="#page-dev">
+                    <img src="static/images/snowflake.png" class="fluid-image image-hoverable">
+                </div>
+
+				<div id="servers"></div>
+
+				<div class="chat-component-server" data-pageTarget="#page-dev">
+                    <img src="https://via.placeholder.com/350x350?text=Add server" class="fluid-image image-hoverable">
+                </div>
+
+            </div>
+
+            <div class="chat-channels hide-mobile scrollable-vertical" id="channels">
+
+            </div>
+
+            <div class="chat-chat">
+                <div class="chat-chatarea scrollable-vertical" id="message-area">
+
+                </div>
+                <div class="chat-textarea">
+                    <textarea id="chat-input"></textarea>
+                    <div class="send-message" id="send-message"><p> > </p></div>
+                </div>
+            </div>
+
+            <div class="chat-members hide-mobile scrollable-vertical">
+                <div class="chat-component-members">
+                    <p>Teppo</p>
+                </div>
+
+                <div class="chat-component-members">
+                    <p>Teppo</p>
+                </div>
+
+                <div class="chat-component-members">
+                    <p>Teppo</p>
+                </div>
+
+                <div class="chat-component-members">
+                    <p>Teppo</p>
+                </div>
+
+                <div class="chat-component-members">
+                    <p>Teppo</p>
+                </div>
+
+                <div class="chat-component-members">
+                    <p>Teppo</p>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="page" id="page-settings">Settings</div>
+        <div class="page" id="page-friends">Friends</div>
+        <div class="page" id="page-activity">Activity</div>
+        <div class="page" id="page-home">Home</div>
+        <div class="page" id="page-dev">
+			<div>
+				<h4>Welcome to the dev zone.</h4>
+				<p data-pageTarget="#page-chat">chat</p><br>
+				<p data-pageTarget="#page-settings">settings</p><br>
+				<p data-pageTarget="#page-activity">activity</p><br>
+				<p data-pageTarget="#page-friends">friends</p>
 			</div>
-			<div class="modal-content" id="modal-content">
-
+        </div>
+        <div class="page" id="page-loading">
+			<div>
+				<h3 style="text-align:center;">Loading...</h3>
+				<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
 			</div>
-		</div>
-		<div id="popouts"></div>
-		<div class="item servers" id="servers">
-			<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-		</div>
-
-		<div class="item channels" id="channels" style="display:none;">
-
-		</div>
-
-		<div class="item chat" id="chat">
-			<div class="message-area" id="message-area">
-
-			</div>
-			<div class="chat-input-area">
-				<textarea class="chat-input" id="chat-input" placeholder="Message..."></textarea>
-			</div>
-		</div>
-
-		<div class="item contacts" id="contacts">
-
-		</div>
-
-		<div class="item mobile-contacts">
-			<span class="mobile-menu-toggle">☰</span>
-		</div>
-
-	</main>
+        </div>
+    </main>
 </body>
 </html>
