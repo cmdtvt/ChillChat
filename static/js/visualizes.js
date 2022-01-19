@@ -1,7 +1,7 @@
 
 
 /*Visualize user data on page. Depending on passed props.type render them differenty. Defaultly use same rendering as in chat message*/
-function VisualizeUser(username, avatar, type = null) {
+function VisualizeUser(user, type="default") {
     let element = document.createElement("div")
     switch (type) {
         case "large-popup":
@@ -10,17 +10,17 @@ function VisualizeUser(username, avatar, type = null) {
         default:
             element.classList.add("component-visualize-user-chat")
             let avatarElement = document.createElement("img")
-            avatarElement.src = avatar
+            avatarElement.src = user.avatar
             let usernameP = document.createElement("p")
-            usernameP.innerText = username
+            usernameP.innerText = user.name
             element.appendChild(avatarElement)
             element.appendChild(usernameP)
     }
     return element
 }
-function VisualizeChannel(type = null, id = null, name = null) {
+function VisualizeChannel(channel, type="default") {
     let element = document.createElement("div")
-    if (id == null) {
+    if (channel.id == null) {
         element.classList.add("error")
         element.innerText = "Channel not Found"
     } else {
@@ -32,18 +32,18 @@ function VisualizeChannel(type = null, id = null, name = null) {
             default:
                 element.classList.add("component-visualize-channel-sidebar")
                 element.onclick = () => {
-                    ActionMessagesOpen(id)
+                    ActionMessagesOpen(channel.id)
                 }
-                let serverName = document.createElement("p")
-                serverName.innerText = name
-                element.appendChild(serverName)
+                let channelName = document.createElement("p")
+                channelName.innerText = channel.name
+                element.appendChild(channelName)
         }
     }
     return element
 }
-function VisualizeServer(type = null, id = null, icon = "https://via.placeholder.com/50x50") {
+function VisualizeServer(server, type="default") {
     let element = document.createElement("div")
-    if (id == null) {
+    if (server.id == null) {
         element.classList.add("error")
         element.innerText = "Server not defined."
     } else {
@@ -58,25 +58,25 @@ function VisualizeServer(type = null, id = null, icon = "https://via.placeholder
             default:
                 element.classList.add("component-visualize-server-sidebar")
                 element.onclick = () => {
-                    ActionServerOpen(id)
+                    ActionServerOpen(server.id)
                 }
                 let serverIcon = document.createElement("img")
-                serverIcon.src = icon
+                serverIcon.src = server.icon
                 element.appendChild(serverIcon)
         }
     }
     return element
 }
 //Pass username message and avatar in props.
-function VisualizeMessage(author = null, messageID = null, content = null, type = null) {
+function VisualizeMessage(message, type="default") {
     //https://developer.mozilla.org/en-US/docs/Web/API/URL
-    var parsed = parseMessage(content)
+    var parsed = parseMessage(message.content)
     content = parsed.content
-    var message = document.createElement("div")
-    message.classList.add("component-message")
-    message.setAttribute("data-message-id", messageID)
+    var messageElem = document.createElement("div")
+    messageElem.classList.add("component-message")
+    messageElem.setAttribute("data-message-id", message.id)
     if (type == "chat-system") {
-        message.setAttribute("data-user-id", author['id'])
+        messageElem.setAttribute("data-user-id", message.author.id)
     }
     let messageContent = document.createElement("p")
     messageContent.classList.add("message")
@@ -87,12 +87,12 @@ function VisualizeMessage(author = null, messageID = null, content = null, type 
             break;
         default:
             messageContent.innerHTML = content
-            message.appendChild(VisualizeUser(author['name'], author['avatar']))
+            messageElem.appendChild(VisualizeUser(message.author))
             break;
     }
-    message.appendChild(messageContent)
+    messageElem.appendChild(messageContent)
     if (parsed.holder != null) {
-        message.appendChild(parsed.holder)
+        messageElem.appendChild(parsed.holder)
     }
-    return message
+    return messageElem
 }

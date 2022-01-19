@@ -120,14 +120,14 @@ document.addEventListener("DOMContentLoaded", async function(event) {
         let element = document.querySelector(anchorid);
         killChildren(element)
         for (let [key,value] of data.get(serverid)['channels'].entries()) {
-            element.appendChild(VisualizeChannel(null,value.id,value['name']));
+            element.appendChild(VisualizeChannel(value));
         }
     }
     function Servers(anchorid="#servers"){
         let element = document.querySelector(anchorid); 
         killChildren(element)
         for (let value of data.values()) {
-            element.appendChild(VisualizeServer(null,value.id,value['icon']));
+            element.appendChild(VisualizeServer(value));
         }   
     }
 

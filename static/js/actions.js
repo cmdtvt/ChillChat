@@ -96,14 +96,14 @@ function ActionMessagesOpen(id) {
         try {
             let fetch_messages = await fetchMessages(settings['current_channel'], settings['api'])
             if(fetch_messages) {
-                for(const message in fetch_messages) {
+                for(let message of fetch_messages) {
                     var temp = fetch_messages[message]
-                    var ele = VisualizeMessage(temp['author'],temp['id'],temp['content'])
+                    var ele = VisualizeMessage(message)
                     element.appendChild(ele);
-                    messages.set(temp['id'], ele);
+                    messages.set(message.id, ele);
                 }
              } else {
-                element.appendChild(VisualizeMessage(cauthor=null, messageID=null, content="No messages", type="chat-system"));
+                //element.appendChild(VisualizeMessage(message);
              }
         } catch (error) {
             console.log(error)
