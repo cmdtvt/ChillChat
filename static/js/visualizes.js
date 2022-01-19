@@ -77,27 +77,34 @@ function VisualizeMessage(message, type="default") {
     //https://developer.mozilla.org/en-US/docs/Web/API/URL
     var parsed = parseMessage(message.content)
     content = parsed.content
-    var messageElem = document.createElement("div")
-    messageElem.classList.add("component-message")
-    messageElem.setAttribute("data-message-id", message.id)
-    if (type == "chat-system") {
-        messageElem.setAttribute("data-user-id", message.author.id)
+    var element = document.createElement("div");
+    element.classList.add("chat-component-message");
+    element.setAttribute("data-message-id", message.id);
+
+    if(message.author != null) {
+        element.appendChild(VisualizeUser(message.author));
     }
-    let messageContent = document.createElement("p")
-    messageContent.classList.add("message")
+
+
     switch (type) {
         //System message in chat.
         case "chat-system":
             messageContent.innerHTML = content;
             break;
         default:
-            messageContent.innerHTML = content
-            messageElem.appendChild(VisualizeUser(message.author))
+
+            var contentElement = document.createElement("div");
+
+            var textElement = document.createElement("p")
+            textElement.innerHTML = content;
+            contentElement.appendChild(textElement);
+            
+            if (parsed.holder != null) {
+                contentElement.appendChild(parsed.holder)
+            }
+            element.appendChild(contentElement);
             break;
     }
-    messageElem.appendChild(messageContent)
-    if (parsed.holder != null) {
-        messageElem.appendChild(parsed.holder)
-    }
-    return messageElem
+
+    return element
 }
