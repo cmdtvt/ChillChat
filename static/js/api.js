@@ -53,9 +53,23 @@ var createChannel = async(server, name, type="text", url=null) => {
         body: formData
     })
 }
-var joinServer = async() => {
-
+var joinServer = async(server, url) => {
+    if(url == null) {
+        throw "API url is null"
+    }
+    await fetch(`${url}/server/${server.id}/join`, {
+        method: 'get'
+    })
 }
-var createServer = async() => {
+var createServer = async(name, url) => {
+    if(url == null) {
+        throw "API url is null"
+    }
+    let formData = new FormData()
+    formData.append("name", name)
+    await fetch(`${url}/server`, {
+        method: 'post',
+        body: formData
+    })
 
 }

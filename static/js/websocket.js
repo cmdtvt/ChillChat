@@ -35,6 +35,14 @@ handleChannels = (parsed, settings) => {
         }
     }
 }
+handleServers = (parsed, settings, data, wsFunc) => {
+    if(parsed.action == "new") {
+        settings["current_server"] = parsed.payload.id
+        parsed.payload.channels = new Map()
+        data.set(parsed.payload.id, parsed.payload)
+        wsFunc()
+    }
+}
 async function createWebsocket(wsFunc, data, settings) {
     console.trace(settings)
     if(settings) {
@@ -50,6 +58,7 @@ async function createWebsocket(wsFunc, data, settings) {
                 console.log("Acknowledging heartbeat");
             } else {
 
+                console.log(event.data)
                 let parsed = JSON.parse(event.data);
                 if (parsed.type == "member_data") {
                     handleMemberData(parsed, settings, wsFunc)
@@ -57,6 +66,8 @@ async function createWebsocket(wsFunc, data, settings) {
                     handleMessages(parsed)
                 } else if (parsed.type == "channel") {
                     handleChannels(parsed, settings)
+                } else if(parsed.type == "server") {
+                    handleServers(parsed, settings, data, wsFunc)
                 }
                 console.log("New message");
                 console.log(parsed);

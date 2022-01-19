@@ -22,7 +22,7 @@ async def get_channel(channel_id : int):
             return api.status_codes.NotFound()
     return api.status_codes.BadRequest()
 @api_blueprint.route("/channel/<int:channel_id>/message", methods=["POST"])
-async def message_create(channel_id : int):
+async def create_message(channel_id : int):
     global database
     if channel_id:
         form = await request.form
@@ -37,9 +37,18 @@ async def message_create(channel_id : int):
                     await channel.send(mpl)
                     return api.status_codes.OK()
     return api.status_codes.BadRequest()
-@api_blueprint.route("/channel/<int:channel_id>/message21/<int:message_id>", methods=['DELETE', 'PUT', 'GET'])
-async def message(channel_id : int, message_id : int):
-    return "hello"
+@api_blueprint.route("/server", methods=['POST'])
+async def create_server():
+    token = session.get('token')
+    if token:
+        form = await request.form
+        if form:
+            name = form['name']
+            member = await database.members(token=token)
+            if member:
+                await member.create_server(name)
+                return api.status_codes.OK()
+    return api.status_codes.BadRequest()
 @api_blueprint.route('/channel/<int:channel_id>/messages', methods=["GET"])
 async def get_messages(channel_id : int):
     global database
