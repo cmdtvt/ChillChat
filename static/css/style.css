@@ -217,6 +217,7 @@ main .page {
 }
 
 #page-chat .chat-chat .chat-chatarea .chat-component-message p {
+    padding-left: var(--setting-padding);
     flex-grow: 1;
 }
 
