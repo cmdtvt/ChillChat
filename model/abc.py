@@ -1,10 +1,4 @@
 from typing import Any, Optional, Sequence, Set
-class Payload:
-    pl_type : str
-    payload : object
-    action : str
-    def __init__(self, pl_type : str, payload : object, action : str) -> None:
-        pass
     
 class Messageable:
     async def send(self):

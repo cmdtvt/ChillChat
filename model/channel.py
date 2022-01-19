@@ -16,7 +16,7 @@ class Channel(ChannelType):
     def gateway_format(self,):
         result = {
             "id" : self.id,
-            "name" : self.name,
+            "name" : self.name
         }
         if self.server:
             result["server"] = self.server.gateway_format

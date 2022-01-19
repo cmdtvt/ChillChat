@@ -1,6 +1,6 @@
 function ActionLoadingAnimation(id) {
     var element = document.querySelector(id);
-    element.innerHTML = '<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>';
+    //element.innerHTML = '<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>';
 }
 
 //Toggle element visibility on off with display:none;
@@ -42,8 +42,6 @@ function ActionRenderNewMessage(message) {
     ActionScroll("#message-area","#chat-bottom","intoview-ifbottom", 100);
     return element
 }
-
-
 function ActionScroll(anchor=null,scrollto=null,behavior=null,scrollDelay=500){
     console.log("Scrolling");
     var element = document.querySelector(anchor);
@@ -89,6 +87,7 @@ function ActionMessagesOpen(id) {
     //Maby create a endpoint which returns the id of the newest message.
 
     //Fetch messages from channel and store them in given array.
+    killChildren(element)
     var createMessagesDOM = async(messages) => {
         try {
             let fetch_messages = await fetchMessages(settings['current_channel'], settings['api'])
@@ -119,6 +118,6 @@ function ActionMessagesOpen(id) {
         setTimeout(() => {
             bottomArea.scrollIntoView({ behavior: "smooth" });
         }, 1000);
-        }
-        createMessagesDOM(messages);
+    }
+    createMessagesDOM(messages);
 }

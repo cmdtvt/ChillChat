@@ -3,6 +3,7 @@ from .permissions import ChannelPermissions, ServerPermissions
 from .message import MessagePayload, Message
 from typing import Any, Sequence, Union, Optional
 from .abc import Database_API_Type, MemberType, Messageable, ClientType, PayloadType
+from .payload import Payload
 from .server import Server
 from .role import Role
 from .channel import TextChannel, VoiceChannel
@@ -31,7 +32,12 @@ class Member(MemberType):
     async def join_server(self, server : Server) -> bool:
         await Member.database.join_server(self, server)
         return True
-    
+    async def create_server(self, name : str) -> bool:
+        server = await Member.database.create_server(name, self)
+        pl = Payload("server", server.gateway_format, "new")
+        print(str(pl))
+        await self.send_via_client(pl)
+        return True
     async def get_servers(self,):
         if Member.database:
             server_data = await Member.database.query(
