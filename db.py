@@ -142,7 +142,10 @@ class DB_API(Database_API_Type):
                 else:
                     await conn.execute(sql)
         finally:
-            await self.pool.release(conn)
+            try:
+                await self.pool.release(conn)
+            except Exception as e:
+                print(e)
     # async def load_all(self,):
     #     servers = {}
     #     qr_servers = await self.query(self.queries["SELECT_ALL"].format(table="server"))

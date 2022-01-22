@@ -49,7 +49,7 @@ class Client(ClientType):
         while True:
             try:
                 if not self.heartbeat_task.cancelled():
-                    print(database.clients)
+                    #print(database.clients)
                     await self.send(Gateway.HEARTBEAT)
                     self._missed_heartbeats_in_row += 1
                     if self._missed_heartbeats_in_row >= 5:

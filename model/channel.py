@@ -33,7 +33,7 @@ class TextChannel(Channel):
                     #if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
                     payload = Payload("message", msg.gateway_format, "new")
                     await i.send_via_client(payload)
-                    return "ok"
+                return "ok"
     async def messages(self,):
         if Channel.database is not None:
             msgs = await Channel.database.query(Channel.database.queries["SELECT_WHERE_ORDER"].format(

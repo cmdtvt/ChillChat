@@ -38,7 +38,9 @@ function ActionFailedLinkLoad(element) {
 
 function ActionRenderNewMessage(message) {
     var element = VisualizeMessage(message);
-    document.querySelector("#chat-bottom").insertAdjacentHTML('beforebegin', element.outerHTML)
+    if(message.channel.id == settings.current_channel) {
+        document.querySelector("#chat-bottom").insertAdjacentHTML('beforebegin', element.outerHTML)
+    }
     ActionScroll("#message-area","#chat-bottom","intoview-ifbottom", 100);
     return element
 }
