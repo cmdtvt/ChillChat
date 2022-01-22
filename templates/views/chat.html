@@ -37,21 +37,22 @@
 
 				<div id="servers"></div>
 
-				<div class="chat-component-server" data-pageTarget="#page-dev">
+				<div class="chat-component-server" data-pageparget="#page-dev">
                     <img src="https://via.placeholder.com/350x350?text=Add server" class="fluid-image image-hoverable">
                 </div>
 
             </div>
 
-            <div class="chat-channels hide-mobile scrollable-vertical" id="channels">
-
+            <div class="chat-channels hide-mobile scrollable-vertical" id="channels-wrapper">
+                <div class="component-channel-list-widget">
+                    <p class="icon-settings" data-pageparget="#page-settings"></p>
+                </div>
+                <div id="channels"></div>
             </div>
 
             <div class="chat-chat">
-                <div class="chat-chatarea scrollable-vertical" id="message-area">
-
-                </div>
-                <div class="chat-textarea">
+                <div class="chat-chatarea scrollable-vertical" id="message-area"></div>
+                <div class="chat-textarea" id="chat-textarea" style="display:none;">
                     <textarea id="chat-input"></textarea>
                     <div class="send-message" id="send-message"><p> > </p></div>
                 </div>
@@ -100,7 +101,7 @@
         </div>
         <div class="page" id="page-loading">
 			<div>
-				<h3 style="text-align:center;">Loading...</h3>
+				<!--<h3 style="text-align:center;">Loading...</h3>-->
 				<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
 			</div>
         </div>

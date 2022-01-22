@@ -1,5 +1,5 @@
 handleMemberData = async (parsed, settings, wsFunc) => {
-    settings["userid"] = parsed.payload.id
+    settings.userData = parsed.payload;
     var servers = parsed.payload.servers
     if(servers) {
         settings['current_server'] = servers[0].id

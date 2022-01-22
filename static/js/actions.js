@@ -4,11 +4,11 @@ function ActionLoadingAnimation(id) {
 }
 
 //Toggle element visibility on off with display:none;
-function ActionToggleVisibility(id) {
-    var element = document.querySelector(id);
-    var display = element.style.display;
+function ActionToggleVisibility(id,displayMode="block") {
+    let element = document.querySelector(id);
+    let display = element.style.display;
     if(display == "none") {
-        element.style.display = "block";
+        element.style.display = displayMode;
     } else {
         element.style.display = "none";
     }
@@ -119,4 +119,7 @@ function ActionMessagesOpen(id) {
         }, 1000);
     }
     createMessagesDOM(messages);
+    ActionToggleVisibility("#chat-textarea","flex");
 }
+
+
