@@ -61,6 +61,14 @@ var joinServer = async(server, url) => {
         method: 'get'
     })
 }
+var leaveServer = async(server, url) => {
+    if(url == null) {
+        throw "API url is null"
+    }
+    await fetch(`${url}/server/${server.id}/leave`, {
+        method: 'get'
+    })
+}
 var createServer = async(name, url) => {
     if(url == null) {
         throw "API url is null"
