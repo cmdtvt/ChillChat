@@ -4,13 +4,26 @@ function ActionLoadingAnimation(id) {
 }
 
 //Toggle element visibility on off with display:none;
-function ActionToggleVisibility(id,displayMode="block") {
+//Return true if was made visible false if hidden
+function ActionToggleVisibility(id,displayMode="block",mode=null) {
     let element = document.querySelector(id);
     let display = element.style.display;
-    if(display == "none") {
+    if (mode == null) {
+        if(display == "none") {
+            element.style.display = displayMode;
+            return true;
+        } else {
+            element.style.display = "none";
+            return false;
+        }
+    }
+
+    if(mode=="show") {
         element.style.display = displayMode;
+        return true;
     } else {
         element.style.display = "none";
+        return false;
     }
 }
 
@@ -119,7 +132,7 @@ function ActionMessagesOpen(id) {
         }, 1000);
     }
     createMessagesDOM(messages);
-    ActionToggleVisibility("#chat-textarea","flex");
+    ActionToggleVisibility("#chat-textarea","flex","show");
 }
 
 

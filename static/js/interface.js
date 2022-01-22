@@ -10,6 +10,17 @@ const interfacePageClassName = ".page";
 document.addEventListener("DOMContentLoaded",function(){
     ActionInterfacePageHideAll(); //Hide all pages on startup so nothing stupid happens.
 
+/*
+    document.addEventListener('contextmenu', function(e) {
+        let mousex = e.clientX;
+        let mousey = e.clientY;
+        console.log([mousex, mousey]); // Prints data
+        alert("You've tried to open context menu"); //here you draw your own menu
+        e.preventDefault();
+    }, false);
+*/
+
+
     ActionInterfaceSwitchPage("#page-loading");
 });
 
