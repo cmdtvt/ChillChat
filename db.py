@@ -29,9 +29,10 @@ class DB_API(Database_API_Type):
             "SELECT_WHERE" : "SELECT * FROM {table} WHERE {where}",
             "SELECT_WHERE_ORDER" : "SELECT * FROM {table} WHERE {where} ORDER BY {order}",
             "SELECT_JOIN" : "SELECT {columns} FROM {table1} JOIN {table2} WHERE {where}",
+            "DELETE_FROM" : "DELETE FROM {table} WHERE {where}",
         }
         self.pool = None
-        self.clients : dict[str, dict[str, ClientType]] = {"tokenized" : {}, "all" : set()}
+        self.clients : dict[str, dict[str, ClientType]] = {"tokenized" : {}, "all" : set(), "id" : {}}
         Server.database = self
         Channel.database = self
         Member.database = self
@@ -47,7 +48,7 @@ class DB_API(Database_API_Type):
         ), (content, payload.author.id, payload.channel.id))
         message = Message(message_id[0]["id"], content, payload.author, payload.channel)
         return message
-    @cache.async_cached(timeout=30)
+    @cache.async_cached(timeout=180)
     async def members(self : Database_API_Type, *, token : str=None, member_id: int=None) -> Optional[Member]:
         if token or member_id:
             if token:
@@ -65,7 +66,7 @@ class DB_API(Database_API_Type):
                 member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
                 return member
         return None
-    @cache.async_cached(timeout=30)
+    @cache.async_cached(timeout=15)
     async def channels(self : Database_API_Type, *, channel_id : int=None) -> Optional[Channel]:
         #todo
         if channel_id:
@@ -97,7 +98,16 @@ class DB_API(Database_API_Type):
                 server_data = server_data[0]
                 return Server(server_data["id"], server_data["name"])
     async def join_server(self : Database_API_Type, member : Member, server : Server) -> None:
-        qr = await self.query(self.queries["INSERT"].format(table="server_members", columns="member_id, server_id", values="$1::bigint, $2::bigint"), (member.id, server.id))
+        qr = await self.query(self.queries["INSERT"].format(
+            table="server_members",
+            columns="member_id, server_id",
+            values="$1::bigint, $2::bigint"
+        ),(member.id, server.id))
+    async def remove_from_server(self : Database_API_Type, member : Member, server : Server) -> None:
+        qr = await self.query(self.queries["DELETE_FROM"].format(
+            table="server_members",
+            where="member_id=$1::bigint AND server_id=$2::bigint",
+        ), (member.id, server.id))
     async def create_member(self : Database_API_Type, name : str, avatar : str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member", columns="name, avatar", values="$1::text, $2::text", returning="id"), (name, avatar))
         return Member(qr, name, None, avatar, None, {}, {}, {})
