@@ -204,6 +204,7 @@ main .page {
 #page-chat .chat-channels .user .icon-settings {
     background-color: orange;
     width: 100%;
+    flex-basis: 100%;
 }
 
 #page-chat .chat-channels .component-channel-list-widget {

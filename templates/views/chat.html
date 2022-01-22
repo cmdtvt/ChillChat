@@ -37,7 +37,7 @@
 
 				<div id="servers"></div>
 
-				<div class="chat-component-server" data-pageparget="#page-dev">
+				<div class="chat-component-server" data-pagetarget="#page-dev">
                     <img src="https://via.placeholder.com/350x350?text=Add server" class="fluid-image image-hoverable">
                 </div>
 
@@ -86,7 +86,13 @@
 
 
         </div>
-        <div class="page" id="page-settings">Settings</div>
+        <div class="page" id="page-settings">
+            {% include "views/pages/userSettings.html" ignore missing %}
+        </div>
+
+        <div class="page" id="page-serversettings">
+            {% include "views/pages/serverSettings.html" ignore missing %}
+        </div>
         <div class="page" id="page-friends">Friends</div>
         <div class="page" id="page-activity">Activity</div>
         <div class="page" id="page-home">Home</div>
@@ -100,10 +106,7 @@
 			</div>
         </div>
         <div class="page" id="page-loading">
-			<div>
-				<!--<h3 style="text-align:center;">Loading...</h3>-->
-				<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-			</div>
+            {% include "views/pages/loading.html" ignore missing %}
         </div>
     </main>
 </body>
