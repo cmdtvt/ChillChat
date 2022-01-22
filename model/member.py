@@ -31,6 +31,18 @@ class Member(MemberType):
             await Member.database.clients["tokenized"][self.token].send(str(payload))
     async def join_server(self, server : Server) -> bool:
         await Member.database.join_server(self, server)
+        pl_self = Payload("server", server.gateway_format, "new")
+        pl_server = Payload("server_member", self.gateway_format, "new")
+        
+        await self.send_via_client(pl_self)
+        await server.broadcast(pl_server)
+        return True
+    async def remove_from_server(self, server : Server) -> bool:
+        await Member.database.remove_from_server(self, server)
+        pl_self = Payload("server", server.gateway_format, "remove")
+        pl_server = Payload("server_member", self.gateway_format, "remove")
+        await self.send_via_client(pl_self)
+        await server.broadcast(pl_server)
         return True
     async def create_server(self, name : str) -> bool:
         server = await Member.database.create_server(name, self)

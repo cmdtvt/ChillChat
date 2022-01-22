@@ -1,5 +1,7 @@
 from asyncio.queues import Queue
-from quart import Blueprint, websocket, session
+from telnetlib import GA
+from tkinter.messagebox import NO
+from quart import Blueprint, copy_current_websocket_context, websocket, session
 from typing import Union, Any
 from model.abc import ClientType, MemberType
 import instances
@@ -27,8 +29,9 @@ class Client(ClientType):
         self.member : MemberType = None
         self.heartbeat_task : asyncio.Task = None
         self.process_queue_task : asyncio.Task = None
+        self.receive_task : asyncio.Task = None
+        self.loop = None
         self.queue : Queue = None
-        self.ws = None
         self._missed_heartbeats_in_row = 0
     def authenticated(self,):
         if self.token:
@@ -36,52 +39,67 @@ class Client(ClientType):
         return False
     async def heartbeat(self,):
         while True:
-            if self.ws:
-                await self.send(Gateway.HEARTBEAT)
-                self._missed_heartbeats_in_row += 1
-                if self._missed_heartbeats_in_row >= 5:
-                    await self._stop()
-                    break
+            await self.send(Gateway.HEARTBEAT)
+            self._missed_heartbeats_in_row += 1
+            if self._missed_heartbeats_in_row >= 5:
+                await self._stop()
+                break
             await asyncio.sleep(5)
+    async def receive(self,):
+        while True:
+            data = await websocket.receive()
+            if data == Gateway.ACK_HEARTBEAT:
+                self._missed_heartbeats_in_row = 0
         
     async def _stop(self,):
         self.process_queue_task.cancel()
         self.heartbeat_task.cancel()
-        await self.ws.close(400)
+        await websocket.close(400)
     async def _process_queue(self,):
         while True:
-            if self.ws and self.queue:
-                data = await self.queue.get()
-                await self.ws.send(data)
-                await asyncio.sleep(0.01)
-    async def process(self, ws, data):
-        if not self.queue:
-            self.queue = asyncio.Queue()
-            await self.member.get_servers()
-            member_data = self.member.gateway_format
-            member_data["servers"] = [x.gateway_format for x in self.member.servers.values()]
-            member_data = {"payload" : member_data, "type" : "member_data", "action" : None}
-            member_data = json.dumps(member_data)
-            await self.send(member_data)
-        if not self.ws:
-            self.ws = ws
-
-        if not self.heartbeat_task:
-            self.heartbeat_task = asyncio.get_event_loop().create_task(self.heartbeat())
-        if not self.process_queue_task:
-            self.process_queue_task = asyncio.get_event_loop().create_task(self._process_queue())
-
-        if data == Gateway.ACK_HEARTBEAT:
-            self._missed_heartbeats_in_row -= 1
-        if self._missed_heartbeats_in_row >= 5:
-            await self._stop()
+            data = await self.queue.get()
+            await websocket.send(data)
+            await asyncio.sleep(0.01)
+    async def process(self,):
+        try:
+            if not self.queue:
+                self.queue = asyncio.Queue()
+                await self.member.get_servers()
+                member_data = self.member.gateway_format
+                member_data["servers"] = [x.gateway_format for x in self.member.servers.values()]
+                member_data = {"payload" : member_data, "type" : "member_data", "action" : None}
+                member_data = json.dumps(member_data)
+                await self.send(member_data)
+                self.heartbeat_task = asyncio.ensure_future(
+                    copy_current_websocket_context(
+                        self.heartbeat
+                    )()
+                )
+                self.process_queue_task = asyncio.ensure_future(
+                    copy_current_websocket_context(
+                        self._process_queue
+                    )()
+                )
+                self.receive_task = asyncio.ensure_future(
+                    copy_current_websocket_context(
+                        self.receive
+                    )()
+                )
+            await asyncio.gather(self.heartbeat_task, self.process_queue_task, self.receive_task)
+        except asyncio.CancelledError:
+            pass
+        finally:
             self.heartbeat_task.cancel()
+            self.process_queue_task.cancel()
     async def send(self, data : str) -> Any:
         await self.queue.put(data)
+            
 def collect_websocket(func):
     async def wrapper(*args, **kwargs):
         global database
+        loop = asyncio.get_event_loop()
         client = Client()
+        client.loop = loop
         database.clients["all"].add(client)
         try:
             return await func(client, *args, **kwargs)
@@ -97,28 +115,56 @@ async def gateway(client):
     global tasks
     global database
     websocket.headers
-    while True:
-        try:
-            if session:
-                if session.get('token'):
-                    token = session.get('token')
+    client_task = None
+    try:
+        print("asd")
+        if session:
+            token = session.get('token')
+            if token:
+                if token in database.clients["tokenized"]:
+                    pass
+                else:
                     member = await database.members(token=token)
-                    
                     if member:
                         client.token = token
                         client.member = member
-                        if client not in tasks:
-                            tasks[client] = asyncio.create_task(websocket.receive())
-                        if token not in database.clients["tokenized"]:
-                            database.clients["tokenized"][client.token] = client
-                            # database.members["token"][token].set_client(client)
-                            # for i, server in database.members["token"][token].servers.items():
-                            #     server.clients.add(database.members["token"][token])
-                        if tasks[client].done():
-                            await client.process(websocket, tasks[client].result())
-                            del tasks[client]
-                        
-            await asyncio.sleep(0.01)
+                        task =  await websocket.receive()
+                        if task.startswith("START"):
+                            client_task = asyncio.ensure_future(copy_current_websocket_context(client.process)())
+                            if token not in database.clients["tokenized"]:
+                                database.clients["tokenized"][client.token] = client
+                                database.clients["id"][member.id] = client
+                            await asyncio.gather(client_task)
+    finally:
+        if client_task:
+            client_task.cancel()
+                            
+    # except Exception as e:
+    #     print(e)
+    # while True:
+    #     try:
+    #         if session:
+    #             token = session.get('token')
+    #             if token:
+    #                 if token in database.clients["tokenized"]:
+    #                     print(True)
+    #                     await asyncio.sleep(5)
+    #                 else:
+    #                     member = await database.members(token=token)
+    #                     if member:
+    #                         client.token = token
+    #                         client.member = member
+    #                         if client not in tasks:
+    #                             tasks[client] =  await websocket.receive()
+    #                             await client.process(websocket, tasks[client])
+    #                             del tasks[client]
+    #                         if token not in database.clients["tokenized"]:
+    #                             database.clients["tokenized"][client.token] = client
+    #                             database.clients["id"][member.id] = client
+    #                             # database.members["token"][token].set_client(client)
+    #                             # for i, server in database.members["token"][token].servers.items():
+    #                             #     server.clients.add(database.members["token"][token])
+    #         await asyncio.sleep(0.01)
             # 
             #     tasks[client] = data
             # if tasks[client].done():
@@ -136,5 +182,7 @@ async def gateway(client):
             #                     await client.process(websocket, data.result())
 
             
-        except asyncio.CancelledError:
-            break
+        # except asyncio.CancelledError:
+        #     break
+        # except AttributeError as e:
+        #     print(e)

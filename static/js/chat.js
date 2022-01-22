@@ -11,7 +11,6 @@ var settings = {
 }
 //Check the correct embed for a link.
 function parseMessage(message) {
-    console.log("yeet: "+message);
     //var extension = message.split(/[#?]/)[0].split('.').pop().trim();
     var photoRegex = /(?:\b(?:https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]).(?:jpg|jpeg|gif|png)/ig
     var videoRegex = /(?:\b(?:https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]).(?<extension>webm|mp4)/ig

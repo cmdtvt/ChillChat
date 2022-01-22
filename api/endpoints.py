@@ -37,6 +37,52 @@ async def create_message(channel_id : int):
                     await channel.send(mpl)
                     return api.status_codes.OK()
     return api.status_codes.BadRequest()
+@api_blueprint.route("/server/<int:server_id>/join")
+async def join_server(server_id):
+    global database
+    token = session.get("token")
+    if token:
+        member = await database.members(token=token)
+        if member:
+            server = await database.servers(server_id=server_id)
+            if server:
+                await member.join_server(server)
+                return api.status_codes.OK()
+    return api.status_codes.BadRequest()
+@api_blueprint.route("/server/<int:server_id>/leave")
+async def leave_server(server_id):
+    global database
+    token = session.get("token")
+    if token:
+        member = await database.members(token=token)
+        if member:
+            server = await database.servers(server_id=server_id)
+            if server:
+                await member.remove_from_server(server)
+                return api.status_codes.OK()
+    return api.status_codes.BadRequest()
+@api_blueprint.route("/server/<int:server_id>/join/<int:member_id>")
+async def join_server_test(server_id, member_id):
+    global database
+
+    member = await database.members(member_id=member_id)
+    if member:
+        server = await database.servers(server_id=server_id)
+        if server:
+            await member.join_server(server)
+            return api.status_codes.OK()
+    return api.status_codes.BadRequest()
+@api_blueprint.route("/server/<int:server_id>/leave/<int:member_id>")
+async def leave_server_test(server_id, member_id):
+    global database
+
+    member = await database.members(member_id=member_id)
+    if member:
+        server = await database.servers(server_id=server_id)
+        if server:
+            await member.remove_from_server(server)
+            return api.status_codes.OK()
+    return api.status_codes.BadRequest()
 @api_blueprint.route("/server", methods=['POST'])
 async def create_server():
     token = session.get('token')

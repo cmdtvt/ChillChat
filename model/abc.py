@@ -65,11 +65,13 @@ class Database_API_Type:
         raise NotImplementedError
     async def create_message(self, mpl : MessageType):
         raise NotImplementedError
-    async def members(self, *, token : str=None, id : int=None) -> Optional[MemberType]:
+    async def members(self, *, token : str=None, member_id : int=None) -> Optional[MemberType]:
         raise NotImplementedError
     async def channels(self, *, channel_id : int=None) -> Optional[ChannelType]:
         raise NotImplementedError
     async def servers(self, *, server_id : int=None) -> Optional[ServerType]:
+        raise NotImplementedError
+    async def remove_from_server(self, member : MemberType, server: ServerType) -> None:
         raise NotImplementedError
     async def join_server(self, member : MemberType, server : ServerType) -> None:
         raise NotImplementedError

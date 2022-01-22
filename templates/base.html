@@ -14,10 +14,11 @@
 </head>
 <body>
 
-    <div id="devpanel" style="display:none">
+    <div id="devpanel">
         <p>Devzone</p>
         <pre>
             <code>
+                {{session.get('token')}}
                 {{member}}<br>
                 {{member.token}}<br>
                 {{member.servers}}

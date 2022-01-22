@@ -30,9 +30,15 @@ class Server(ServerType):
                     self.channels[i["id"]] = channel
     async def load_client_members(self,) -> Sequence[MemberType]:
         if Server.database is not None:
-            members = []
-            for i in Server.database.clients["tokenized"]:
-                members.append(await Server.database.members(token=i))
+            server_members_data = await Server.database.query(
+                Server.database.queries["SELECT_WHERE"].format(
+                    table="server_members",
+                    where="server_id=$1::bigint"
+                ),
+                (self.id,)
+            )
+            members = [await Server.database.members(member_id=x["member_id"]) for x in server_members_data]
+            members = list(filter((lambda x: x.id in Server.database.clients["id"].keys()), members))
             return members
     @property
     def gateway_format(self,):
