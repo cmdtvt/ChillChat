@@ -33,33 +33,54 @@ class Client(ClientType):
         self.loop = None
         self.queue : Queue = None
         self._missed_heartbeats_in_row = 0
+    async def close_connection(self,):
+        self.heartbeat_task.cancel()
+        self.process_queue_task.cancel()
+        try:
+            await websocket.close(400)
+        except RuntimeError as e:
+            print(e)
     def authenticated(self,):
         if self.token:
             return True
         return False
     async def heartbeat(self,):
+        global database
         while True:
-            await self.send(Gateway.HEARTBEAT)
-            self._missed_heartbeats_in_row += 1
-            if self._missed_heartbeats_in_row >= 5:
-                await self._stop()
-                break
-            await asyncio.sleep(5)
+            try:
+                if not self.heartbeat_task.cancelled():
+                    print(database.clients)
+                    await self.send(Gateway.HEARTBEAT)
+                    self._missed_heartbeats_in_row += 1
+                    if self._missed_heartbeats_in_row >= 5:
+                        await self.close_connection()
+                        break
+                await asyncio.sleep(5)
+            except asyncio.CancelledError:
+                await self.close_connection()
     async def receive(self,):
         while True:
-            data = await websocket.receive()
-            if data == Gateway.ACK_HEARTBEAT:
-                self._missed_heartbeats_in_row = 0
+            try:
+                if not self.receive_task.cancelled():
+                    data = await websocket.receive()
+                    if data == Gateway.ACK_HEARTBEAT:
+                        self._missed_heartbeats_in_row = 0
+            except asyncio.CancelledError:
+                await self.close_connection()
+                break
         
-    async def _stop(self,):
-        self.process_queue_task.cancel()
-        self.heartbeat_task.cancel()
-        await websocket.close(400)
+
     async def _process_queue(self,):
         while True:
-            data = await self.queue.get()
-            await websocket.send(data)
-            await asyncio.sleep(0.01)
+            try:
+                data = await self.queue.get()
+                if not self.process_queue_task.cancelled():
+                    await websocket.send(data)
+
+                await asyncio.sleep(0.01)
+            except asyncio.CancelledError:
+                await self.close_connection()
+                break
     async def process(self,):
         try:
             if not self.queue:
@@ -85,12 +106,11 @@ class Client(ClientType):
                         self.receive
                     )()
                 )
-            await asyncio.gather(self.heartbeat_task, self.process_queue_task, self.receive_task)
+            await asyncio.gather(self.heartbeat_task, self.process_queue_task, self.receive_task, return_exceptions=True)
         except asyncio.CancelledError:
             pass
         finally:
-            self.heartbeat_task.cancel()
-            self.process_queue_task.cancel()
+            self.close_connection()
     async def send(self, data : str) -> Any:
         await self.queue.put(data)
             
@@ -117,24 +137,24 @@ async def gateway(client):
     websocket.headers
     client_task = None
     try:
-        print("asd")
-        if session:
+        if session and session.get('token'):
             token = session.get('token')
-            if token:
-                if token in database.clients["tokenized"]:
-                    pass
-                else:
-                    member = await database.members(token=token)
-                    if member:
-                        client.token = token
-                        client.member = member
-                        task =  await websocket.receive()
-                        if task.startswith("START"):
-                            client_task = asyncio.ensure_future(copy_current_websocket_context(client.process)())
-                            if token not in database.clients["tokenized"]:
-                                database.clients["tokenized"][client.token] = client
-                                database.clients["id"][member.id] = client
-                            await asyncio.gather(client_task)
+            if token in database.clients["tokenized"]:
+                print(database.clients)
+                await asyncio.sleep(5)
+            else:
+                task =  await websocket.receive()
+                member = await database.members(token=token)
+                if member and task.startswith("START"):
+                    client.token = token
+                    client.member = member
+                    client_task = asyncio.ensure_future(copy_current_websocket_context(client.process)())
+                    if token not in database.clients["tokenized"]:
+                        database.clients["tokenized"][client.token] = client
+                        database.clients["id"][member.id] = client
+                    await asyncio.gather(client_task)
+    except asyncio.CancelledError as e:
+        print(e)
     finally:
         if client_task:
             client_task.cancel()

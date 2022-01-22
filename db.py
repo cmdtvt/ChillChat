@@ -129,8 +129,6 @@ class DB_API(Database_API_Type):
         if self.pool is None:
             self.pool = await asyncpg.create_pool(user=self.username, password=self.password, database=self.database, host=self.host)
         conn = await self.pool.acquire()
-        print(sql)
-        print(params)
         try:
             if sql.startswith("SELECT") or sql.endswith("RETURNING id"):
                 if params:

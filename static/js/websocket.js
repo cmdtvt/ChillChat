@@ -1,4 +1,5 @@
 handleMemberData = async (parsed, settings, wsFunc) => {
+    let {serverFunc, renderComponentsFunc} = wsFunc
     settings.userData = parsed.payload;
     var servers = parsed.payload.servers
     if(servers) {
@@ -15,7 +16,8 @@ handleMemberData = async (parsed, settings, wsFunc) => {
         data.set(server.id, server)
     }
     //await updateMessages();
-    wsFunc();
+    serverFunc();
+    renderComponentsFunc()
 
 }
 handleMessages = (parsed) => {
@@ -44,8 +46,8 @@ handleServers = (parsed, settings, data, wsFunc) => {
     }
 }
 async function createWebsocket(wsFunc, data, settings) {
-    console.trace(settings)
     if(settings) {
+        let {serverFunc, renderComponentsFunc} = wsFunc
         let sock = new WebSocket(settings["gateway"]);
         sock.onopen = async () => {
             sock.send(`START`);
@@ -57,7 +59,8 @@ async function createWebsocket(wsFunc, data, settings) {
                 sock.send("ACK_HEARTBEAT");
                 console.log("Acknowledging heartbeat");
             } else {
-
+                
+                console.log("New message");
                 console.log(event.data)
                 let parsed = JSON.parse(event.data);
                 if (parsed.type == "member_data") {
@@ -67,9 +70,8 @@ async function createWebsocket(wsFunc, data, settings) {
                 } else if (parsed.type == "channel") {
                     handleChannels(parsed, settings)
                 } else if(parsed.type == "server") {
-                    handleServers(parsed, settings, data, wsFunc)
+                    handleServers(parsed, settings, data, serverFunc)
                 }
-                console.log("New message");
                 console.log(parsed);
                 /*TODO: Handle different incoming data from the socket.
                 Not everything is always just messages.*/
@@ -79,7 +81,7 @@ async function createWebsocket(wsFunc, data, settings) {
             }
         }
         sock.onclose = async () => {
-            await createWebsocket(wsFunc, data)
+            await createWebsocket(wsFunc, data, settings)
         }
     }
 }
