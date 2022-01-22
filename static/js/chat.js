@@ -62,7 +62,8 @@ function parseMessage(message) {
 }
 document.addEventListener("DOMContentLoaded", async function(event) {
     async function initialize() {
-        await createWebsocket(Servers, data, settings); 
+        let functions = {serverFunc : Servers, renderComponentsFunc : RenderComponents}
+        await createWebsocket(functions, data, settings); 
     }
     await initialize();
 
@@ -116,7 +117,6 @@ function Servers(anchorid="#servers") {
     for (let value of data.values()) {
         element.appendChild(VisualizeServer(value));
     }
-    RenderComponents(); //FIXME: Move this to websocket.
     ActionInterfaceSwitchPage("#page-chat");
 
 }
@@ -124,11 +124,14 @@ function Servers(anchorid="#servers") {
 //Render some components are needed only once.
 function RenderComponents() {
     console.log("test "+settings.userData);
-    document.querySelector("#channels-wrapper").append(VisualizeUser(settings.userData,"channel-list"));
-
+    let element = document.querySelector("#channels-wrapper")
+    if(element.querySelector("div.user") == null) {
+        element.append(VisualizeUser(settings.userData,"channel-list"));
+    }
 
     //Make sure all interface buttons are registered.
     UtilityActionInterfaceReload();
 }
+
 
 
