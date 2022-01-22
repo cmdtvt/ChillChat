@@ -37,8 +37,13 @@
 }
 
 .icon-close {font-size: 1.80em; float: right;}
-.icon-close:hover {cursor: pointer; color: #ff4000; transition: var(--item-transition);}
+.icon-close:hover, .icon-settings:hover {cursor: pointer; color: #ff4000; transition: var(--item-transition);}
 .icon-close::after {content: " X";}
+
+.icon-settings::after {content: "⚙️";}
+.icon-settings:hover {
+    color:rgb(255, 255, 255);
+}
 
 
 /*For custom scrollbar*/
@@ -174,12 +179,40 @@ main .page {
 
 #page-chat .chat-channels {
     background-color: var(--color-grey);
-    padding: 0px 10px 0px 10px;
     display:flex;
     flex-direction: column;
     max-width: 200px;
     min-width: 7%;
     overflow-x: hidden;
+}
+
+#page-chat .chat-channels .user {
+    background-color: var(--color-dark);
+    display: flex;
+    padding: 5px;
+}
+
+#page-chat .chat-channels .user img {
+    width: 50px;
+    height: 50px;
+}
+
+#page-chat .chat-channels .user p {
+    margin-left: 5px;
+}
+
+#page-chat .chat-channels .user .icon-settings {
+    background-color: orange;
+    width: 100%;
+}
+
+#page-chat .chat-channels .component-channel-list-widget {
+    display: flex;
+}
+
+#page-chat .chat-channels .component-channel-list-widget img {
+    width: 50px;
+    height: 50px;
 }
 
 #page-chat .chat-channels .chat-component-channel {

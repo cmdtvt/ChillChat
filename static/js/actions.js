@@ -121,3 +121,5 @@ function ActionMessagesOpen(id) {
     createMessagesDOM(messages);
     ActionToggleVisibility("#chat-textarea","flex");
 }
+
+

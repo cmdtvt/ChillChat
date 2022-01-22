@@ -4,7 +4,7 @@ var settings = {
     baseurl : "127.0.0.1:5000/v1",
     api : `http://${baseurl}`,
     gateway : `ws://${baseurl}/gateway/`,
-    userid : null,
+    userData : null,
     current_server : null,
     current_channel : null,
     chatIsScrolledBottom : false
@@ -100,20 +100,35 @@ document.addEventListener("DOMContentLoaded", async function(event) {
         console.log(settings['chatIsScrolledBottom']);
     });
 });
-    //Give server id and element id where channels are placed.
-    function Channels(serverid,anchorid="#channels") {
-        let element = document.querySelector(anchorid);
-        killChildren(element)
-        for (let [key,value] of data.get(serverid)['channels'].entries()) {
-            element.appendChild(VisualizeChannel(value));
-        }
+
+//Give server id and element id where channels are placed.
+function Channels(serverid,anchorid="#channels") {
+    let element = document.querySelector(anchorid);
+    killChildren(element)
+    for (let [key,value] of data.get(serverid)['channels'].entries()) {
+        element.appendChild(VisualizeChannel(value));
     }
-    function Servers(anchorid="#servers") {
-        let element = document.querySelector(anchorid);
-        killChildren(element)
-        for (let value of data.values()) {
-            element.appendChild(VisualizeServer(value));
-        }
-        ActionInterfaceSwitchPage("#page-chat");
+}
+
+function Servers(anchorid="#servers") {
+    let element = document.querySelector(anchorid);
+    killChildren(element)
+    for (let value of data.values()) {
+        element.appendChild(VisualizeServer(value));
     }
+    RenderComponents(); //FIXME: Move this to websocket.
+    ActionInterfaceSwitchPage("#page-chat");
+
+}
+
+//Render some components are needed only once.
+function RenderComponents() {
+    console.log("test "+settings.userData);
+    document.querySelector("#channels-wrapper").append(VisualizeUser(settings.userData,"channel-list"));
+
+
+    //Make sure all interface buttons are registered.
+    UtilityActionInterfaceReload();
+}
+
 

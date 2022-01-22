@@ -2,19 +2,32 @@
 
 /*Visualize user data on page. Depending on passed props.type render them differenty. Defaultly use same rendering as in chat message*/
 function VisualizeUser(user, type="default") {
-    let element = document.createElement("div")
+    let element = document.createElement("div");
+    let avatarElement = document.createElement("img");
+    avatarElement.src = user.avatar;
+    let usernameP = document.createElement("p");
+    usernameP.innerText = user.name;
+
     switch (type) {
         case "large-popup":
+
+            break;
+
+        case "channel-list":
+            
+            let userSettings = document.createElement("p");
+            userSettings.classList.add("icon-settings");
+            userSettings.setAttribute('data-pagetarget' , "#page-settings");
+            element.classList.add("user");
+            element.appendChild(avatarElement);
+            element.appendChild(usernameP);
+            element.appendChild(userSettings);
             break;
 
         default:
-            element.classList.add("user")
-            let avatarElement = document.createElement("img")
-            avatarElement.src = user.avatar
-            let usernameP = document.createElement("p")
-            usernameP.innerText = user.name
-            element.appendChild(avatarElement)
-            //element.appendChild(usernameP)
+            element.classList.add("user");
+            element.appendChild(avatarElement);
+           // element.appendChild(usernameP);
     }
     return element
 }

@@ -9,7 +9,7 @@ UtilityActions are child functions used by other Action functions and should not
 const interfacePageClassName = ".page";
 document.addEventListener("DOMContentLoaded",function(){
     ActionInterfacePageHideAll(); //Hide all pages on startup so nothing stupid happens.
-    UtilityActionInterfaceReload();
+
     ActionInterfaceSwitchPage("#page-loading");
 });
 
@@ -31,12 +31,12 @@ function ActionInterfacePageShowAll() {
 
 //This function clears interface management data and registers all pages and interface buttons again. Really should not be used alot can be pretty performance heavy.
 function UtilityActionInterfaceReload() {
-
     //Find all elements with pageTarget datavalue and when clicking them change page.
-    for(let t of document.querySelectorAll("[data-pageTarget]")) {
-        t.addEventListener("click", function(e){
-            ActionInterfaceSwitchPage(this.dataset.pagetarget);
-        });
+    for(let t of document.querySelectorAll("[data-pagetarget]")) {
+        t.onclick = () => {
+            ActionInterfaceSwitchPage(t.dataset.pagetarget);
+        }
+        //t.addEventListener("click", function(e){});
     }
 }
 
