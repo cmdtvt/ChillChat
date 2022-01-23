@@ -1,10 +1,31 @@
+from queue import Queue
 from quart import  Quart, render_template, session, redirect, url_for
 from instances import database
 import random
+import time
 import asyncio
 import api.endpoints
 from model.abc import MemberType
+class ProfilerMiddleware:
+    def __init__(self, app) -> None:
+        self.app = app
+        self.total_time = 0
+        self.requests = 0
+    async def __call__(self, scope : dict, receive : Queue, send):
+        # print("Scope", scope)
+        # print("Receive", receive)
+        # print("Send", send)
+        start = time.perf_counter()
+        print()
+        tmp = await self.app(scope, receive, send)
+        stop = time.perf_counter()
+        self.total_time += (stop-start)
+        self.requests += 1
+        print(f"{self.total_time/self.requests} average seconds")
+        print()
+        return tmp
 app = Quart(__name__, static_folder="static")
+app.asgi_app = ProfilerMiddleware(app.asgi_app)
 app.jinja_options["enable_async"] = True
 app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
