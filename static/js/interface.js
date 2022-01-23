@@ -10,15 +10,9 @@ const interfacePageClassName = ".page";
 document.addEventListener("DOMContentLoaded",function(){
     ActionInterfacePageHideAll(); //Hide all pages on startup so nothing stupid happens.
 
-/*
-    document.addEventListener('contextmenu', function(e) {
-        let mousex = e.clientX;
-        let mousey = e.clientY;
-        console.log([mousex, mousey]); // Prints data
-        alert("You've tried to open context menu"); //here you draw your own menu
-        e.preventDefault();
-    }, false);
-*/
+
+
+
 
 
     ActionInterfaceSwitchPage("#page-loading");
@@ -47,8 +41,108 @@ function UtilityActionInterfaceReload() {
         t.onclick = () => {
             ActionInterfaceSwitchPage(t.dataset.pagetarget);
         }
+    }
+
+    for(let t of document.querySelectorAll('.chat-component-server')) {
+        t.oncontextmenu = (e) => {
+            let x = e.clientX;
+            let y = e.clientY;
+            console.log([x,y]);
+            openContextMenu(x,y,"default","Server",{
+                "Home" : [ActionInterfaceSwitchPage,['#page-home']],
+                "Menu" : {} 
+            });
+            e.preventDefault();
+        }
         //t.addEventListener("click", function(e){});
     }
+
+
+}
+
+/*
+
+Open context menu in given location.
+
+
+
+*/
+function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
+    killChildren(document.querySelector("#contextmenu-wrapper"));
+
+    let contextmenu = document.createElement("div");
+    contextmenu.classList.add("contextmenu");
+    contextmenu.setAttribute("style","top:"+y+"px; left:"+x+"px;");
+
+    let template_buttons = "";
+    for (const [key, value] of Object.entries(binds)) {
+        let temp_value = value
+        //console.log(typeof(value));
+
+        //Thanks JavaSciprt :)
+        //Here we check if object is an array.
+        let objType = Object.prototype.toString.call(value);
+        if(objType === '[object Array]') {
+
+            let b = document.createElement('div');
+            b.classList.add("item");
+            let bname = document.createElement('span');
+            bname.innerHTML = key;
+
+            //TODO: Currently only passes one parameter to function.
+            b.addEventListener("click",function(){
+                value[0](value[1]); //Run the passed function and give it parameter.
+                killChildren(document.querySelector("#contextmenu-wrapper"));
+            });
+            b.appendChild(bname);
+            contextmenu.appendChild(b);
+        } else if(objType === '[object Object]') {
+            console.log("Not implemented");
+        }
+
+
+        /*
+        if(typeof(value) == "function") {
+            let b = document.createElement('div');
+            b.classList.add("item");
+            let bname = document.createElement('span');
+            bname.innerHTML = key;
+
+            b.addEventListener("click",function(){
+                value("#page-home");
+            });
+            b.appendChild(bname);
+            contextmenu.appendChild(b);
+        }
+        */
+        
+        console.log(key, value);
+    }
+
+    /*Template structure for the context menu.*/
+    let menu = `
+        <div class="contextmenu" style="top:${y}px; left:${x}px;">
+            <div class="header">
+                <p>${title}</p>
+            </div>
+            
+            ${template_buttons}
+            <div class="item hover-content">
+                <span>Content</span>
+                <div class="content">
+                    <div class="item"><span>Button</span></div>
+                    <div class="item"><span>Button</span></div>
+                    <div class="item"><span>Button</span></div>
+                    <div class="item"><span>Button</span></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.querySelector("#contextmenu-wrapper").appendChild(contextmenu);
+
+
+    
 }
 
 //Show page by id.
