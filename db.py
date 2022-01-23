@@ -97,6 +97,9 @@ class DB_API(Database_API_Type):
             if server_data:
                 server_data = server_data[0]
                 return Server(server_data["id"], server_data["name"])
+    async def create_member(self : Database_API_Type, name : str, avatar : str) -> Member:
+        qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member", columns="name, avatar", values="$1::text, $2::text", returning="id"), (name, avatar))
+        return Member(qr, name, None, avatar, None, {}, {}, {})
     async def join_server(self : Database_API_Type, member : Member, server : Server) -> None:
         qr = await self.query(self.queries["INSERT"].format(
             table="server_members",
@@ -108,15 +111,17 @@ class DB_API(Database_API_Type):
             table="server_members",
             where="member_id=$1::bigint AND server_id=$2::bigint",
         ), (member.id, server.id))
-    async def create_member(self : Database_API_Type, name : str, avatar : str) -> Member:
-        qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member", columns="name, avatar", values="$1::text, $2::text", returning="id"), (name, avatar))
-        return Member(qr, name, None, avatar, None, {}, {}, {})
+
     async def create_server(self : Database_API_Type, name : str, owner : Member) -> Server:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server", columns="name, owner", values="$1::text, $2::bigint", returning="id"), (name, owner.id))
         result = Server(qr[0]["id"], name)
         result.owner = owner
         await self.join_server(owner, result)
         return result
+    async def delete_server(self : Database_API_Type, server : Server) -> bool:
+        qr = await self.query(self.queries["DELETE_FROM"].format(table="server", where="id=$1::bigint"), (server.id,))
+        key = utilities.Cache.generate_key(server_id=server.id)
+        cache.invalidate(self.servers, key)
     async def create_server_channel(self : Database_API_Type, name : str, channel_type : str, server : Server) -> Channel:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="channel", columns="name, type", values="$1::text, $2::text", returning="id"), (name, channel_type))
         qr_server = await self.query(self.queries["INSERT"].format(table="server_channels", columns="channel_id, server_id", values="$1::bigint, $2::bigint"), (qr[0]["id"], server.id))

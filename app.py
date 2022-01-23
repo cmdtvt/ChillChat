@@ -16,13 +16,11 @@ class ProfilerMiddleware:
         # print("Receive", receive)
         # print("Send", send)
         start = time.perf_counter()
-        print()
         tmp = await self.app(scope, receive, send)
         stop = time.perf_counter()
         self.total_time += (stop-start)
         self.requests += 1
         print(f"{self.total_time/self.requests} average seconds")
-        print()
         return tmp
 app = Quart(__name__, static_folder="static")
 app.asgi_app = ProfilerMiddleware(app.asgi_app)

@@ -28,6 +28,7 @@ class Cache():
         return key
         
     async def save_async(self, func, key, *args, **kwargs):
+        
         if(func.__name__ not in self.cache):
             self.cache[func.__name__] = {}
         self.cache[func.__name__][key] = {"function" : await func(*args, **kwargs)}

@@ -32,7 +32,7 @@ function parseMessage(message) {
         for(var x of photolinks) {
             var ele = document.createElement("img")
             ele.onerror = () => {
-                ActionFailedLinkLoad(this)
+                ele.style.display="none"
             }
 
             ele.onclick = () => {
@@ -46,7 +46,7 @@ function parseMessage(message) {
             var ele = document.createElement("video")
             ele.controls = true
             ele.onerror = () => {
-                ActionFailedLinkLoad(this)
+                ele.style.display="none"
             }
             var source = document.createElement("source")
             source.src = x[0] //url of the vid
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
     document.querySelector("#chat-input").addEventListener("keydown",async function(event){
         if(event.key == "Enter") {
             const handleKeyDown = async (event) => {
-                await sendMessage(settings["current_channel"], this.value, settings["api"])
+                await sendMessage(settings["current_channel"], this.value)
             }
             await handleKeyDown();
             this.value = ""; 
@@ -125,9 +125,12 @@ function Servers(anchorid="#servers") {
 function RenderComponents() {
     console.log("test "+settings.userData);
     let element = document.querySelector("#channels-wrapper")
-    if(element.querySelector("div.user") == null) {
-        element.append(VisualizeUser(settings.userData,"channel-list"));
+    let second_element = element.querySelector("div.user")
+    if (second_element != null) {
+
+        element.removeChild(second_element)
     }
+    element.appendChild(VisualizeUser(settings.userData, "channel-list"));
 
     //Make sure all interface buttons are registered.
     UtilityActionInterfaceReload();

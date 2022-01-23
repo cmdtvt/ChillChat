@@ -1,4 +1,5 @@
-var sendMessage = async(channel, message, url=null) => {
+var sendMessage = async(channel, message) => {
+    url = settings.api
     if(url != null) {
         let formData = new FormData()
         formData.append('message', message)
@@ -10,7 +11,8 @@ var sendMessage = async(channel, message, url=null) => {
         throw "API url is null"
     }
 }
-var fetchMessages = async(channel, url=null) => {
+var fetchMessages = async(channel) => {
+    url = settings.api
     if(url == null) {
         throw "API url is null"
     }
@@ -24,7 +26,8 @@ var fetchMessages = async(channel, url=null) => {
 var editMessage = async() => {
 
 }
-var fetchChannels = async(server, url=null) => {
+var fetchChannels = async(server) => {
+    url = settings["api"]
     if(url == null) {
         throw "API url is null"
     }
@@ -36,9 +39,10 @@ var fetchChannels = async(server, url=null) => {
     }
 }
 var deleteMessage = async() => {
-
+    url = settings.api
 }
-var createChannel = async(server, name, type="text", url=null) => {
+var createChannel = async(server, name, type="text") => {
+    url = settings.api
     if(url == null) {
         throw "API url is null"
     }
@@ -53,7 +57,8 @@ var createChannel = async(server, name, type="text", url=null) => {
         body: formData
     })
 }
-var joinServer = async(server, url) => {
+var joinServer = async(server) => {
+    url = settings.api
     if(url == null) {
         throw "API url is null"
     }
@@ -61,7 +66,8 @@ var joinServer = async(server, url) => {
         method: 'get'
     })
 }
-var leaveServer = async(server, url) => {
+var leaveServer = async(server) => {
+    url = settings.api
     if(url == null) {
         throw "API url is null"
     }
@@ -69,7 +75,8 @@ var leaveServer = async(server, url) => {
         method: 'get'
     })
 }
-var createServer = async(name, url) => {
+var createServer = async(name) => {
+    url = settings.api
     if(url == null) {
         throw "API url is null"
     }
