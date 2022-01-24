@@ -44,8 +44,19 @@ function VisualizeChannel(channel, type="default") {
                 element.innerText = "Not implemented"
             default:
 
+
+                element.addEventListener("contextmenu",function(e){
+                    openContextMenu(e.clientX,e.clientY,"default","Channel",{
+                        "Settings" : () => {},
+                        "Mute Channel" : () => {},
+                        "Delete" : () => {},
+                        "Dump Channel" : () => {console.log(channel)},
+                        [channel.id] : () => {}
+                    });
+                    e.preventDefault();
+                });
+
                 element.classList.add("chat-component-channel")
-                
                 element.onclick = () => {
                     ActionMessagesOpen(channel.id)
                 }
@@ -73,6 +84,17 @@ function VisualizeServer(server, type="default") {
 
             default:
 
+                element.addEventListener("contextmenu",function(e){
+                    openContextMenu(e.clientX,e.clientY,"default","Server",{
+                        "Invite" : () => {},
+                        "Mute Server" : () => {},
+                        "Leave" : () => {},
+                        "Dump Server" : () => {console.log(server)},
+                        [server.id] : () => {}
+                    });
+                    e.preventDefault();
+                });
+
                 element.classList.add("chat-component-server");
                 element.onclick = () => {
                     ActionServerOpen(server.id)
@@ -92,6 +114,7 @@ function VisualizeMessage(message, type="default") {
     content = parsed.content
     var element = document.createElement("div");
     element.classList.add("chat-component-message");
+    //TODO: Dublicate message.id placement. Check that which is used where.
     element.setAttribute("data-message-id", message.id);
 
     if(message.author != null) {
@@ -109,10 +132,12 @@ function VisualizeMessage(message, type="default") {
             var contentElement = document.createElement("div");
 
 
-            contentElement.addEventListener("click",function(e){
-                openContextMenu(e.clientX,e.clientY,"default","Message",{
-                    "Get id" : () => {alert(message.id)},
-                    "Delete message" : () => {deleteMessage(message)}
+            element.addEventListener("contextmenu",function(e){
+                openContextMenu(e.clientX,e.clientY,"default","Message", {
+                    "Edit message" : () => {openMessageToEdit(message)},
+                    "Delete message" : async () => {await deleteMessage(message)},
+                    "Dump message" : () => {console.log(message)},
+                    [message.id] : () => {}
                 });
                 e.preventDefault();
             });

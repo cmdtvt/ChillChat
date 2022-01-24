@@ -136,5 +136,52 @@ function RenderComponents() {
     UtilityActionInterfaceReload();
 }
 
+//TODO: Move this somewhere else maby.
+function openMessageToEdit(message) {
+    let element = document.querySelector("[data-message-id='"+message.id+"']");
+    let stored_element = element.innerHTML;
+
+
+    let content_wrapper = element.querySelector(".content p")
+    content_wrapper.classList.add("hide")
+    let content = content_wrapper.innerHTML
+
+    let editor = document.createElement("div")
+    let save = document.createElement("button")
+    save.innerHTML = "Save"
+    save.classList.add("btn")
+    save.classList.add("btn-green")
+
+    let cancel = document.createElement("button")
+    cancel.innerHTML = "Cancel"
+    cancel.classList.add("btn")
+    cancel.classList.add("btn-green")
+    let textarea = document.createElement("textarea")
+    textarea.innerHTML = content
+    textarea.setAttribute("id","message-editor")
+
+    cancel.addEventListener("click",function(e) {
+        console.log("cancel")
+        element.innerHTML = stored_element;
+    })
+
+    save.addEventListener("click",function(e) {
+        let text = document.querySelector("#message-editor").value
+        console.log(text)
+        editMessage(message,text);
+        element.innerHTML = stored_element;
+    })
+
+
+
+
+    editor.appendChild(textarea)
+    editor.appendChild(cancel)
+    editor.appendChild(save)
+    
+    element.querySelector(".content").appendChild(editor)
+
+}
+
 
 

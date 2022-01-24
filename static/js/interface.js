@@ -10,6 +10,9 @@ const interfacePageClassName = ".page";
 document.addEventListener("DOMContentLoaded",function(){
     ActionInterfacePageHideAll(); //Hide all pages on startup so nothing stupid happens.
     ActionInterfaceSwitchPage("#page-loading");
+    document.querySelector("body").addEventListener("click",function(){
+        closeContextMenu();
+    });
 });
 
 //Hide all pages and hide only subpages if page is defined.
@@ -46,35 +49,17 @@ function UtilityActionInterfaceReload() {
         }
     }
 
-    for(let t of document.querySelectorAll('.chat-component-server')) {
-        t.oncontextmenu = (e) => {
-            let x = e.clientX;
-            let y = e.clientY;
-            openContextMenu(x,y,"default","Server",{
-                "Invite" : () => {},
-                "Mute Server" : () => {},
-                "Leave" : () => {}
-            });
-            e.preventDefault();
 
-            /*
-            openContextMenu(x,y,"default","Server",{
-                "Home" : () => {ActionInterfaceSwitchPage("#page-home")},
-                "Dev" : () => {ActionInterfaceSwitchPage("#page-dev")},
-                "Chat" : () => {ActionInterfaceSwitchPage("#page-chat")},
-                "Loading" : () => {ActionInterfaceSwitchPage("#page-loading")}
-            });
-            
-            */
-        }
-
-    }
 
 
 }
 
-function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
+function closeContextMenu() {
     killChildren(document.querySelector("#contextmenu-wrapper"));
+}
+
+function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
+    closeContextMenu();
 
     let contextmenu = document.createElement("div");
     contextmenu.classList.add("contextmenu");
@@ -86,7 +71,6 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
 
     contextmenu.appendChild(header);
 
-    let template_buttons = "";
     for (const [key, value] of Object.entries(binds)) {
         let func = value;
 
@@ -95,19 +79,12 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
         let bname = document.createElement('span');
         bname.innerHTML = key;
 
-        //TODO: Currently only passes one parameter to function.
         b.addEventListener("click",function(){
             func();
-            killChildren(document.querySelector("#contextmenu-wrapper"));
+            closeContextMenu();
         });
         b.appendChild(bname);
         contextmenu.appendChild(b);
-
-            b.addEventListener("click",function(){
-                value("#page-home");
-            });
-            b.appendChild(bname);
-            contextmenu.appendChild(b);
     }
     document.querySelector("#contextmenu-wrapper").appendChild(contextmenu);  
 }
