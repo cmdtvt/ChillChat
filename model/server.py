@@ -38,7 +38,7 @@ class Server(ServerType):
                 (self.id,)
             )
             members = [await Server.database.members(member_id=x["member_id"]) for x in server_members_data]
-            members = list(filter((lambda x: x.id in Server.database.clients["id"].keys()), members))
+            members = list(filter(lambda x: x.id in Server.database.clients["id"], members))
             return members
     @property
     def gateway_format(self,):
@@ -50,6 +50,7 @@ class Server(ServerType):
         return result
     async def broadcast(self, payload : Payload):
         members = await self.load_client_members()
+        print(members)
         for member in members:
             await member.send_via_client(payload)
     async def create_channel(self, name, channel_type) -> ChannelType:

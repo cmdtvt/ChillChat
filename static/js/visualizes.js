@@ -118,6 +118,7 @@ function VisualizeMessage(message, type="default") {
             });
 
 
+            contentElement.classList.add("content")
             var textElement = document.createElement("p")
             textElement.innerHTML = content;
             contentElement.appendChild(textElement);

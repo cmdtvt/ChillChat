@@ -28,7 +28,8 @@ class Member(MemberType):
             await self.own_channel.send(payload)
     async def send_via_client(self, payload : Union[PayloadType, str]):
         if Member.database and self.token in Member.database.clients["tokenized"]:
-            await Member.database.clients["tokenized"][self.token].send(str(payload))
+            for client in Member.database.clients["tokenized"][self.token]:
+                await client.send(str(payload))
     async def join_server(self, server : Server) -> bool:
         await Member.database.join_server(self, server)
         pl_self = Payload("server", server.gateway_format, "new")

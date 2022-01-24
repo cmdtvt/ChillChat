@@ -125,7 +125,10 @@ def collect_websocket(func):
             database.clients["all"].remove(client)
             if client.token:
                 if client.token in database.clients["tokenized"]:
-                    del database.clients["tokenized"][client.token]
+                    database.clients["tokenized"][client.token].remove(client)
+            if client.member:
+                if client.member.id in database.clients["id"]:
+                    database.clients["id"][client.member.id].remove(client)
     return wrapper
 @gateway_blueprint.websocket("/")
 @collect_websocket
@@ -137,20 +140,19 @@ async def gateway(client):
     try:
         if session and session.get('token'):
             token = session.get('token')
-            if token in database.clients["tokenized"]:
-                print(database.clients)
-                await asyncio.sleep(5)
-            else:
-                task =  await websocket.receive()
-                member = await database.members(token=token)
-                if member and task.startswith("START"):
-                    client.token = token
-                    client.member = member
-                    client_task = asyncio.ensure_future(copy_current_websocket_context(client.process)())
-                    if token not in database.clients["tokenized"]:
-                        database.clients["tokenized"][client.token] = client
-                        database.clients["id"][member.id] = client
-                    await asyncio.gather(client_task)
+            task =  await websocket.receive()
+            member = await database.members(token=token)
+            if member and task.startswith("START"):
+                client.token = token
+                client.member = member
+                client_task = asyncio.ensure_future(copy_current_websocket_context(client.process)())
+                if token not in database.clients["tokenized"]:
+                    database.clients["tokenized"][client.token] = set()
+                if member.id not in database.clients["id"]:
+                    database.clients["id"][member.id] = set()
+                database.clients["tokenized"][client.token].add(client)
+                database.clients["id"][member.id].add(client)
+                await asyncio.gather(client_task)
     except asyncio.CancelledError as e:
         print(e)
     finally:

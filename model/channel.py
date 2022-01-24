@@ -27,12 +27,8 @@ class TextChannel(Channel):
         if Channel.database is not None:
             msg = await Channel.database.create_message(payload)
             if self.server:
-                for i in await self.server.load_client_members():
-                    #TODO:
-                    #PERMISSIONS
-                    #if self.default_permissions.is_allowed("VIEW_CHANNEL") or i.permissions["channel"][self.id].is_allowed("VIEW_CHANNEL"):
-                    payload = Payload("message", msg.gateway_format, "new")
-                    await i.send_via_client(payload)
+                payload = Payload("message", msg.gateway_format, "new")
+                await self.server.broadcast(payload)
                 return "ok"
     async def messages(self,):
         if Channel.database is not None:

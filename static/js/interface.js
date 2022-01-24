@@ -50,7 +50,6 @@ function UtilityActionInterfaceReload() {
         t.oncontextmenu = (e) => {
             let x = e.clientX;
             let y = e.clientY;
-            console.log([x,y]);
             openContextMenu(x,y,"default","Server",{
                 "Invite" : () => {},
                 "Mute Server" : () => {},
@@ -104,6 +103,11 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
         b.appendChild(bname);
         contextmenu.appendChild(b);
 
+            b.addEventListener("click",function(){
+                value("#page-home");
+            });
+            b.appendChild(bname);
+            contextmenu.appendChild(b);
     }
     document.querySelector("#contextmenu-wrapper").appendChild(contextmenu);  
 }

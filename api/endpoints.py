@@ -37,6 +37,31 @@ async def create_message(channel_id : int):
                     await channel.send(mpl)
                     return api.status_codes.OK()
     return api.status_codes.BadRequest()
+@api_blueprint.route("/message/<int:message_id>", methods=["PUT", "DELETE", "PATCH"])
+async def message_modify(message_id):
+    global database
+    if message_id and session.get('token'):
+        token = session.get('token')
+        member = await database.members(token=token)
+        message = await database.messages(message_id=message_id)
+        if message.author.id == member.id:
+            if request.method == "PATCH":
+                form = await request.form
+                content = form.get('content')
+                if content:
+                    await message.edit(content)
+                    return api.status_codes.OK()
+
+            elif request.method == "PUT":
+                form = await request.form
+                content = form.get('content')
+                if content:
+                    await message.edit(content)
+                    return api.status_codes.OK()
+            elif request.method == "DELETE":
+                await message.delete()
+                return api.status_codes.OK()
+    return api.status_codes.BadRequest()
 @api_blueprint.route("/server/<int:server_id>/join")
 async def join_server(server_id):
     global database
@@ -89,11 +114,12 @@ async def create_server():
     if token:
         form = await request.form
         if form:
-            name = form['name']
-            member = await database.members(token=token)
-            if member:
-                await member.create_server(name)
-                return api.status_codes.OK()
+            name = form.get('name')
+            if name:
+                member = await database.members(token=token)
+                if member:
+                    await member.create_server(name)
+                    return api.status_codes.OK()
     return api.status_codes.BadRequest()
 @api_blueprint.route('/channel/<int:channel_id>/messages', methods=["GET"])
 async def get_messages(channel_id : int):
