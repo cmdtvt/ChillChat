@@ -47,7 +47,6 @@ function UtilityActionInterfaceReload() {
         t.oncontextmenu = (e) => {
             let x = e.clientX;
             let y = e.clientY;
-            console.log([x,y]);
             openContextMenu(x,y,"default","Server",{
                 "Home" : [ActionInterfaceSwitchPage,['#page-home']],
                 "Menu" : {} 
@@ -115,8 +114,6 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
             contextmenu.appendChild(b);
         }
         */
-        
-        console.log(key, value);
     }
 
     /*Template structure for the context menu.*/

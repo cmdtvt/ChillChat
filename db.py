@@ -29,25 +29,18 @@ class DB_API(Database_API_Type):
             "SELECT_WHERE" : "SELECT * FROM {table} WHERE {where}",
             "SELECT_WHERE_ORDER" : "SELECT * FROM {table} WHERE {where} ORDER BY {order}",
             "SELECT_JOIN" : "SELECT {columns} FROM {table1} JOIN {table2} WHERE {where}",
-            "DELETE_FROM" : "DELETE FROM {table} WHERE {where}",
+            "DELETE" : "DELETE FROM {table} WHERE {where}",
+            "UPDATE" : "UPDATE {table} SET {values} WHERE {where}",
         }
         self.pool = None
         self.clients : dict[str, dict[str, ClientType]] = {"tokenized" : {}, "all" : set(), "id" : {}}
         Server.database = self
         Channel.database = self
         Member.database = self
+        Message.database = self
     def create_token(self : Database_API_Type,) -> str:
         return binascii.b2a_hex(os.urandom(50)).decode('utf8')
-    async def create_message(self : Database_API_Type, payload : MessagePayload) -> Message:
-        content = escape(payload.content)
-        message_id = await self.query(self.queries["INSERT_RETURNING"].format(
-            table="message",
-            columns="content, author_id, channel_id",
-            values="$1::text, $2::bigint, $3::bigint",
-            returning="id"
-        ), (content, payload.author.id, payload.channel.id))
-        message = Message(message_id[0]["id"], content, payload.author, payload.channel)
-        return message
+
     @cache.async_cached(timeout=180)
     async def members(self : Database_API_Type, *, token : str=None, member_id: int=None) -> Optional[Member]:
         if token or member_id:
@@ -97,20 +90,33 @@ class DB_API(Database_API_Type):
             if server_data:
                 server_data = server_data[0]
                 return Server(server_data["id"], server_data["name"])
+    async def messages(self : Database_API_Type, *, message_id : int=None) -> Optional[Message]:
+        if message_id:
+            message_data = await self.query(self.queries["SELECT_WHERE"].format(
+                table="message",
+                where="id=$1::BIGINT LIMIT 1",
+            ), (message_id,))
+            if message_data:
+                message_data = message_data[0]
+                author = await self.members(member_id=message_data["author_id"])
+                channel = await self.channels(channel_id=message_data["channel_id"])
+                if author and channel:
+                    return Message(message_id, message_data["content"], author, channel)
     async def create_member(self : Database_API_Type, name : str, avatar : str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member", columns="name, avatar", values="$1::text, $2::text", returning="id"), (name, avatar))
         return Member(qr, name, None, avatar, None, {}, {}, {})
+    async def remove_from_server(self : Database_API_Type, member : Member, server : Server) -> None:
+        qr = await self.query(self.queries["DELETE"].format(
+            table="server_members",
+            where="member_id=$1::bigint AND server_id=$2::bigint",
+        ), (member.id, server.id))
+
     async def join_server(self : Database_API_Type, member : Member, server : Server) -> None:
         qr = await self.query(self.queries["INSERT"].format(
             table="server_members",
             columns="member_id, server_id",
             values="$1::bigint, $2::bigint"
         ),(member.id, server.id))
-    async def remove_from_server(self : Database_API_Type, member : Member, server : Server) -> None:
-        qr = await self.query(self.queries["DELETE_FROM"].format(
-            table="server_members",
-            where="member_id=$1::bigint AND server_id=$2::bigint",
-        ), (member.id, server.id))
 
     async def create_server(self : Database_API_Type, name : str, owner : Member) -> Server:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server", columns="name, owner", values="$1::text, $2::bigint", returning="id"), (name, owner.id))
@@ -119,7 +125,7 @@ class DB_API(Database_API_Type):
         await self.join_server(owner, result)
         return result
     async def delete_server(self : Database_API_Type, server : Server) -> bool:
-        qr = await self.query(self.queries["DELETE_FROM"].format(table="server", where="id=$1::bigint"), (server.id,))
+        qr = await self.query(self.queries["DELETE"].format(table="server", where="id=$1::bigint"), (server.id,))
         key = utilities.Cache.generate_key(server_id=server.id)
         cache.invalidate(self.servers, key)
     async def create_server_channel(self : Database_API_Type, name : str, channel_type : str, server : Server) -> Channel:
@@ -130,6 +136,37 @@ class DB_API(Database_API_Type):
             channel = TextChannel(qr[0]["id"], name, server)
         server.channels[channel.id] = channel
         return channel
+    async def create_message(self : Database_API_Type, payload : MessagePayload) -> Message:
+        content = escape(payload.content)
+        message_id = await self.query(self.queries["INSERT_RETURNING"].format(
+            table="message",
+            columns="content, author_id, channel_id",
+            values="$1::text, $2::bigint, $3::bigint",
+            returning="id"
+        ), (content, payload.author.id, payload.channel.id))
+        message = Message(message_id[0]["id"], content, payload.author, payload.channel)
+        return message
+    async def edit_message(self : Database_API_Type, message : Message, content : str) -> Message:
+        content = escape(content)
+        
+        message_update = await self.query(
+            self.queries["UPDATE"].format(
+                table="message",
+                values="content=$1::text",
+                where="id=$2::bigint"
+        ), (content, message.id)
+        )
+        message.content = content
+        return message
+    async def delete_message(self : Database_API_Type, message : Message) -> bool:
+        message_delete = await self.query(
+            self.queries["DELETE"].format(
+                table="message",
+                where="id=$1::bigint"
+
+            ), (message.id,)
+        )
+        return True
     async def query(self : Database_API_Type, sql : str, params : Optional[Sequence[Any]]=None) -> Optional[Sequence[Any]]:
         if self.pool is None:
             self.pool = await asyncpg.create_pool(user=self.username, password=self.password, database=self.database, host=self.host)

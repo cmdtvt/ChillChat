@@ -107,7 +107,7 @@ function VisualizeMessage(message, type="default") {
         default:
 
             var contentElement = document.createElement("div");
-
+            contentElement.classList.add("content")
             var textElement = document.createElement("p")
             textElement.innerHTML = content;
             contentElement.appendChild(textElement);

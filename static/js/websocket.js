@@ -24,7 +24,27 @@ handleMessages = (parsed) => {
     if(parsed.action == "new") {
         console.log(parsed.payload)
         let messages = data.get(parsed.payload.server.id).channels.get(parsed.payload.channel.id).messages;
-        messages.set(parsed.payload.id, ActionRenderNewMessage(parsed.payload))
+        messages.set(parsed.payload.id, [parsed.payload,ActionRenderNewMessage(parsed.payload)])
+    } else if(parsed.action == "modify") {
+        let messages = data.get(parsed.payload.server.id).channels.get(parsed.payload.channel.id).messages;
+        let [message, elem] = messages.get(parsed.payload.id)
+        let {holder, content} = parseMessage(parsed.payload.content)
+        let contentElement = elem.querySelector("div.content")
+        let textElement = contentElement.querySelector("p")
+        textElement.innerHTML = content
+        killChildren(contentElement)
+        contentElement.appendChild(textElement)
+        console.log(content, holder, contentElement, textElement)
+        if(holder != null) {
+            contentElement.appendChild(holder)
+        }
+        
+    } else if(parsed.action == "remove") {
+        let messages = data.get(parsed.payload.server.id).channels.get(parsed.payload.channel.id).messages;
+        let [message, elem] = messages.get(parsed.payload.id)
+        elem.parentNode.removeChild(elem)
+        messages.delete(parsed.payload.id)
+
     }
 }
 handleChannels = (parsed, settings) => {

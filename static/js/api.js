@@ -11,6 +11,27 @@ var sendMessage = async(channel, message) => {
         throw "API url is null"
     }
 }
+var editMessage = async(message, content) => {
+    url = settings.api
+    if(url == null) {
+        throw "API url is null"
+    }
+    let formData = new FormData()
+    formData.append("content", content)
+    await fetch(`${url}/message/${message.id}`, {
+        method: 'patch',
+        body: formData
+    })
+}
+var deleteMessage = async(message) => {
+    url = settings.api
+    if(url == null) {
+        throw "API url is null"
+    }
+    await fetch(`${url}/message/${message.id}`, {
+        method: 'delete'
+    })
+}
 var fetchMessages = async(channel) => {
     url = settings.api
     if(url == null) {
@@ -23,9 +44,7 @@ var fetchMessages = async(channel) => {
         throw `API returned ${messages.status}`
     }
 }
-var editMessage = async() => {
 
-}
 var fetchChannels = async(server) => {
     url = settings["api"]
     if(url == null) {
@@ -38,9 +57,7 @@ var fetchChannels = async(server) => {
         throw `API returned ${channels.status}`
     }
 }
-var deleteMessage = async() => {
-    url = settings.api
-}
+
 var createChannel = async(server, name, type="text") => {
     url = settings.api
     if(url == null) {
