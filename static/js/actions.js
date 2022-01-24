@@ -45,14 +45,11 @@ function ActionModalOpen(content,type=null) {
     ActionToggleVisibility("#modal");
 }
 
-function ActionFailedLinkLoad(element) {
-    element.parentElement.innerHTML = '<a href="'+element.src+'" target="_blank">'+element.src+'</a>';
-}
 
 function ActionRenderNewMessage(message) {
     var element = VisualizeMessage(message);
     if(message.channel.id == settings.current_channel) {
-        document.querySelector("#chat-bottom").insertAdjacentHTML('beforebegin', element.outerHTML)
+        document.querySelector("#message-area").insertBefore(element, document.querySelector("#chat-bottom"))
     }
     ActionScroll("#message-area","#chat-bottom","intoview-ifbottom", 100);
     return element
@@ -95,7 +92,8 @@ function ActionMessagesOpen(id) {
     ActionLoadingAnimation("#message-area");
     let element = document.querySelector("#message-area");
     let server = data.get(settings['current_server']);
-    let messages = server['channels'].get(id)['messages'];
+    let channel = server['channels'].get(id)
+    let messages = channel['messages'];
     //TODO: Add a check if there are new messages.
     //Maby create a endpoint which returns the id of the newest message.
 
@@ -103,7 +101,7 @@ function ActionMessagesOpen(id) {
         killChildren(element)
         var createMessagesDOM = async(messages) => {
             try {
-                if(messages.size == 0) {
+                if(!channel.fetched) {
                     let fetch_messages = await fetchMessages(settings.current_channel)
                     if(fetch_messages) {
                         for(let message of fetch_messages) {
