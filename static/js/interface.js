@@ -9,18 +9,21 @@ UtilityActions are child functions used by other Action functions and should not
 const interfacePageClassName = ".page";
 document.addEventListener("DOMContentLoaded",function(){
     ActionInterfacePageHideAll(); //Hide all pages on startup so nothing stupid happens.
-
-
-
-
-
-
     ActionInterfaceSwitchPage("#page-loading");
 });
 
-function ActionInterfacePageHideAll() {
-    for (let p of document.querySelectorAll(interfacePageClassName)) {
-        p.style.display = "none";
+//Hide all pages and hide only subpages if page is defined.
+function ActionInterfacePageHideAll(page=null) {
+    if (page==null) {
+        for (let p of document.querySelectorAll(interfacePageClassName)) {
+            p.style.display = "none";
+        }
+    } else {
+        //Hide all pages where their id starts with page-[PAGE]-
+        //This is for hiding subpages
+        for (let p of document.querySelectorAll("[id^="+page+"-]")) {
+            p.style.display = "none";
+        }  
     }
 }
 
@@ -49,24 +52,28 @@ function UtilityActionInterfaceReload() {
             let y = e.clientY;
             console.log([x,y]);
             openContextMenu(x,y,"default","Server",{
-                "Home" : [ActionInterfaceSwitchPage,['#page-home']],
-                "Menu" : {} 
+                "Invite" : () => {},
+                "Mute Server" : () => {},
+                "Leave" : () => {}
             });
             e.preventDefault();
+
+            /*
+            openContextMenu(x,y,"default","Server",{
+                "Home" : () => {ActionInterfaceSwitchPage("#page-home")},
+                "Dev" : () => {ActionInterfaceSwitchPage("#page-dev")},
+                "Chat" : () => {ActionInterfaceSwitchPage("#page-chat")},
+                "Loading" : () => {ActionInterfaceSwitchPage("#page-loading")}
+            });
+            
+            */
         }
-        //t.addEventListener("click", function(e){});
+
     }
 
 
 }
 
-/*
-
-Open context menu in given location.
-
-
-
-*/
 function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
     killChildren(document.querySelector("#contextmenu-wrapper"));
 
@@ -74,49 +81,29 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
     contextmenu.classList.add("contextmenu");
     contextmenu.setAttribute("style","top:"+y+"px; left:"+x+"px;");
 
+    let header = document.createElement('div');
+    header.classList.add('header');
+    header.innerHTML = title;
+
+    contextmenu.appendChild(header);
+
     let template_buttons = "";
     for (const [key, value] of Object.entries(binds)) {
-        let temp_value = value
-        //console.log(typeof(value));
+        let func = value;
 
-        //Thanks JavaSciprt :)
-        //Here we check if object is an array.
-        let objType = Object.prototype.toString.call(value);
-        if(objType === '[object Array]') {
+        let b = document.createElement('div');
+        b.classList.add("item");
+        let bname = document.createElement('span');
+        bname.innerHTML = key;
 
-            let b = document.createElement('div');
-            b.classList.add("item");
-            let bname = document.createElement('span');
-            bname.innerHTML = key;
+        //TODO: Currently only passes one parameter to function.
+        b.addEventListener("click",function(){
+            func();
+            killChildren(document.querySelector("#contextmenu-wrapper"));
+        });
+        b.appendChild(bname);
+        contextmenu.appendChild(b);
 
-            //TODO: Currently only passes one parameter to function.
-            b.addEventListener("click",function(){
-                value[0](value[1]); //Run the passed function and give it parameter.
-                killChildren(document.querySelector("#contextmenu-wrapper"));
-            });
-            b.appendChild(bname);
-            contextmenu.appendChild(b);
-        } else if(objType === '[object Object]') {
-            console.log("Not implemented");
-        }
-
-
-        /*
-        if(typeof(value) == "function") {
-            let b = document.createElement('div');
-            b.classList.add("item");
-            let bname = document.createElement('span');
-            bname.innerHTML = key;
-
-            b.addEventListener("click",function(){
-                value("#page-home");
-            });
-            b.appendChild(bname);
-            contextmenu.appendChild(b);
-        }
-        */
-        
-        console.log(key, value);
     }
 
     /*Template structure for the context menu.*/
@@ -139,10 +126,7 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
         </div>
     `;
 
-    document.querySelector("#contextmenu-wrapper").appendChild(contextmenu);
-
-
-    
+    document.querySelector("#contextmenu-wrapper").appendChild(contextmenu);  
 }
 
 //Show page by id.
@@ -158,8 +142,16 @@ function UtilityActionInterfacePageHide(pageID) {
 //Check if page exsists and if so hide current page and open wanted page.
 function ActionInterfaceSwitchPage(pageID) {
     if(document.querySelector(pageID)) {
-        ActionInterfacePageHideAll();
+        let reg = /(page-[A-Za-z]+)-?([A-Za-z]+)?/;
+        let res = pageID.match(reg);
+        let [whole,page,subpage] = res;
+        console.log(page);
+        
+        if(subpage==undefined) {ActionInterfacePageHideAll();} 
+        else {ActionInterfacePageHideAll(page);}
+
         UtilityActionInterfacePageShow(pageID);
+
         return true;
     }
     console.log("Error opening page with id: "+pageID);

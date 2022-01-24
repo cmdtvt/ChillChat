@@ -45,6 +45,11 @@
     color:rgb(255, 255, 255);
 }
 
+.icon-arrowleft::after {content: "🡐";}
+.icon-arrowleft:hover {
+    color:rgb(255, 255, 255);
+}
+
 
 /*For custom scrollbar*/
 ::-webkit-scrollbar {
@@ -106,7 +111,7 @@ body {
     z-index: 500;
     min-width: 150px;
     min-height: 300px;
-    background-color:  rgba(65, 57, 59, 0.8);
+    background-color:  var(--color-dark);
     border-radius: var(--setting-border-radius);
     color: white;
 
@@ -465,3 +470,31 @@ main .page {
     }
 }
 
+
+
+
+
+
+
+/*Setting page styles.*/
+
+#page-serversettings {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+#page-serversettings .sidebar {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-dark);
+    flex-basis: 15%;
+}
+
+#page-serversettings .sidebar div {
+    
+}
+
+#page-serversettings .content {
+    flex-grow: 1;
+}
