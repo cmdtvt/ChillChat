@@ -11,6 +11,7 @@ handleMemberData = async (parsed, settings, wsFunc) => {
         for(var channel in channels) {
             channel = channels[channel]
             channel.messages = new Map()
+            channel.isFetched = false
             server.channels.set(channel.id, channel)
         }
         data.set(server.id, server)
