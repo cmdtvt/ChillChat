@@ -498,3 +498,12 @@ main .page {
 #page-serversettings .content {
     flex-grow: 1;
 }
+
+#page-settings-overview {
+    display: flex;
+    flex-direction: column;
+}
+
+#page-settings-overview div {
+    flex-grow: 1;
+}

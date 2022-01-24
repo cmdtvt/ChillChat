@@ -108,6 +108,16 @@ function VisualizeMessage(message, type="default") {
 
             var contentElement = document.createElement("div");
 
+
+            contentElement.addEventListener("click",function(e){
+                openContextMenu(e.clientX,e.clientY,"default","Message",{
+                    "Get id" : () => {alert(message.id)},
+                    "Delete message" : () => {deleteMessage(message)}
+                });
+                e.preventDefault();
+            });
+
+
             var textElement = document.createElement("p")
             textElement.innerHTML = content;
             contentElement.appendChild(textElement);

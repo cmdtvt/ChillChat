@@ -105,27 +105,6 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
         contextmenu.appendChild(b);
 
     }
-
-    /*Template structure for the context menu.*/
-    let menu = `
-        <div class="contextmenu" style="top:${y}px; left:${x}px;">
-            <div class="header">
-                <p>${title}</p>
-            </div>
-            
-            ${template_buttons}
-            <div class="item hover-content">
-                <span>Content</span>
-                <div class="content">
-                    <div class="item"><span>Button</span></div>
-                    <div class="item"><span>Button</span></div>
-                    <div class="item"><span>Button</span></div>
-                    <div class="item"><span>Button</span></div>
-                </div>
-            </div>
-        </div>
-    `;
-
     document.querySelector("#contextmenu-wrapper").appendChild(contextmenu);  
 }
 
@@ -146,7 +125,7 @@ function ActionInterfaceSwitchPage(pageID) {
         let res = pageID.match(reg);
         let [whole,page,subpage] = res;
         console.log(page);
-        
+
         if(subpage==undefined) {ActionInterfacePageHideAll();} 
         else {ActionInterfacePageHideAll(page);}
 
