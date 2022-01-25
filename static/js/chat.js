@@ -161,13 +161,11 @@ function openMessageToEdit(message) {
     textarea.setAttribute("id","message-editor")
 
     cancel.addEventListener("click",function(e) {
-        console.log("cancel")
         element.innerHTML = stored_element;
     })
 
     save.addEventListener("click",function(e) {
         let text = document.querySelector("#message-editor").value
-        console.log(text)
         editMessage(message,text);
         element.innerHTML = stored_element;
     })
