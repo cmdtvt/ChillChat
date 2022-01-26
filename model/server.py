@@ -2,15 +2,19 @@ from .abc import MemberType, ChannelType, Database_API_Type, ServerType
 from .permissions import ServerPermissions
 from .channel import TextChannel
 from .payload import Payload
-from typing import Sequence
+from typing import Sequence, Union
+
+
 class Server(ServerType):
-    database : Database_API_Type = None
-    def __init__(self, id : int, name : str):
+    database: Database_API_Type = None
+
+    def __init__(self, id: int, name: str):
         self.id = id
         self.name = name
         self.default_permissions = ServerPermissions()
         self.owner = None
         self.channels = {}
+
     async def load_channels(self,):
         if Server.database is not None:
             channel_data = await Server.database.query(
@@ -28,31 +32,51 @@ class Server(ServerType):
                     channel = TextChannel(i["id"], i["name"], self)
                 if channel is not None:
                     self.channels[i["id"]] = channel
-    async def load_client_members(self,) -> Sequence[MemberType]:
+
+    async def load_client_members(self, member_ids: Sequence[int] = None) -> Sequence[MemberType]:
         if Server.database is not None:
-            server_members_data = await Server.database.query(
-                Server.database.queries["SELECT_WHERE"].format(
-                    table="server_members",
-                    where="server_id=$1::bigint"
-                ),
-                (self.id,)
-            )
+            server_members_data = []
+            if member_ids:
+                server_members_data = await Server.database.query(
+                    Server.database.queries["SELECT_WHERE"].format(
+                        table="server_members",
+                        where="server_id=$1::bigint AND member_id IN ({})".format(
+                            ",".join(member_ids)
+                        )
+                    ),
+                    (self.id,)
+                )
+            else:
+                server_members_data = await Server.database.query(
+                    Server.database.queries["SELECT_WHERE"].format(
+                        table="server_members",
+                        where="server_id=$1::bigint"
+                    ),
+                    (self.id,)
+                )
             members = [await Server.database.members(member_id=x["member_id"]) for x in server_members_data]
             members = list(filter(lambda x: x.id in Server.database.clients["id"], members))
             return members
+
     @property
     def gateway_format(self,):
         result = {
-            "id" : self.id,
-            "name" : self.name,
-            "icon" : "https://via.placeholder.com/350x350?text="+self.name,
+            "id": self.id,
+            "name": self.name,
+            "icon": "https://via.placeholder.com/350x350?text=" + self.name,
         }
         return result
-    async def broadcast(self, payload : Payload):
+
+    async def broadcast(self, payload: Payload) -> None:
         members = await self.load_client_members()
-        print(members)
         for member in members:
             await member.send_via_client(payload)
+
+    async def multicast(self, payload: Payload, member_ids: Sequence[int] = None) -> None:
+        members = await self.load_client_members(member_ids)
+        for member in members:
+            await member.send_via_client(payload)
+
     async def create_channel(self, name, channel_type) -> ChannelType:
         channel = await Server.database.create_server_channel(name, channel_type, self)
         payload = Payload("channel", channel.gateway_format, "new")
