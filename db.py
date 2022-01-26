@@ -6,19 +6,22 @@ from markupsafe import escape
 import utilities
 
 from model.abc import Database_API_Type, ClientType
-from model.permissions import ChannelPermissions, ServerPermissions
 from model.message import MessagePayload, Message
 from model.member import Member
 from model.channel import Channel, TextChannel
 from model.server import Server
-from model.role import Role
 
 cache = utilities.Cache()
 
 
 class DB_API(Database_API_Type):
 
-    def __init__(self: Database_API_Type, host: str, username: str, password: str, database: str, port: int = 5432) -> None:
+    def __init__(self: Database_API_Type,
+                 host: str,
+                 username: str,
+                 password: str,
+                 database: str,
+                 port: int = 5432) -> None:
         self.host: str = host
         self.username: str = username
         self.password: str = password
@@ -192,9 +195,14 @@ class DB_API(Database_API_Type):
         )
         return True
 
-    async def query(self: Database_API_Type, sql: str, params: Optional[Sequence[Any]] = None) -> Optional[Sequence[Any]]:
+    async def query(self: Database_API_Type,
+                    sql: str,
+                    params: Optional[Sequence[Any]] = None) -> Optional[Sequence[Any]]:
         if self.pool is None:
-            self.pool = await asyncpg.create_pool(user=self.username, password=self.password, database=self.database, host=self.host)
+            self.pool = await asyncpg.create_pool(user=self.username,
+                                                  password=self.password,
+                                                  database=self.database,
+                                                  host=self.host)
         conn = await self.pool.acquire()
         try:
             if sql.startswith("SELECT") or sql.endswith("RETURNING id"):
@@ -255,7 +263,8 @@ class DB_API(Database_API_Type):
 
     #     async def load_members(self,):
     #     members = {}
-    #     qr_channel_permissions = await self.query(self.queries["SELECT_ALL"].format(table="member_channel_permissions"))
+    #     qr_channel_permissions =
+    # await self.query(self.queries["SELECT_ALL"].format(table="member_channel_permissions"))
     #     qr_server_permissions = await self.query(self.queries["SELECT_ALL"].format(table="member_server_permissions"))
     #     permissions = {"server": {}, "channel": {}}
     #     for row in qr_channel_permissions:
@@ -280,12 +289,14 @@ class DB_API(Database_API_Type):
     #     for row in qr:
     #         channel_perms = permissions["channel"].get(row["id"])
     #         server_perms = permissions["server"].get(row["id"])
-    #         member = Member(row["id"], row["name"],"", row["avatar"], None, {}, {}, {"channel": channel_perms, "server": server_perms})
+    #         member = Member(row["id"], row["name"],"", row["avatar"], None, {}, {},
+    # {"channel": channel_perms, "server": server_perms})
     #         members[row["id"]] = member
     #     return members
     # async def load_messages(self, channels: dict[int, Channel], members: dict[int, Member]):
     #     qr_messages = await self.query(self.queries["SELECT_ALL"].format(table="message"))
     #     for row in qr_messages:
-    #         channels["all"][row["channel_id"]].messages.append(Message(row["id"], row["content"], members[row["author_id"]],
+    #         channels["all"][row["channel_id"]].messages.append(Message(row["id"],
+    # row["content"], members[row["author_id"]],
     # channels["all"][row["channel_id"]]))
     #         print(channels["all"][row["channel_id"]].messages)

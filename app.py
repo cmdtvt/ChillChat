@@ -1,9 +1,7 @@
 from queue import Queue
 from quart import Quart, render_template, session, redirect, url_for, g
 from instances import database
-import random
 import time
-import asyncio
 import api.endpoints
 from model.abc import MemberType
 
@@ -34,6 +32,7 @@ app.asgi_app = ProfilerMiddleware(app.asgi_app)
 app.jinja_options["enable_async"] = True
 app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
+
 
 @app.before_request
 def before_reqs():

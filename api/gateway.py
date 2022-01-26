@@ -2,7 +2,6 @@ from asyncio.queues import Queue
 from quart import Blueprint, copy_current_websocket_context, websocket, session, g
 from typing import Union, Any
 from model.abc import ClientType, MemberType
-import instances
 import json
 import re
 import asyncio

@@ -1,5 +1,4 @@
 import quart
-from model.abc import Database_API_Type  # pylint: disable=import-error
 from model.message import MessagePayload  # pylint: disable=import-error
 from quart import Blueprint, request, session, g
 import api.gateway  # pylint: disable=import-error
