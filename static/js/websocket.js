@@ -25,7 +25,7 @@ handleMessages = (parsed) => {
     if(parsed.action == "new") {
         console.log(parsed.payload)
         let messages = data.get(parsed.payload.server.id).channels.get(parsed.payload.channel.id).messages;
-        messages.set(parsed.payload.id, [parsed.payload,ActionRenderNewMessage(parsed.payload)])
+        messages.set(parsed.payload.id, [parsed.payload, ActionRenderNewMessage(parsed.payload)])
     } else if(parsed.action == "modify") {
         let messages = data.get(parsed.payload.server.id).channels.get(parsed.payload.channel.id).messages;
         let [message, elem] = messages.get(parsed.payload.id)

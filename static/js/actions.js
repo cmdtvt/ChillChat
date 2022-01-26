@@ -51,7 +51,7 @@ function ActionRenderNewMessage(message) {
     if(message.channel.id == settings.current_channel) {
         document.querySelector("#message-area").insertBefore(element, document.querySelector("#chat-bottom"))
     }
-    ActionScroll("#message-area","#chat-bottom","intoview-ifbottom", 100);
+    ActionScroll("#message-area","#chat-bottom","intoview-ifbottom", 300);
     return element
 }
 function ActionScroll(anchor=null,scrollto=null,behavior=null,scrollDelay=500){
