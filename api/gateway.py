@@ -7,7 +7,6 @@ import json
 import re
 import asyncio
 gateway_blueprint = Blueprint('gateway', __name__)
-tasks = {}
 
 
 class Gateway:
@@ -122,31 +121,11 @@ class Client(ClientType):
         await self.queue.put(data)
 
 
-def collect_websocket(func):
-    async def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        client = Client()
-        client.loop = loop
-        g.db.clients["all"].add(client)
-        try:
-            return await func(client, *args, **kwargs)
-        finally:
-            g.db.clients["all"].remove(client)
-            if client.token:
-                if client.token in g.db.clients["tokenized"]:
-                    g.db.clients["tokenized"][client.token].remove(client)
-            if client.member:
-                if client.member.id in g.db.clients["id"]:
-                    g.db.clients["id"][client.member.id].remove(client)
-    return wrapper
-
-
 @gateway_blueprint.websocket("/")
-@collect_websocket
-async def gateway(client):
-    global tasks
-    websocket.headers
+async def gateway():
+    client = Client()
     client_task = None
+    g.db.clients["all"].add(client)
     try:
         if session and session.get('token'):
             token = session.get('token')
@@ -168,6 +147,13 @@ async def gateway(client):
     finally:
         if client_task:
             client_task.cancel()
+        g.db.clients["all"].remove(client)
+        if client.token:
+            if client.token in g.db.clients["tokenized"]:
+                g.db.clients["tokenized"][client.token].remove(client)
+        if client.member:
+            if client.member.id in g.db.clients["id"]:
+                g.db.clients["id"][client.member.id].remove(client)
 
     # except Exception as e:
     #     print(e)

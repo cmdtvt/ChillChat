@@ -35,11 +35,15 @@ app.jinja_options["enable_async"] = True
 app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
 
-
 @app.before_request
-def make_session_permanent():
+def before_reqs():
     g.db = database
     session.permanent = True
+
+
+@app.before_websocket
+def before_websocket():
+    g.db = database
 
 
 @app.route('/')
