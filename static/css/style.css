@@ -289,6 +289,10 @@ main .page {
     overflow-x: hidden;
 }
 
+#page-chat .chat-channels #channels {
+    height: 100%;
+}
+
 #page-chat .chat-channels .user {
     background-color: var(--color-dark);
     display: flex;
