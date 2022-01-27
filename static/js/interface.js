@@ -13,6 +13,19 @@ document.addEventListener("DOMContentLoaded",function(){
     document.querySelector("body").addEventListener("click",function(){
         closeContextMenu();
     });
+
+
+    document.querySelector("#tempholder").addEventListener("contextmenu",function(e){
+        openContextMenu(e.clientX,e.clientY,"default","Channel",{
+            "Test1" : () => {},
+            "Test2" : () => {},
+            "Test3" : () => {},
+            "Test4" : () => {},
+            "Test5" : () => {}
+        });
+        e.preventDefault();
+    });
+    
 });
 
 //Hide all pages and hide only subpages if page is defined.
@@ -61,6 +74,10 @@ function closeContextMenu() {
 function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
     closeContextMenu();
 
+
+
+
+
     let contextmenu = document.createElement("div");
     contextmenu.classList.add("contextmenu");
     contextmenu.setAttribute("style","top:"+y+"px; left:"+x+"px;");
@@ -87,6 +104,26 @@ function openContextMenu(x,y,type="default",title="untitled menu",binds={}) {
         contextmenu.appendChild(b);
     }
     document.querySelector("#contextmenu-wrapper").appendChild(contextmenu);  
+
+    //Check that context menu does not escape the window.
+    let contextElement = document.querySelector(".contextmenu")
+    let temp_y = contextElement.style.top
+    let temp_x = contextElement.style.left
+    let regex = /\d{1,4}/
+    temp_y = parseInt(temp_y.match(regex)[0])
+    temp_x = parseInt(temp_x.match(regex)[0])
+    
+    //Move contextmenu so its not outside of the screen.
+    if((temp_y+contextElement.clientHeight) > window.innerHeight) {
+        temp_y -= contextElement.clientHeight
+    }
+
+    if((temp_x+contextElement.clientWidth) > window.innerWidth) {
+        temp_x -= contextElement.clientWidth
+    }
+
+    document.querySelector(".contextmenu").style.top = temp_y+"px"
+    document.querySelector(".contextmenu").style.left = temp_x+"px"
 }
 
 //Show page by id.
