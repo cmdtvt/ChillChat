@@ -5,7 +5,6 @@ Functions that start with Action are something users should be able to use.
 UtilityActions are child functions used by other Action functions and should not be callled by users directly.
 */ 
 
-
 const interfacePageClassName = ".page";
 document.addEventListener("DOMContentLoaded",function(){
     ActionInterfacePageHideAll(); //Hide all pages on startup so nothing stupid happens.
@@ -14,18 +13,6 @@ document.addEventListener("DOMContentLoaded",function(){
         closeContextMenu();
     });
 
-
-    document.querySelector("#tempholder").addEventListener("contextmenu",function(e){
-        openContextMenu(e.clientX,e.clientY,"default","Channel",{
-            "Test1" : () => {},
-            "Test2" : () => {},
-            "Test3" : () => {},
-            "Test4" : () => {},
-            "Test5" : () => {}
-        });
-        e.preventDefault();
-    });
-    
 });
 
 //Hide all pages and hide only subpages if page is defined.

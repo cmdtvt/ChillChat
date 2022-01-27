@@ -66,31 +66,24 @@ document.addEventListener("DOMContentLoaded", async function(event) {
         await createWebsocket(functions, data, settings); 
     }
     await initialize();
+    
 
-
-    document.querySelector("#chat-input").addEventListener("keydown",async function(event){
-        if(event.key == "Enter") {
-            const handleKeyDown = async (event) => {
-                await sendMessage(settings["current_channel"], this.value)
-            }
-            await handleKeyDown();
-            this.value = ""; 
-            return false;
-        }
+    //Send message by pressing enter or by pressing send message button.
+    document.querySelector("#chat-input").addEventListener("keydown",async function(event) {
+        await sendMessageFromTextarea(event); 
+    });
+    document.querySelector("#send-message").addEventListener("click",async function(event){
+        await sendMessageFromTextarea(event,"button");
     });
 
-    //FIXME: Make button send message from textbox and clear it.
-    //Currently does absolutely nothing.
-    /*
-    document.querySelector("#send-message").addEventListener("onclick",async function(event){
-        const handleKeyDown = async (event) => {
-            await sendMessage(settings["current_channel"], this.value, settings["api"])
+    async function sendMessageFromTextarea(event,type="textarea"){
+        let textarea = document.querySelector("#chat-input")
+        if(event.key == "Enter" || type=="button") {
+            await sendMessage(settings["current_channel"], textarea.value, settings["api"])
+            document.querySelector("#chat-input").value = ""
         }
-        await handleKeyDown();
-        this.value = ""; 
         return false;  
-    });
-    */
+    }
 
     document.querySelector("#message-area").addEventListener('scroll', function(event){
         if(findScrollDir(event)) {
