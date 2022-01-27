@@ -1,12 +1,12 @@
 
 from .permissions import ChannelPermissions, ServerPermissions
-from .message import MessagePayload, Message
-from typing import Any, Sequence, Union, Optional
-from .abc import Database_API_Type, MemberType, Messageable, ClientType, PayloadType
+from .message import MessagePayload
+from typing import Any, Union, Optional
+from .abc import Database_API_Type, MemberType, PayloadType
 from .payload import Payload
 from .server import Server
 from .role import Role
-from .channel import TextChannel, VoiceChannel
+from .channel import TextChannel
 
 
 class Member(MemberType):
@@ -16,6 +16,7 @@ class Member(MemberType):
                  name: str,
                  token: str,
                  avatar: Any,
+                 *,
                  own_channel: TextChannel = None,
                  servers: dict[int, Server] = None,
                  roles: dict[int, Role] = None,

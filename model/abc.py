@@ -90,11 +90,30 @@ class Database_API_Type:
     channels: dict[str, dict[int, ChannelType]]
     roles: dict[int, RoleType]
     queries: dict[str, str]
+    host: str
+    username: str
+    password: str
+    port: int
+    pool: Any
+    clients: dict[str, dict[Any, set[ClientType]]]
+    hasher: Any
 
     def create_token(self,) -> str:
         raise NotImplementedError
 
+    def create_password(self, password: str) -> str:
+        raise NotImplementedError
+
+    def verify_password(self, password_hash: str, password: str):
+        raise NotImplementedError
+
     async def create_message(self, mpl: MessageType):
+        raise NotImplementedError
+
+    async def edit_message(self, message: MessageType, content: str) -> MessageType:
+        raise NotImplementedError
+
+    async def delete_message(self, message: MessageType) -> bool:
         raise NotImplementedError
 
     async def members(self, *, token: str = None, member_id: int = None) -> Optional[MemberType]:
@@ -106,16 +125,22 @@ class Database_API_Type:
     async def servers(self, *, server_id: int = None) -> Optional[ServerType]:
         raise NotImplementedError
 
+    async def messages(self, *, message_id: int = None) -> Optional[MessageType]:
+        raise NotImplementedError
+
+    async def create_member(self, name: str, avatar: str) -> MemberType:
+        raise NotImplementedError
+
     async def remove_from_server(self, member: MemberType, server: ServerType) -> None:
         raise NotImplementedError
 
     async def join_server(self, member: MemberType, server: ServerType) -> None:
         raise NotImplementedError
 
-    async def create_member(self, name: str, avatar: str) -> MemberType:
+    async def create_server(self, name: str, owner: MemberType) -> ServerType:
         raise NotImplementedError
 
-    async def create_server(self, name: str, owner: MemberType) -> ServerType:
+    async def delete_server(self, server: ServerType) -> bool:
         raise NotImplementedError
 
     async def create_server_channel(self, name: str, channel_type: str, server: ServerType) -> ChannelType:

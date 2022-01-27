@@ -2,15 +2,16 @@ from .abc import MemberType, ChannelType, Database_API_Type, ServerType
 from .permissions import ServerPermissions
 from .channel import TextChannel
 from .payload import Payload
-from typing import Sequence, Union
+from typing import Sequence
 
 
 class Server(ServerType):
     database: Database_API_Type = None
 
-    def __init__(self, id: int, name: str):
+    def __init__(self, id: int, name: str, icon: str = None):
         self.id = id
         self.name = name
+        self.icon = icon
         self.default_permissions = ServerPermissions()
         self.owner = None
         self.channels = {}
@@ -63,7 +64,7 @@ class Server(ServerType):
         result = {
             "id": self.id,
             "name": self.name,
-            "icon": "https://via.placeholder.com/350x350?text=" + self.name,
+            "icon": self.icon or f"https://via.placeholder.com/350x350?text={self.name}",
         }
         return result
 

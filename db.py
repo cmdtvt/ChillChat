@@ -3,8 +3,9 @@ import asyncpg
 import os
 import binascii
 from markupsafe import escape
-import utilities
+import argon2
 
+import utilities
 from model.abc import Database_API_Type, ClientType
 from model.message import MessagePayload, Message
 from model.member import Member
@@ -44,9 +45,18 @@ class DB_API(Database_API_Type):
         Channel.database = self
         Member.database = self
         Message.database = self
+        self.hasher = argon2.PasswordHasher(time_cost=10,
+                                            memory_cost=2000000
+                                            )
 
     def create_token(self: Database_API_Type,) -> str:
         return binascii.b2a_hex(os.urandom(50)).decode('utf8')
+
+    def create_password(self: Database_API_Type, password: str) -> str:
+        return self.hasher.hash(password)
+
+    def verify_password(self: Database_API_Type, password_hash: str, password: str):
+        return self.hasher.verify(password_hash, password)
 
     @cache.async_cached(timeout=180)
     async def members(self: Database_API_Type, *, token: str = None, member_id: int = None) -> Optional[Member]:
@@ -118,7 +128,7 @@ class DB_API(Database_API_Type):
                                                                       columns="name, avatar",
                                                                       values="$1::text, $2::text",
                                                                       returning="id"), (name, avatar))
-        return Member(qr, name, None, avatar, None, {}, {}, {})
+        return Member(qr, name, None, avatar, own_channel=None, servers=None, roles=None, permissions=None)
 
     async def remove_from_server(self: Database_API_Type, member: Member, server: Server) -> None:
         await self.query(self.queries["DELETE"].format(
