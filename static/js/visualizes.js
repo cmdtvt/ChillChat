@@ -8,6 +8,18 @@ function VisualizeUser(user, type="default") {
     let usernameP = document.createElement("p");
     usernameP.innerText = user.name;
 
+
+    element.addEventListener("contextmenu",function(e){
+        openContextMenu(e.clientX,e.clientY,"default",[user.name],{
+            "Message" : () => {},
+            "Invite" : () => {},
+            "Kick" : () => {},
+            "Dump User" : () => {console.log(user)},
+            [user.id] : () => {}
+        });
+        e.preventDefault();
+    });
+
     switch (type) {
         case "large-popup":
 
@@ -56,7 +68,7 @@ function VisualizeChannel(channel, type="default") {
                     e.preventDefault();
                 });
 
-                element.classList.add("chat-component-channel")
+                element.classList.add("chat-channel")
                 element.onclick = () => {
                     ActionMessagesOpen(channel)
                 }
@@ -95,7 +107,7 @@ function VisualizeServer(server, type="default") {
                     e.preventDefault();
                 });
 
-                element.classList.add("chat-component-server");
+                element.classList.add("chat-server");
                 element.onclick = () => {
                     ActionServerOpen(server)
                 }
@@ -109,18 +121,17 @@ function VisualizeServer(server, type="default") {
 
 //Pass username message and avatar in props.
 function VisualizeMessage(message, type="default") {
-    //https://developer.mozilla.org/en-US/docs/Web/API/URL
     var parsed = parseMessage(message.content)
     content = parsed.content
     var element = document.createElement("div");
-    element.classList.add("chat-component-message");
-    //TODO: Dublicate message.id placement. Check that which is used where.
+    element.classList.add("chat-message");
     element.setAttribute("data-message-id", message.id);
 
+    
     if(message.author != null) {
         element.appendChild(VisualizeUser(message.author));
     }
-
+    
 
     switch (type) {
         //System message in chat.
@@ -130,9 +141,7 @@ function VisualizeMessage(message, type="default") {
         default:
 
             var contentElement = document.createElement("div");
-
-
-            element.addEventListener("contextmenu",function(e){
+            contentElement.addEventListener("contextmenu",function(e){
                 openContextMenu(e.clientX,e.clientY,"default","Message", {
                     "Edit message" : () => {openMessageToEdit(message)},
                     "Delete message" : async () => {await deleteMessage(message)},
@@ -144,6 +153,26 @@ function VisualizeMessage(message, type="default") {
 
 
             contentElement.classList.add("content")
+
+            let messageinfo = document.createElement("div")
+            messageinfo.classList.add("info")
+            let username = document.createElement("p")
+            username.classList.add("username")
+            username.innerHTML = message.author.name
+
+
+            if(message.timestamp != null) {
+                let timestamp = document.createElement("p")
+                timestamp.classList.add("timestamp")
+                timestamp.innerHTML = message.timestamp
+                messageinfo.appendChild(timestamp)
+            }
+
+            messageinfo.appendChild(username)
+            
+            contentElement.appendChild(messageinfo)
+
+
             var textElement = document.createElement("p")
             textElement.innerHTML = content;
             contentElement.appendChild(textElement);
