@@ -101,6 +101,7 @@ textarea::placeholder ,input::placeholder,select::placeholder {
     font-size: 0.9375rem;
     line-height: 1.5;
     border-radius: 0.25rem;
+    cursor: pointer;
 }
 
 
@@ -567,4 +568,49 @@ main .page {
 
 #page-settings-channels {
     
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*Temporary login box things*/
+
+.login-box {
+    background-color: rgba(255, 255, 255, 0.856);
+    padding: 25px;
+    border-radius: 5px;
+    display:flex;
+    flex-direction: column;
+    color: black;
+}
+
+.login-box:hover {
+    background-color: rgb(255, 255, 255);
+    transition: 0.25s;
+}
+
+.login-box form {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 50%;
+    width: 100%;
+}
+
+.login-box form .inputs {
+    display: flex;
+    flex-direction: row;
+}
+
+.login-box form .inputs input {
+    flex-basis: 50%;
+    margin: 5px;
 }

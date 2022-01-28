@@ -84,17 +84,18 @@ function ActionServerOpen(server) {
     ActionLoadingAnimation("#channels");
     //console.log(server)
     Channels(server); //FIXME: Change to use server not id 
-    //SetupSettingsMenus(server);
+    SetupSettingMenus(server);
 }
 
 //Prepare all setting menu forms etc...
-function SetupSettingsMenus(server) {
+function SetupSettingMenus(server) {
 
 
 
     let element = document.querySelector("#settings-channels");
-    for (let [key,value] of data.get(serverid)['channels'].entries()) {
-        element.appendChild(VisualizeChannel(value));
+    killChildren(element)
+    for (let [key,channel] of server['channels'].entries()) {
+        element.appendChild(VisualizeChannel(channel));
     }
 }
 //Display messages by channel and server id
