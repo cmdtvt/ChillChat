@@ -300,8 +300,8 @@ main .page {
 }
 
 #page-chat .chat-channels .user img {
-    width: 5vw;
-    height: 5vw;
+    width: 3vw;
+    height: 3vw;
 }
 
 #page-chat .chat-channels .user p {
@@ -359,10 +359,6 @@ main .page {
     flex-direction: row;
 }
 
-#page-chat .chat-chat .chat-chatarea .chat-component-message:hover {
-    background-color: var(--color-grey);
-    transition: var(--special-transition);
-}
 #page-chat .chat-chat .chat-chatarea .chat-component-message .content {
     width: 100%;
 }
@@ -542,4 +538,12 @@ main .page {
 
 #page-settings-overview div {
     flex-grow: 1;
+}
+
+#page-settings-channels {
+    display: flex;
+}
+
+#page-settings-channels {
+    
 }

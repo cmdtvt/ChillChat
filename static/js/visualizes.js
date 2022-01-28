@@ -58,7 +58,7 @@ function VisualizeChannel(channel, type="default") {
 
                 element.classList.add("chat-component-channel")
                 element.onclick = () => {
-                    ActionMessagesOpen(channel.id)
+                    ActionMessagesOpen(channel)
                 }
                 let channelName = document.createElement("p")
                 channelName.innerText = channel.name
@@ -97,7 +97,7 @@ function VisualizeServer(server, type="default") {
 
                 element.classList.add("chat-component-server");
                 element.onclick = () => {
-                    ActionServerOpen(server.id)
+                    ActionServerOpen(server)
                 }
                 let serverIcon = document.createElement("img")
                 serverIcon.src = server.icon
