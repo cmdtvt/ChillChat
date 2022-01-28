@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, Sequence, Any
 import asyncpg
 import os
@@ -45,8 +46,11 @@ class DB_API(Database_API_Type):
         Channel.database = self
         Member.database = self
         Message.database = self
-        self.hasher = argon2.PasswordHasher(time_cost=10,
-                                            memory_cost=2000000
+        self.hasher = argon2.PasswordHasher(time_cost=6,
+                                            memory_cost=64000,
+                                            parallelism=2,
+                                            hash_len=100,
+                                            salt_len=50
                                             )
 
     def create_token(self: Database_API_Type,) -> str:
@@ -56,11 +60,19 @@ class DB_API(Database_API_Type):
         return self.hasher.hash(password)
 
     def verify_password(self: Database_API_Type, password_hash: str, password: str):
-        return self.hasher.verify(password_hash, password)
+        try:
+            return self.hasher.verify(password_hash, password)
+        except Exception:
+            return False
 
-    @cache.async_cached(timeout=180)
-    async def members(self: Database_API_Type, *, token: str = None, member_id: int = None) -> Optional[Member]:
-        if token or member_id:
+    @cache.async_cached(timeout=5)
+    async def members(self: Database_API_Type,
+                      *,
+                      token: str = None,
+                      member_id: int = None,
+                      username: str = None
+                      ) -> Optional[Member]:
+        if token or member_id or username:
             if token:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
@@ -71,13 +83,25 @@ class DB_API(Database_API_Type):
                     table="member",
                     where="id=$1::BIGINT LIMIT 1"
                 ), (member_id,))
+            elif username:
+                username = username.lower()
+                member_data = await self.query(self.queries["SELECT_WHERE"].format(
+                    table="member",
+                    where="LOWER(name)=$1::text LIMIT 1"
+                ), (username,))
+                if member_data:
+                    member_data = member_data[0]
+                    member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
+                    return member, member_data["password"]
+                else:
+                    return None, None
             if member_data:
                 member_data = member_data[0]
                 member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
                 return member
         return None
 
-    @cache.async_cached(timeout=15)
+    @cache.async_cached(timeout=5)
     async def channels(self: Database_API_Type, *, channel_id: int = None) -> Optional[Channel]:
         # todo
         if channel_id:
@@ -99,7 +123,7 @@ class DB_API(Database_API_Type):
                     return TextChannel(channel_data["id"], channel_data["name"], server)
         return None
 
-    @cache.async_cached(timeout=30)
+    @cache.async_cached(timeout=5)
     async def servers(self: Database_API_Type, *, server_id: int = None) -> Optional[Server]:
         if server_id:
             server_data = await self.query(self.queries["SELECT_WHERE"].format(
@@ -108,8 +132,9 @@ class DB_API(Database_API_Type):
             ), (server_id,))
             if server_data:
                 server_data = server_data[0]
-                return Server(server_data["id"], server_data["name"])
+                return Server(server_data["id"], server_data["name"], server_data["icon"])
 
+    @cache.async_cached(timeout=5)
     async def messages(self: Database_API_Type, *, message_id: int = None) -> Optional[Message]:
         if message_id:
             message_data = await self.query(self.queries["SELECT_WHERE"].format(
@@ -121,7 +146,7 @@ class DB_API(Database_API_Type):
                 author = await self.members(member_id=message_data["author_id"])
                 channel = await self.channels(channel_id=message_data["channel_id"])
                 if author and channel:
-                    return Message(message_id, message_data["content"], author, channel)
+                    return Message(message_id, message_data["content"], author, channel, message_data["timestamp"])
 
     async def create_member(self: Database_API_Type, name: str, avatar: str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member",
@@ -176,10 +201,10 @@ class DB_API(Database_API_Type):
         content = escape(payload.content)
         message_id = await self.query(self.queries["INSERT_RETURNING"].format(
             table="message",
-            columns="content, author_id, channel_id",
-            values="$1::text, $2::bigint, $3::bigint",
+            columns="content, author_id, channel_id, timestamp",
+            values="$1::text, $2::bigint, $3::bigint, $4::timestamp with time zone",
             returning="id"
-        ), (content, payload.author.id, payload.channel.id))
+        ), (content, payload.author.id, payload.channel.id, datetime.utcnow()))
         message = Message(message_id[0]["id"], content, payload.author, payload.channel)
         return message
 

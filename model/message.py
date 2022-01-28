@@ -1,14 +1,18 @@
-from datetime import datetime
+import datetime
 from .abc import Database_API_Type, MemberType, ChannelType
 from .payload import Payload
 from typing import Union
-import time
 
 
 class Message:
     database: Database_API_Type = None
 
-    def __init__(self, mid: int, content: str, author: MemberType, channel: ChannelType, timestamp: datetime.DateTime) -> None:
+    def __init__(self,
+                 mid: int,
+                 content: str,
+                 author: MemberType,
+                 channel: ChannelType,
+                 timestamp: datetime.datetime = datetime.datetime.utcnow()) -> None:
         self.id = mid
         self.content = content
         self.author = author
@@ -23,7 +27,7 @@ class Message:
             "author": self.author.gateway_format,
             "channel": self.channel.gateway_format,
             "server": self.channel.server.gateway_format,
-            "time": time.time()
+            "timestamp": self.timestamp.timestamp()
         }
         return response
 

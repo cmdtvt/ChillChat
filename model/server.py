@@ -11,6 +11,8 @@ class Server(ServerType):
     def __init__(self, id: int, name: str, icon: str = None):
         self.id = id
         self.name = name
+        if icon is None:
+            icon = f"https://via.placeholder.com/350x350?text={self.name}"
         self.icon = icon
         self.default_permissions = ServerPermissions()
         self.owner = None
@@ -64,7 +66,7 @@ class Server(ServerType):
         result = {
             "id": self.id,
             "name": self.name,
-            "icon": self.icon or f"https://via.placeholder.com/350x350?text={self.name}",
+            "icon": self.icon,
         }
         return result
 

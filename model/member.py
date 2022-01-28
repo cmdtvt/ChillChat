@@ -72,17 +72,15 @@ class Member(MemberType):
     async def get_servers(self,):
         if Member.database:
             server_data = await Member.database.query(
-                Member.database.queries["SELECT_JOIN"].format(
-                    columns="server.id AS id, server.name AS \"name\", server.owner AS owner",
-                    table1="server_members",
-                    table2="server ON server.id=server_members.server_id",
-                    where="server_members.member_id=$1::bigint"
+                Member.database.queries["SELECT_WHERE"].format(
+                    table="server_members",
+                    where="member_id=$1::bigint"
                 ),
                 (self.id,)
             )
             servers = {}
             for i in server_data:
-                servers[i["id"]] = Server(i["id"], i["name"])
+                servers[i["server_id"]] = await Member.database.servers(server_id=i["server_id"])
 
             self.servers = servers
             return self.servers

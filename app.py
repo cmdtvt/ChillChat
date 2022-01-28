@@ -1,5 +1,6 @@
+import asyncio
 from queue import Queue
-from quart import Quart, render_template, session, redirect, url_for, g
+from quart import Quart, render_template, session, redirect, url_for, request, g
 from instances import database
 import time
 import api.endpoints
@@ -18,7 +19,7 @@ class ProfilerMiddleware:
         # print("Send", send)
         start = time.perf_counter()
         tmp = await self.app(scope, receive, send)
-        print(type(tmp))
+        print(type(tmp), tmp)
         stop = time.perf_counter()
         self.total_time += (stop - start)
         self.requests += 1
@@ -27,7 +28,12 @@ class ProfilerMiddleware:
 
 
 app = Quart(__name__, static_folder="static")
-api.endpoints.api_blueprint.db = database
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=86400
+)
 app.asgi_app = ProfilerMiddleware(app.asgi_app)
 app.jinja_options["enable_async"] = True
 app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
@@ -45,6 +51,14 @@ def before_websocket():
     g.db = database
 
 
+@app.after_request
+def after_reqs(response):
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    return response
+
+
 @app.route('/')
 async def hello():
     member_tokens = ["8c4427adf8476719ce6b31b980c41c8b7c913b3955791180713511f4b868fcb632a0c7f144dd06064a804e6599a018eeb8f5",
@@ -53,14 +67,29 @@ async def hello():
     await member.get_servers()
     for i in member.servers.values():
         await i.load_channels()
-    print(member)
-    session["token"] = member.token
+    if session:
+        session["token"] = member.token
     return await render_template("views/home.html", member=member, session=session)
 
 
-@app.route('/login', methods='POST')
+@app.route('/login', methods=['POST'])
 async def login():
-    return "ok"
+    form = await request.form
+    username = form.get('username')
+    password = form.get('password')
+    if username and password:
+        loop = asyncio.get_running_loop()
+        member, password_hash = await g.db.members(username=username)
+        if member and password_hash:
+            database = g.db
+            verify = await loop.run_in_executor(
+                None,
+                lambda: database.verify_password(password_hash, password)
+            )
+            if verify:
+                session["token"] = member.token
+                return "ok"
+    return "not ok"
 
 
 @app.route('/topikayttaja')
@@ -71,7 +100,6 @@ async def erisessio():
     await member.get_servers()
     for i in member.servers.values():
         await i.load_channels()
-    print(member)
     session["token"] = member.token
     return await render_template("views/home.html", member=member, session=session)
 
