@@ -96,12 +96,14 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 });
 
 //Give server id and element id where channels are placed.
-function Channels(serverid,anchorid="#channels") {
+function Channels(server,anchorid="#channels") {
+
     let element = document.querySelector(anchorid);
     killChildren(element)
-    for (let [key,value] of data.get(serverid)['channels'].entries()) {
-        element.appendChild(VisualizeChannel(value));
+    for (let [key,channel] of server['channels'].entries()) {
+        element.appendChild(VisualizeChannel(channel));
     }
+    
 }
 
 function Servers(anchorid="#servers") {

@@ -79,63 +79,72 @@ function ActionScroll(anchor=null,scrollto=null,behavior=null,scrollDelay=500){
 }
 
 //Open server
-function ActionServerOpen(id) {
-    settings["current_server"] = id;
+function ActionServerOpen(server) {
+    settings["current_server"] = server.id;
     ActionLoadingAnimation("#channels");
-    Channels(id);
+    //console.log(server)
+    Channels(server); //FIXME: Change to use server not id 
+    SetupSettingMenus(server);
+}
+
+//Prepare all setting menu forms etc...
+function SetupSettingMenus(server) {
+
+
+
+    let element = document.querySelector("#settings-channels");
+    killChildren(element)
+    for (let [key,channel] of server['channels'].entries()) {
+        element.appendChild(VisualizeChannel(channel));
+    }
 }
 //Display messages by channel and server id
-function ActionMessagesOpen(id) {
+function ActionMessagesOpen(channel) {
 
-    settings.current_channel = id
+    settings.current_channel = channel.id
 
     ActionLoadingAnimation("#message-area");
     let element = document.querySelector("#message-area");
     let server = data.get(settings['current_server']);
-    let channel = server['channels'].get(id)
     let messages = channel['messages'];
-    //TODO: Add a check if there are new messages.
-    //Maby create a endpoint which returns the id of the newest message.
 
     //Fetch messages from channel and store them in given array.
-        killChildren(element)
-        var createMessagesDOM = async(messages) => {
-            try {
-                if(!channel.fetched) {
-                    let fetch_messages = await fetchMessages(settings.current_channel)
-                    if(fetch_messages) {
-                        for(let message of fetch_messages) {
-                            var temp = fetch_messages[message]
-                            var ele = VisualizeMessage(message)
-                            element.appendChild(ele);
-                            messages.set(message.id, [message, ele]);
-                        }
-                    }
-                } else {
-                    for(let [id, messageArr] of messages.entries()) {
-                        let [message, ele] = messageArr
+    killChildren(element)
+    var createMessagesDOM = async(messages) => {
+        try {
+            if(!channel.fetched) {
+                let fetch_messages = await fetchMessages(settings.current_channel)
+                if(fetch_messages) {
+                    for(let message of fetch_messages) {
+                        var temp = fetch_messages[message]
+                        var ele = VisualizeMessage(message)
                         element.appendChild(ele);
+                        messages.set(message.id, [message, ele]);
                     }
                 }
-            } catch (error) {
-                console.log(error)
+            } else {
+                for(let [id, messageArr] of messages.entries()) {
+                    let [message, ele] = messageArr
+                    element.appendChild(ele);
+                }
             }
-        //If channel has no messages display a message about it.
-        //TODO: Move fetching new messages away from here.
-            //This element is used to atomaticly scroll to the bottom of the chat area.
-                let bottomArea = document.createElement("div")
-                bottomArea.classList.add("component-message")
-                bottomArea.id = "chat-bottom"
-                element.appendChild(bottomArea);
-            /*Scroll to bottom when co messages are loaded.
-            This needs to be delayed because images take time to load and javascript won't
-            Know the true height of the div so scrolling fails partly*/
-                setTimeout(() => {
-                    bottomArea.scrollIntoView({ behavior: "smooth" });
-                }, 800);
-            }
-            createMessagesDOM(messages);
-            ActionToggleVisibility("#chat-textarea","flex","show");
+        } catch (error) {
+            console.log(error)
+        }
+
+        //This element is used to atomaticly scroll to the bottom of the chat area.
+        let bottomArea = document.createElement("div")
+        bottomArea.classList.add("component-message")
+        bottomArea.id = "chat-bottom"
+        element.appendChild(bottomArea);
+
+        /*Scroll into end after some time because images take time to load.*/
+        setTimeout(() => {
+            bottomArea.scrollIntoView({ behavior: "smooth" });
+        }, 800);
+    }
+    createMessagesDOM(messages);
+    ActionToggleVisibility("#chat-textarea","flex","show");
 }
 
 
