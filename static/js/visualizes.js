@@ -161,14 +161,14 @@ function VisualizeMessage(message, type="default") {
             username.innerHTML = message.author.name
 
 
+            messageinfo.appendChild(username)
             if(message.timestamp != null) {
                 let timestamp = document.createElement("p")
                 timestamp.classList.add("timestamp")
-                timestamp.innerHTML = message.timestamp
+                timestamp.innerHTML = convertUnixTimestampToDate(message.timestamp)
                 messageinfo.appendChild(timestamp)
             }
 
-            messageinfo.appendChild(username)
             
             contentElement.appendChild(messageinfo)
 

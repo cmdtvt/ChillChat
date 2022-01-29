@@ -116,9 +116,11 @@ main .page {
 #page-chat {
     display:flex;
 }
+
 #page-chat > * {
     flex-shrink: 1;
 }
+
 #page-chat .chat-servers {
     background-color: var(--color-dark);
     display: flex;
@@ -152,9 +154,11 @@ main .page {
     overflow-x: hidden;
 }
 
+/*deleted
 #page-chat .chat-channels #channels {
     height: 100%;
 }
+*/
 
 #page-chat .chat-channels .user {
     background-color: var(--color-dark);
@@ -245,6 +249,10 @@ main .page {
 #page-chat .chat-chat .chat-chatarea .chat-message .content .info .username {
     font-weight: bold;
     font-size: 1.2em;
+    margin-top: 0px;
+}
+
+#page-chat .chat-chat .chat-chatarea .chat-message .content .info .timestamp {
     margin-top: 0px;
 }
 
