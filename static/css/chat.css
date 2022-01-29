@@ -126,7 +126,7 @@ main .page {
     display: flex;
     flex-flow: column nowrap;
     padding: 0px 10px 0px 10px;
-    flex-grow: 2;
+    flex-grow: 0;
     width:72px;
 }
 
@@ -137,19 +137,20 @@ main .page {
 }
 
 #page-chat .chat-servers .chat-server img {
-    min-width: 50px;
-    min-height: auto;
+    height: 75px;
+    width: 75px;
     max-width: 75px;
     max-height: 75px;
     border-radius: 100%;
     padding: 5px;
 }
 
+
 #page-chat .chat-channels {
     background-color: var(--color-grey);
     display:flex;
     flex-direction: column;
-    width:240px;
+    max-width:240px;
     font-size: small;
     overflow-x: hidden;
 }
@@ -167,8 +168,8 @@ main .page {
 }
 
 #page-chat .chat-channels .user img {
-    width: 3vw;
-    height: 3vw;
+    width: 75px;
+    height: 75px;
 }
 
 #page-chat .chat-channels .user p {
