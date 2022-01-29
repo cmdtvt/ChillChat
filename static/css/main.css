@@ -1,176 +1,115 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300&display=swap");
 :root {
-  /*Main colors*/
-  --color-background: #ebe7f0;
-  --color-primary:  #282C34;
-  --color-secondary: #3a424d;
-  --color-decoration: #21252B;
-  --color-border: black;
-  --color-attention-bad: #eb4034;
-  --color-attention-warning: #fcba03;
-  --color-attention-good: #32a852;
-  /*Padding and margin settings*/
-  --setting-padding: 20px;
-  --setting-margin: 10px;
-  --setting-margin-seperate: 20px;
-  /*Fonts*/
-  --font-main: 'Nunito Sans', sans-serif;
-  --font-base-size: 12px;
-  --color-font-main: #ffffff;
-  --color-font-secondary: #ffffffd8;
-  /*Specials*/
-  --special-border-radius: 5px;
-  --special-transition: 0.25s;
+	/*Main colors*/
+	--color-background: rgb(79, 89, 104);
+	--color-dark:  #282C34;
+	--color-grey: #3a424d;
+    --color-light: #373c46;
+	--color-decoration: #21252B;
+	--color-border: black;
+    --color-loader: rgb(255, 255, 255);
+    --color-textarea: #4b5461;
+
+	--color-attention-bad: #eb4034;
+	--color-attention-warning: #fcba03;
+	--color-attention-good: #32a852;
+
+	/*Padding and margin settings*/
+	--setting-padding: 20px;
+	--setting-margin: 10px;
+	--setting-margin-seperate: 20px;
+
+	/*Fonts*/
+	--font-main: 'Nunito Sans', sans-serif;
+	--font-base-size: 12px;
+	--color-font-main: #ffffff;
+	--color-font-secondary: #ffffffd8;
+
+	/*Specials*/
+	--special-border-radius: 5px;
+	--special-transition: 0.25s;
 }
 
-html, body {
-  padding: 0px;
-  margin: 0px;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200&display=swap');
+
+
+
+.error {
+  color: rgb(255, 0, 0);
+  font-size: bold;
 }
 
-body {
-  min-height: 100vh;
-  min-width: 100vw;
-  font-family: var(--font-main);
-  background-color: var(--color-background);
+.icon-close {font-size: 1.80em; float: right;}
+.icon-close:hover, .icon-settings:hover {cursor: pointer; color: #ff4000; transition: var(--item-transition);}
+.icon-close::after {content: " X";}
+
+.icon-settings::after {content: "⚙️";}
+.icon-settings:hover {
+  color:rgb(255, 255, 255);
 }
 
-body .item {
-  font-size: 16px;
+.icon-arrowleft::after {content: "🡐";}
+.icon-arrowleft:hover {
+  color:rgb(255, 255, 255);
 }
 
-button, textarea, input, a {
-  margin-top: 10px;
-}
+/*Custom scrollbar*/
+::-webkit-scrollbar {width: 10px;}
+::-webkit-scrollbar-track {background: #2d313a; }
+::-webkit-scrollbar-thumb {background: var(--color-decoration); }
+::-webkit-scrollbar-thumb:hover {background: #555; }
 
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
-}
 
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.custom-button {
-  margin: 5px;
-  background-color: #702293;
-  border-radius: 20px;
-  padding: 5px;
-  padding-top: 9px;
-  font-size: 15px;
-  font-weight: bold;
-  width: 100px;
-  text-align: center;
-  border: 1px solid #5d1050cf;
-  color: #ffffff;
-  text-decoration: none;
-  -webkit-transition: var(--special-transition);
-  transition: var(--special-transition);
-}
-
-.custom-button:hover {
-  background-color: #8e2abd;
-}
-
-#devpanel {
-  background-color: #afafaf;
-  font-size: 12px;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-  max-height: 80vh;
-  overflow-y: scroll;
-  border: 2px solid black;
-  padding: 5px;
-}
-
-.front header {
-  width: 100vw;
-}
-
-.front nav {
-  background-color: #541f6c;
-  color: white;
-  min-height: 5vh;
-  width: 100%;
-  position: fixed;
-}
-
-.front .content {
-  background-color: orange;
-}
-
-.front .clip-deco {
-  background-color: #732d93;
-  background-image: url("../images/frontheader.jpg");
-  height: 35vh;
-  width: 100vw;
-}
-
-.box {
-  background-color: #ffffff;
-  border-radius: 5px;
+textarea,input,select {
+  all: unset;
+  background-color: var(--color-textarea);
   padding: 10px;
-  -webkit-box-shadow: 0px 0px 20px 4px #000000;
-          box-shadow: 0px 0px 20px 4px #000000;
+  border: 3px solid var(--color-light);
+  border-radius: var(--setting-border-radius);
+  color: var(--color-font-main);
+  box-shadow: 0px 0px 0px 0px #a5a0a0;
 }
 
-.type-translucent {
-  background-color: rgba(255, 255, 255, 0.1);
+textarea:focus,input:focus,select:focus {
+  box-shadow: 0px 0px 3px 0px #a5a0a0;
+  transition: var(--special-transition)
 }
 
-.fwrap, .fwrap-full, .fwrap-centered {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
+textarea::placeholder ,input::placeholder,select::placeholder {
+  color: #bdb5b5;
 }
 
-.fwrap .item, .fwrap .item-nowrap, .fwrap .item-full, .fwrap .item-right, .fwrap-full .item, .fwrap-full .item-nowrap, .fwrap-full .item-full, .fwrap-full .item-right, .fwrap-centered .item, .fwrap-centered .item-nowrap, .fwrap-centered .item-full, .fwrap-centered .item-right {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-preferred-size: auto;
-      flex-basis: auto;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
+.btn {
+	display: inline-block;
+	font-weight: 400;
+	color: #212529;
+	text-align: center;
+	vertical-align: middle;
+	user-select: none;
+	background-color: transparent;
+	border: 3px solid var(--color-light);
+	padding: 0.375rem 0.75rem;
+	font-size: 0.9375rem;
+	line-height: 1.5;
+	border-radius: 0.25rem;
+	cursor: pointer;
 }
 
-.fwrap .item-full, .fwrap-full .item-full, .fwrap-centered .item-full {
-  width: 100%;
+
+.btn-green {
+	color: #ffffff;
+	background-color: #18BC9C;
 }
 
-.fwrap .item-nowrap, .fwrap-full .item-nowrap, .fwrap-centered .item-nowrap {
-  -ms-flex-wrap: nowrap;
-      flex-wrap: nowrap;
+.btn-green:hover {
+	color: #ffffff;
+	background-color: #149a80;
 }
 
-.fwrap .item-right, .fwrap-full .item-right, .fwrap-centered .item-right {
-  margin-left: auto;
+.btn-full {
+	width: 100%;
 }
 
-.fwrap-full {
-  min-width: 100%;
+.hide {
+	display: none;
 }
 
-.fwrap-centered {
-  margin-left: auto;
-  margin-right: auto;
-  min-width: 60%;
-}
-
-.fcenter-content {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-}

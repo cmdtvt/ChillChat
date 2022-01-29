@@ -8,56 +8,15 @@
     <title>ChillChat</title>
 
     <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/front.css')}}">
     <script src="{{url_for('static', filename='js/main.js')}}"></script>
+    <script src="{{url_for('static', filename='js/front.js')}}"></script>
     
 
     {% block head %}{% endblock %}
 </head>
 <body>
-
-    <div id="devpanel">
-        <p>Devzone</p>
-        <pre>
-            <code>
-                {{session.get('token')}}
-                {{member}}<br>
-                {{member.token}}<br>
-                {{member.servers}}
-                {% for i in member.servers.values() %}
-                    {{i.channels}}
-                {% endfor %}
-                <!--  for i in member.servers[1].channels[2].messages %}
-                    i.content}}<br>
-                 endfor %} -->
-            </code>
-        </pre>
-    </div>
-
-    <main>
-
-
-
-        {% block main %}{% endblock %}
-    </main>
-
-    <script>
-        // function test(token) {
-        //     let sock = new WebSocket("ws://127.0.0.1:5000/v1/gateway/");
-        //         sock.onmessage = async function(event) {
-        //             console.log(`Data ${event.data}`)
-        //             if (event.data == "HEARTBEAT") {
-        //                 await sock.send("ACK_HEARTBEAT")
-        //                 console.log("Acknowledging heartbeat")
-        //             }
-        //         }
-        //         sock.onopen = async function() {
-        //             await sock.send(`IDENTIFY ${token}`);
-        //     }
-        // }
-    </script>
-
+    <main>{% block main %}{% endblock %}</main>
     {% block endbody %}{% endblock %}
-    
 </body>
 </html>

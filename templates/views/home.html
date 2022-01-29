@@ -1,40 +1,55 @@
 {% extends "base.html" %}
 
 {% block main %}
-
-
-    <div class="fwrap-full front">
-        <header class="item">
-            <nav class="item">
-                <div class="item-right">
-                    <a href="/chat" class="custom-button">Login</a>
-                    <a href="#" class="custom-button">Register</a>
+    
+    <div class="login-box" id="login-box">
+        <span class="icon-close" id="login-close"></span>
+        <div class="login-content">
+            <div>
+                <h2>Login</h2>
+            </div>
+            <form action="action" method="post" id="login-form">
+                <div class="inputs">
+                    <input type="username" name="username" id="login-username" placeholder="Username">
+                    <input type="password" name="username" id="login-password" placeholder="Password">
                 </div>
-            </nav>
+                <button class="btn btn-save btn-full" type="submit">Login</button>
+            </form>
+        </div>
+    </div>
 
-            <div class="clip-deco"></div>
-        </header>
-
-        <div class="item-full content">
-            <h1 class="item">
-                
-
-                <div class="login-box">
-                    <div>
-                        <h2>Login</h2>
-                    </div>
-                    <form action="action" method="post" id="login-form">
-                        <div class="inputs">
-                            <input type="username" name="username" id="login-username">
-                            <input type="password" name="username" id="login-password">
-                        </div>
-                        <button class="btn btn-save btn-full" type="submit">Login</button>
-                    </form>
-                </div>
+    <header>
+        <nav>        
+            <div class="item">
+                <a href="#" class="item">Home</a>
+            </div>            
+            <div class="item">
+                <a href="#about" class="item">About Us</a>
+            </div>           
+            <div class="item">
+                <p class="item btn btn-full" id="login-button">Login</p>
+            </div>
 
 
-            </h1>
-        
+        </nav>
+    </header>
+
+    <div class="content">
+
+        <div class="promo-text-box">
+            <div class="promo-text">
+                <h1>Welcome to ChillChat</h1>
+                <p>Join us in our journey for better and simplerer chatting experience. Lorem ipsum dolor sit amet, consectetur adip lorem lorem ipsum lorem Lorem ipsum dolor sit amet, consectetur adip lorem lorem ipsum lorem Lorem ipsum dolor sit amet, consectetur adip lorem lorem ipsum lorem Lorem ipsum dolor sit amet, consectetur adip lorem lorem ipsum lorem</p>
+            </div>
+        </div>
+
+        <div class="promo-box-color"></div>
+        <div class="promo-box">
+            <p>Welcome to the chillchat!</p>
+        </div>
+
+        <div id="about">
+            About us
         </div>
     </div>
 

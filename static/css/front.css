@@ -1,0 +1,195 @@
+/*This is css for the landing page*/
+:root {
+    --front-color-background: rgb(17, 17, 18,1);
+    --front-font-nav: white;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+body {
+    
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+    font-size: 1.3em;
+    color: white;
+    background-color: var(--front-color-background);
+    display:flex;
+    flex-direction: column;
+
+    margin-left: auto;
+    margin-right: auto;
+    width: 60%;
+
+    min-height: 300vh;
+}
+
+header {
+    margin-top: 25px;
+    background-color: #1c1c1e;
+    display:flex;
+    width: 100%;
+    color: var(--front-font-nav);
+}
+
+nav {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    flex-grow: 1;
+    justify-content: flex-end;
+}
+
+nav .item {
+	flex-basis: 20%;
+	flex-grow: 0;
+	flex-shrink: 0;
+
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    
+    color: var(--front-font-nav);
+}
+
+nav .item:hover {
+    cursor: pointer;
+}
+
+
+.promo-text-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+
+.promo-box-color {
+    padding: 25px;
+    background-color: #323232;
+    height:35vh;
+    border-radius: 25px;
+
+
+    background: linear-gradient(to left, #be2dac, #a229ad, #8428ad, #6028ab, #2f29a8);
+    filter: blur(200px);
+}
+
+.promo-box {
+    padding: 25px;
+    background-color: #323232;
+    height:35vh;
+    border-radius: 25px;
+    z-index: 10;
+}
+
+.promo-text {
+
+    width: 50%;
+    height: 40vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.promo-text * {
+
+}
+
+.wrapper {
+
+}
+
+
+
+
+
+
+@keyframes loginSlideIn {
+    from {
+        right: -500px;
+    }
+  
+    to {
+        right: 0px;
+    }
+}
+
+@keyframes loginSlideOut {
+    from {
+        right: 0px;
+    }
+  
+    to {
+        right: -500px;
+    }
+}
+
+
+
+.login-box {
+
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.822);
+    position:fixed;
+    height:100vh;
+    right: -500px;
+    width: 500px;
+    color: white;
+
+
+
+    display:flex;
+    flex-direction: column;
+
+
+
+}
+
+.login-visible {
+    animation: loginSlideIn 1s forwards 0.2s;
+}
+
+.login-hidden {
+    animation: loginSlideOut 1s forwards 0.2s;
+}
+
+.login-box:hover {
+    background: none repeat scroll 0 0 rgb(0, 0, 0,1);
+    transition: 0.25s;
+    right: -500px;
+}
+
+.login-box .icon-close {
+    text-align: right;
+    margin-right: 25px;
+}
+
+.login-box form {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 50%;
+    width: 90%;
+}
+
+.login-box form .inputs {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-box form button {
+    margin-top: 30px;
+}
+
+.login-box form .inputs input {
+    flex-basis: 100%;
+    margin: 5px;
+}
+
+.login-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}

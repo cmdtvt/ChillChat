@@ -15,9 +15,10 @@
 	<script src="http://127.0.0.1:5000/static/js/chat.js" defer></script>
 
 	<!--Interface things.-->
-	<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/style.css">
-	<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/loading.css">
-	<script src="http://127.0.0.1:5000/static/js/interface.js"></script>
+	<link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/loading.css')}}">
+	<script src="{{url_for('static', filename='js/interface.js')}}"></script>
 
 </head>
 <body>
