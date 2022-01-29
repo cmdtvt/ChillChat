@@ -1,6 +1,6 @@
 import asyncio
 from queue import Queue
-from quart import Quart, render_template, session, redirect, url_for, request, g
+from quart import Quart, render_template, session, redirect, url_for, request, g, jsonify
 from instances import database
 import time
 import api.endpoints
@@ -61,15 +61,10 @@ def after_reqs(response):
 
 @app.route('/')
 async def hello():
-    member_tokens = ["8c4427adf8476719ce6b31b980c41c8b7c913b3955791180713511f4b868fcb632a0c7f144dd06064a804e6599a018eeb8f5",
-                     "7a7c1d7a49a5ebf4d44ca2c91b2f7d24831a049d466104b5ba319ffc692053d994d3fc05d94c852f1f8fea1d1c3c98c355e2"]
-    member: MemberType = await g.db.members(token=member_tokens[0])
-    await member.get_servers()
-    for i in member.servers.values():
-        await i.load_channels()
-    if session:
-        session["token"] = member.token
-    return await render_template("views/home.html", member=member, session=session)
+    member = None
+    if session and session.get('token'):
+        member = await g.db.members(token=session.get('token'))
+    return await render_template("views/home.html", member=member)
 
 
 @app.route('/login', methods=['POST'])
@@ -88,20 +83,17 @@ async def login():
             )
             if verify:
                 session["token"] = member.token
-                return "ok"
-    return "not ok"
+                return jsonify(member.gateway_format)
+    return "not ok", 400
 
 
-@app.route('/topikayttaja')
-async def erisessio():
-    member_tokens = ["8c4427adf8476719ce6b31b980c41c8b7c913b3955791180713511f4b868fcb632a0c7f144dd06064a804e6599a018eeb8f5",
-                     "7a7c1d7a49a5ebf4d44ca2c91b2f7d24831a049d466104b5ba319ffc692053d994d3fc05d94c852f1f8fea1d1c3c98c355e2"]
-    member: MemberType = await g.db.members(token=member_tokens[1])
-    await member.get_servers()
-    for i in member.servers.values():
-        await i.load_channels()
-    session["token"] = member.token
-    return await render_template("views/home.html", member=member, session=session)
+@app.route('/logout', methods=['GET'])
+async def logout():
+    if session and session.get('token'):
+        session.pop('token')
+        return "ok", 200
+    else:
+        return "not ok", 400
 
 
 @app.route('/chat')

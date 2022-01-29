@@ -97,12 +97,12 @@ textarea::placeholder ,input::placeholder,select::placeholder {
 
 .btn-green {
 	color: #ffffff;
-	background-color: #18BC9C;
+	background-color: #5cff77;
 }
 
 .btn-green:hover {
 	color: #ffffff;
-	background-color: #149a80;
+	background-color: #80e466;
 }
 
 .btn-full {
