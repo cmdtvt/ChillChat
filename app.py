@@ -73,9 +73,9 @@ async def login():
     username = form.get('username')
     password = form.get('password')
     if username and password:
-        loop = asyncio.get_running_loop()
         member, password_hash = await g.db.members(username=username)
         if member and password_hash:
+            loop = asyncio.get_running_loop()
             database = g.db
             verify = await loop.run_in_executor(
                 None,

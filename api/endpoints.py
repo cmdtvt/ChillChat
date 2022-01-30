@@ -1,10 +1,71 @@
+import aiohttp
+import asyncio
+import re
 import quart
+from bs4 import BeautifulSoup
 from model.message import MessagePayload  # pylint: disable=import-error
-from quart import Blueprint, request, session, g
+from quart import Blueprint, request, session, g, jsonify
 import api.gateway  # pylint: disable=import-error
 import api.status_codes  # pylint: disable=import-error
 api_blueprint = Blueprint('api', __name__)
 api_blueprint.register_blueprint(api.gateway.gateway_blueprint, url_prefix="/gateway")
+
+
+def parse_metatags(html):
+    soup = BeautifulSoup(html, "html.parser")
+    meta_tags = soup.select("meta")
+    data = {}
+    print(meta_tags)
+    for tag in meta_tags:
+        if tag.get("property") == "og:title":
+            data["title"] = tag.get("content")
+            
+        elif tag.get("property") == "og:site_name":
+            data["site_name"] = tag.get("content")
+            
+        elif tag.get("property") == "og:description":
+            data["og:description"] = tag.get("content", "")
+            
+        elif tag.get("property") == "og:url":
+            data["url"] = tag.get("content", "")
+            
+        elif tag.get("name") == "description":
+            data["description"] = tag.get("content")
+            
+        elif tag.get("name") == "msapplication-TileImage":
+            data["image"] = tag.get("content", None) or data.get("image") or ""
+            
+        elif tag.get("property") == "og:image":
+            data["image"] = tag.get("content", None) or data.get("image") or ""
+            
+    return data
+
+
+async def get_url_metadata(data):
+    if session and session.get('token'):
+        if data:
+            reg = re.match(r"^(?:(?:https?|ftp|file):\/\/([-A-Z0-9+&@#\/%?=~_|!:,.;]*))$", data, re.I)
+            if reg:
+                async with aiohttp.ClientSession() as client:
+                    async with client.get(reg.string) as resp:
+                        if resp.status == 200:
+                            html = await resp.text()
+                            loop = asyncio.get_running_loop()
+                            return await loop.run_in_executor(
+                                None,
+                                lambda: parse_metatags(html)
+                            )
+
+
+@api_blueprint.route("/", defaults={"path": ""})
+@api_blueprint.route("/<string:path>")
+@api_blueprint.route("/<path:path>")
+async def test(path):
+    if path.startswith("urlmeta/"):
+        data = path.replace("urlmeta/", "")
+        meta_data = await get_url_metadata(data) or []
+        return jsonify(meta_data)
+    return api.status_codes.NotFound()
 
 
 @api_blueprint.route("/channel/<int:channel_id>", methods=["GET"])
