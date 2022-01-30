@@ -92,7 +92,7 @@ function SetupSettingMenus(server) {
 
 
 
-    let element = document.querySelector("#settings-channels");
+    let element = document.querySelector("#channels");
     killChildren(element)
     for (let [key,channel] of server['channels'].entries()) {
         element.appendChild(VisualizeChannel(channel));
