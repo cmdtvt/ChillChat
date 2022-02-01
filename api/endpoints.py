@@ -15,29 +15,28 @@ def parse_metatags(html):
     soup = BeautifulSoup(html, "html.parser")
     meta_tags = soup.select("meta")
     data = {}
-    print(meta_tags)
     for tag in meta_tags:
         if tag.get("property") == "og:title":
             data["title"] = tag.get("content")
-            
+
         elif tag.get("property") == "og:site_name":
             data["site_name"] = tag.get("content")
-            
+
         elif tag.get("property") == "og:description":
             data["og:description"] = tag.get("content", "")
-            
+
         elif tag.get("property") == "og:url":
             data["url"] = tag.get("content", "")
-            
+
         elif tag.get("name") == "description":
             data["description"] = tag.get("content")
-            
+
         elif tag.get("name") == "msapplication-TileImage":
             data["image"] = tag.get("content", None) or data.get("image") or ""
-            
+
         elif tag.get("property") == "og:image":
             data["image"] = tag.get("content", None) or data.get("image") or ""
-            
+
     return data
 
 
@@ -66,6 +65,17 @@ async def test(path):
         meta_data = await get_url_metadata(data) or []
         return jsonify(meta_data)
     return api.status_codes.NotFound()
+
+
+@api_blueprint.route("/auth/bot", methods=["POST"])
+async def bot_authenticate():
+    form = await request.form
+    if 'token' in form:
+        member = await g.db.members(token=form['token'])
+        if member:
+            session['token'] = form['token']
+            return api.status_codes.OK()
+    return api.status_codes.BadRequest()
 
 
 @api_blueprint.route("/channel/<int:channel_id>", methods=["GET"])

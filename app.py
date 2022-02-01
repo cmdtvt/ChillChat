@@ -40,15 +40,21 @@ app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
 
 
+@app.before_first_request
+def before_first_reqs():
+    session.permanent = True
+
+
 @app.before_request
 def before_reqs():
     g.db = database
-    session.permanent = True
+    session.modified = True
 
 
 @app.before_websocket
 def before_websocket():
     g.db = database
+    session.modified = True
 
 
 @app.after_request
