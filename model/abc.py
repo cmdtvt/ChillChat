@@ -1,21 +1,7 @@
 from typing import Any, Optional, Sequence
 
 
-class Messageable:
-
-    async def send(self):
-        raise NotImplementedError
-
-    @property
-    def gateway_format(self):
-        raise NotImplementedError
-
-
 class ClientType:
-    pass
-
-
-class ChannelType(Messageable):
     pass
 
 
@@ -25,17 +11,17 @@ class ServerType:
     owner: Optional[object]
     default_permissions: object
 
-    async def load_channels() -> None:
+    async def load_channels(self) -> None:
         raise NotImplementedError
 
-    async def load_client_members() -> Sequence[object]:
+    async def load_client_members(self) -> Sequence[object]:
         raise NotImplementedError
 
     @property
-    def gateway_format():
+    def gateway_format(self):
         raise NotImplementedError
 
-    async def create_channel():
+    async def create_channel(self):
         raise NotImplementedError
 
 
@@ -43,15 +29,31 @@ class RoleType:
     id: int
 
 
-class MemberType(Messageable):
+class ChannelType:
+    pass
+
+
+class PermissionsType:
+    def __init__(self, permissions):
+        self._permissions = permissions
+
+    def merge(self, other_permissions):
+        raise NotImplementedError
+
+
+class MemberType:
     id: int
     name: str
     token: str
     avatar: str
-    servers: Sequence[ServerType]
+    servers: dict[int, ServerType]
     roles: Sequence[RoleType]
     permissions: dict[str, dict[int, object]]
     client: ClientType
+
+    @property
+    def gateway_format(self):
+        raise NotImplementedError
 
     async def send_via_client(self, data: str) -> None:
         raise NotImplementedError
@@ -69,7 +71,7 @@ class MessageType:
     author: MemberType
 
 
-class ChannelType(Messageable):
+class ChannelType:
     id: int
     name: str
     server: ServerType
@@ -77,6 +79,7 @@ class ChannelType(Messageable):
 
     async def send(self, mpl: MessageType):
         raise NotImplementedError
+
 
 
 class ServerType:

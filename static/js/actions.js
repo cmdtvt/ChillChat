@@ -83,7 +83,7 @@ function ActionServerOpen(server) {
     settings["current_server"] = server.id;
     ActionLoadingAnimation("#channels");
     //console.log(server)
-    Channels(server); //FIXME: Change to use server not id 
+    Channels(server);
     SetupSettingMenus(server);
 }
 

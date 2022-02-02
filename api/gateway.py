@@ -115,7 +115,7 @@ class Client(ClientType):
         except asyncio.CancelledError:
             pass
         finally:
-            self.close_connection()
+            await self.close_connection()
 
     async def send(self, data: str) -> Any:
         await self.queue.put(data)
@@ -128,7 +128,7 @@ async def gateway():
     g.db.clients["all"].add(client)
     try:
         task = await websocket.receive()
-        if (session and session.get('token') and task.startswith("START")):
+        if session and session.get('token') and task.startswith("START"):
             token = session.get('token')
             member = await g.db.members(token=token)
             if member:

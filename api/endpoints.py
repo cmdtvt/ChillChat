@@ -43,7 +43,7 @@ def parse_metatags(html):
 async def get_url_metadata(data):
     if session and session.get('token'):
         if data:
-            reg = re.match(r"^(?:(?:https?|ftp|file):\/\/([-A-Z0-9+&@#\/%?=~_|!:,.;]*))$", data, re.I)
+            reg = re.match(r"^(?:https?|ftp|file)://([-A-Z0-9+&@#/%?=~_|!:,.;]*)$", data, re.I)
             if reg:
                 async with aiohttp.ClientSession() as client:
                     async with client.get(reg.string) as resp:

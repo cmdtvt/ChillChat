@@ -71,8 +71,9 @@ class DB_API(Database_API_Type):
                       token: str = None,
                       member_id: int = None,
                       username: str = None
-                      ) -> Optional[Member]:
+                      ) -> Optional[Member, str]:
         if token or member_id or username:
+            member_data = None
             if token:
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
@@ -103,7 +104,6 @@ class DB_API(Database_API_Type):
 
     @cache.async_cached(timeout=5)
     async def channels(self: Database_API_Type, *, channel_id: int = None) -> Optional[Channel]:
-        # todo
         if channel_id:
             channel_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="channel",

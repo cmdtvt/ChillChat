@@ -41,12 +41,12 @@ app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
 
 
 @app.before_first_request
-def before_first_reqs():
+def before_first_request():
     session.permanent = True
 
 
 @app.before_request
-def before_reqs():
+def before_request():
     g.db = database
     session.modified = True
 
@@ -58,7 +58,7 @@ def before_websocket():
 
 
 @app.after_request
-def after_reqs(response):
+def after_request(response):
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
@@ -82,10 +82,10 @@ async def login():
         member, password_hash = await g.db.members(username=username)
         if member and password_hash:
             loop = asyncio.get_running_loop()
-            database = g.db
+            db = g.db
             verify = await loop.run_in_executor(
                 None,
-                lambda: database.verify_password(password_hash, password)
+                lambda: db.verify_password(password_hash, password)
             )
             if verify:
                 session["token"] = member.token
