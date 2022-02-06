@@ -76,11 +76,16 @@ nav .item:hover {
 }
 
 .promo-box {
+    display: flex;
     padding: 25px;
     background-color: #323232;
-    height:35vh;
     border-radius: 25px;
     z-index: 10;
+}
+
+.promo-box img {
+    flex-grow: 1;
+    max-width:100%;
 }
 
 .promo-text {
@@ -102,7 +107,9 @@ nav .item:hover {
 
 }
 
-
+#about {
+    margin-top: 20%;
+}
 
 
 
@@ -138,7 +145,7 @@ nav .item:hover {
     width: 500px;
     color: white;
 
-
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 11% 75%, 0 40%);
 
     display:flex;
     flex-direction: column;
