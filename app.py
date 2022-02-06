@@ -1,7 +1,7 @@
 import asyncio
 from queue import Queue
 from quart import Quart, render_template, session, redirect, url_for, request, g, jsonify
-from instances import database
+from instances import database, cache
 import time
 import api.endpoints
 from model.abc import MemberType
@@ -32,7 +32,8 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=86400
+    PERMANENT_SESSION_LIFETIME=86400,
+    SEND_FILE_MAX_AGE_DEFAULT=86400
 )
 app.asgi_app = ProfilerMiddleware(app.asgi_app)
 app.jinja_options["enable_async"] = True
@@ -48,6 +49,7 @@ def before_first_request():
 @app.before_request
 def before_request():
     g.db = database
+    g.cache = cache
     session.modified = True
 
 

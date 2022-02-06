@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 import re
 import quart
+from utilities import Cache
 from bs4 import BeautifulSoup
 from model.message import MessagePayload  # pylint: disable=import-error
 from quart import Blueprint, request, session, g, jsonify
@@ -41,28 +42,39 @@ def parse_metatags(html):
 
 
 async def get_url_metadata(data):
-    if session and session.get('token'):
-        if data:
-            reg = re.match(r"^(?:https?|ftp|file)://([-A-Z0-9+&@#/%?=~_|!:,.;]*)$", data, re.I)
-            if reg:
-                async with aiohttp.ClientSession() as client:
-                    async with client.get(reg.string) as resp:
-                        if resp.status == 200:
-                            html = await resp.text()
-                            loop = asyncio.get_running_loop()
-                            return await loop.run_in_executor(
-                                None,
-                                lambda: parse_metatags(html)
-                            )
+    if data:
+        reg = re.match(r"^(?:https?|ftp|file)://([-A-Z0-9+&@#/%?=~_|!:,.;]*)$", data, re.I)
+        print(reg, reg.string)
+        if reg:
+            async with aiohttp.ClientSession(headers={'User-Agent':
+                                                          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}) as client:
+                async with client.get(reg.string) as resp:
+                    print(resp)
+                    if resp.status == 200:
+                        html = await resp.text()
+                        print(html)
+                        loop = asyncio.get_running_loop()
+                        return await loop.run_in_executor(
+                            None,
+                            lambda: parse_metatags(html)
+                        )
 
 
 @api_blueprint.route("/", defaults={"path": ""})
 @api_blueprint.route("/<string:path>")
 @api_blueprint.route("/<path:path>")
 async def test(path):
-    if path.startswith("urlmeta/"):
-        data = path.replace("urlmeta/", "")
-        meta_data = await get_url_metadata(data) or []
+
+    if session and session.get('token') and path.startswith("urlmeta/"):
+        data = request.url.replace("http://127.0.0.1:5000/v1/urlmeta/", "")
+        cache: Cache = g.cache
+        cache_value = cache.get(data, 1800)
+        meta_data = []
+        if cache_value:
+            meta_data = cache_value
+        else:
+            meta_data = await get_url_metadata(data)
+            cache.add(data, meta_data, 1800)
         return jsonify(meta_data)
     return api.status_codes.NotFound()
 
