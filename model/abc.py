@@ -35,11 +35,11 @@ class ChannelType:
 
 class PermissionsType:
     def __init__(self, permissions):
-        self._permissions = permissions
+        self.permissions = permissions
 
-    def merge(self, other_permissions):
-        raise NotImplementedError
-
+    @property
+    def gateway_format(self,) -> int:
+        return self.permissions
 
 class MemberType:
     id: int
@@ -47,12 +47,12 @@ class MemberType:
     token: str
     avatar: str
     servers: dict[int, ServerType]
-    roles: Sequence[RoleType]
+    groups: Sequence[RoleType]
     permissions: dict[str, dict[int, object]]
     client: ClientType
 
     @property
-    def gateway_format(self):
+    def gateway_format(self) -> dict:
         raise NotImplementedError
 
     async def send_via_client(self, data: str) -> None:
@@ -81,13 +81,12 @@ class ChannelType:
         raise NotImplementedError
 
 
-
 class ServerType:
     channels: dict[int, ChannelType]
     members: dict[int, MemberType]
 
 
-class Database_API_Type:
+class DBAPIType:
     members: dict[str, dict[Any, MemberType]]
     servers: dict[int, ServerType]
     channels: dict[str, dict[int, ChannelType]]

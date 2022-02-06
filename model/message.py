@@ -1,11 +1,11 @@
 import datetime
-from .abc import Database_API_Type, MemberType, ChannelType
+from .abc import DBAPIType, MemberType, ChannelType
 from .payload import Payload
 from typing import Union
 
 
 class Message:
-    database: Database_API_Type = None
+    database: DBAPIType = None
 
     def __init__(self,
                  mid: int,

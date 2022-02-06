@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/front.css')}}">
     <script src="{{url_for('static', filename='js/main.js')}}" defer></script>
     <script src="{{url_for('static', filename='js/front.js')}}" defer></script>
+    <script>
+        var localStorage = window.localStorage
+        {% if session and not session.get('token') %}
+        localStorage.removeItem('member')
+        {% endif %}
+    </script>
     
 
     {% block head %}{% endblock %}

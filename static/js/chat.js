@@ -1,9 +1,9 @@
 const data = new Map();
-const baseurl = "127.0.0.1:5000/v1"
+const baseurl = "192.168.192.99:5000/v1"
 var settings = {
-    baseurl : "127.0.0.1:5000/v1",
-    api : `http://${baseurl}`,
-    gateway : `ws://${baseurl}/gateway/`,
+    baseurl : "192.168.192.99:5000/v1",
+    api : `https://${baseurl}`,
+    gateway : `wss://${baseurl}/gateway/`,
     userData : null,
     current_server : null,
     current_channel : null,

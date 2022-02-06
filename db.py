@@ -7,7 +7,7 @@ from markupsafe import escape
 import argon2
 
 import utilities
-from model.abc import Database_API_Type, ClientType
+from model.abc import DBAPIType, ClientType
 from model.message import MessagePayload, Message
 from model.member import Member
 from model.channel import Channel, TextChannel
@@ -16,9 +16,9 @@ from model.server import Server
 cache = utilities.Cache()
 
 
-class DB_API(Database_API_Type):
+class DBAPI(DBAPIType):
 
-    def __init__(self: Database_API_Type,
+    def __init__(self: DBAPIType,
                  host: str,
                  username: str,
                  password: str,
@@ -53,25 +53,25 @@ class DB_API(Database_API_Type):
                                             salt_len=50
                                             )
 
-    def create_token(self: Database_API_Type,) -> str:
+    def create_token(self: DBAPIType,) -> str:
         return binascii.b2a_hex(os.urandom(50)).decode('utf8')
 
-    def create_password(self: Database_API_Type, password: str) -> str:
+    def create_password(self: DBAPIType, password: str) -> str:
         return self.hasher.hash(password)
 
-    def verify_password(self: Database_API_Type, password_hash: str, password: str):
+    def verify_password(self: DBAPIType, password_hash: str, password: str):
         try:
             return self.hasher.verify(password_hash, password)
         except Exception:
             return False
 
     @cache.async_cached(timeout=5)
-    async def members(self: Database_API_Type,
+    async def members(self: DBAPIType,
                       *,
                       token: str = None,
                       member_id: int = None,
                       username: str = None
-                      ) -> Optional[Union[Member, str]]:
+                      ) -> Optional[Union[Member, tuple]]:
         if token or member_id or username:
             member_data = None
             if token:
@@ -85,11 +85,13 @@ class DB_API(Database_API_Type):
                     where="id=$1::BIGINT LIMIT 1"
                 ), (member_id,))
             elif username:
+
                 username = username.lower()
                 member_data = await self.query(self.queries["SELECT_WHERE"].format(
                     table="member",
                     where="LOWER(name)=$1::text LIMIT 1"
                 ), (username,))
+                print(username, member_data)
                 if member_data:
                     member_data = member_data[0]
                     member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
@@ -103,7 +105,12 @@ class DB_API(Database_API_Type):
         return None
 
     @cache.async_cached(timeout=5)
-    async def channels(self: Database_API_Type, *, channel_id: int = None) -> Optional[Channel]:
+    async def cached_query(self: DBAPIType, query, params):
+        print(query, params)
+        return await self.query(query, params)
+
+    @cache.async_cached(timeout=5)
+    async def channels(self: DBAPIType, *, channel_id: int = None) -> Optional[Channel]:
         if channel_id:
             channel_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="channel",
@@ -120,11 +127,11 @@ class DB_API(Database_API_Type):
                     if server_qr:
                         server_qr = server_qr[0]
                         server = await self.servers(server_id=server_qr["server_id"])
-                    return TextChannel(channel_data["id"], channel_data["name"], server)
+                    return TextChannel(channel_data["id"], channel_data["name"], server, channel_data["permissions"])
         return None
 
     @cache.async_cached(timeout=5)
-    async def servers(self: Database_API_Type, *, server_id: int = None) -> Optional[Server]:
+    async def servers(self: DBAPIType, *, server_id: int = None) -> Optional[Server]:
         if server_id:
             server_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="server",
@@ -132,10 +139,10 @@ class DB_API(Database_API_Type):
             ), (server_id,))
             if server_data:
                 server_data = server_data[0]
-                return Server(server_data["id"], server_data["name"], server_data["icon"])
+                return Server(server_data["id"], server_data["name"], server_data["icon"], server_data["permissions"])
 
     @cache.async_cached(timeout=5)
-    async def messages(self: Database_API_Type, *, message_id: int = None) -> Optional[Message]:
+    async def messages(self: DBAPIType, *, message_id: int = None) -> Optional[Message]:
         if message_id:
             message_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="message",
@@ -148,27 +155,27 @@ class DB_API(Database_API_Type):
                 if author and channel:
                     return Message(message_id, message_data["content"], author, channel, message_data["timestamp"])
 
-    async def create_member(self: Database_API_Type, name: str, avatar: str) -> Member:
+    async def create_member(self: DBAPIType, name: str, avatar: str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member",
                                                                       columns="name, avatar",
                                                                       values="$1::text, $2::text",
                                                                       returning="id"), (name, avatar))
         return Member(qr, name, None, avatar, own_channel=None, servers=None, roles=None, permissions=None)
 
-    async def remove_from_server(self: Database_API_Type, member: Member, server: Server) -> None:
+    async def remove_from_server(self: DBAPIType, member: Member, server: Server) -> None:
         await self.query(self.queries["DELETE"].format(
             table="server_members",
             where="member_id=$1::bigint AND server_id=$2::bigint",
         ), (member.id, server.id))
 
-    async def join_server(self: Database_API_Type, member: Member, server: Server) -> None:
+    async def join_server(self: DBAPIType, member: Member, server: Server) -> None:
         await self.query(self.queries["INSERT"].format(
             table="server_members",
             columns="member_id, server_id",
             values="$1::bigint, $2::bigint"
         ), (member.id, server.id))
 
-    async def create_server(self: Database_API_Type, name: str, owner: Member) -> Server:
+    async def create_server(self: DBAPIType, name: str, owner: Member) -> Server:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server",
                                                                       columns="name, owner",
                                                                       values="$1::text, $2::bigint",
@@ -178,12 +185,12 @@ class DB_API(Database_API_Type):
         await self.join_server(owner, result)
         return result
 
-    async def delete_server(self: Database_API_Type, server: Server) -> bool:
+    async def delete_server(self: DBAPIType, server: Server) -> bool:
         await self.query(self.queries["DELETE"].format(table="server", where="id=$1::bigint"), (server.id,))
         key = utilities.Cache.generate_key(server_id=server.id)
         cache.invalidate(self.servers, key)
 
-    async def create_server_channel(self: Database_API_Type, name: str, channel_type: str, server: Server) -> Channel:
+    async def create_server_channel(self: DBAPIType, name: str, channel_type: str, server: Server) -> Channel:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="channel",
                                                                       columns="name, type",
                                                                       values="$1::text, $2::text",
@@ -197,7 +204,7 @@ class DB_API(Database_API_Type):
         server.channels[channel.id] = channel
         return channel
 
-    async def create_message(self: Database_API_Type, payload: MessagePayload) -> Message:
+    async def create_message(self: DBAPIType, payload: MessagePayload) -> Message:
         content = escape(payload.content)
         message_id = await self.query(self.queries["INSERT_RETURNING"].format(
             table="message",
@@ -208,7 +215,7 @@ class DB_API(Database_API_Type):
         message = Message(message_id[0]["id"], content, payload.author, payload.channel)
         return message
 
-    async def edit_message(self: Database_API_Type, message: Message, content: str) -> Message:
+    async def edit_message(self: DBAPIType, message: Message, content: str) -> Message:
         content = escape(content)
         await self.query(
             self.queries["UPDATE"].format(
@@ -220,7 +227,7 @@ class DB_API(Database_API_Type):
         message.content = content
         return message
 
-    async def delete_message(self: Database_API_Type, message: Message) -> bool:
+    async def delete_message(self: DBAPIType, message: Message) -> bool:
         await self.query(
             self.queries["DELETE"].format(
                 table="message",
@@ -230,7 +237,7 @@ class DB_API(Database_API_Type):
         )
         return True
 
-    async def query(self: Database_API_Type,
+    async def query(self: DBAPIType,
                     sql: str,
                     params: Optional[Sequence[Any]] = None) -> Optional[Sequence[Any]]:
         if self.pool is None:

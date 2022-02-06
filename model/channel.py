@@ -1,18 +1,25 @@
 from typing import Optional
-from .abc import ChannelType, Database_API_Type, ServerType
+from .abc import ChannelType, DBAPIType, ServerType, MessageType
 from .message import MessagePayload, Message
 from .payload import Payload
-from .permissions import ChannelPermissions
+from .permissions import ChannelPermissions, PermissionsSource
 
 
 class Channel(ChannelType):
-    database: Database_API_Type = None
+    async def send(self, mpl: MessageType):
+        pass
 
-    def __init__(self, cid: int, name: str, server: Optional[ServerType] = None) -> None:
+    database: DBAPIType = None
+
+    def __init__(self,
+                 cid: int,
+                 name: str,
+                 server: Optional[ServerType] = None,
+                 default_permissions: int = PermissionsSource.DEFAULT_CHANNEL_PERMISSIONS) -> None:
         self.id = cid
         self.name = name
         self.server = server
-        self.default_permissions = ChannelPermissions()
+        self.default_permissions = ChannelPermissions(default_permissions)
 
     @property
     def gateway_format(self,):

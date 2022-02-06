@@ -16,35 +16,65 @@
 # Other cases:
 # 101 AND 110 = 100
 #
-# Start will be 16 binarynumbers, each representing one permission,
+# Start will be 16 binary numbers, each representing one permission,
 # with first digit from right being the administrator, 0000000000000001
-# User Permissions will be lessused than Role/group, default being a group,
+# User Permissions will be less used than Role/group, default being a group,
 # but can apply permissions to specific user,
 # owner having all permissions at all times (maybe change this later)
 from typing import Sequence
 from .abc import PermissionsType
 
 
-class Permissions(PermissionsType):
-    def __init__(self, permissions) -> None:
+class PermissionsSource(PermissionsType):
+    DEFAULT_SERVER_PERMISSIONS = 10
+    DEFAULT_CHANNEL_PERMISSIONS = 6
+    def __init__(self, permissions: int) -> None:
         super().__init__(permissions)
 
-    def merge(self, other_permissions: Sequence[PermissionsType]):
-        current = self._permissions
+
+class PermissionsUsing:
+    def __init__(self) -> None:
+        self.permissions = None
+    pass
+
+
+class PermissionsUsing(PermissionsType):
+    def __init__(self, permissions: int) -> None:
+        super().__init__(permissions)
+
+    def merge(self, other_permissions: Sequence[PermissionsUsing]) -> int:
+        current: int = self.permissions
         for i in other_permissions:
-            current &= i._permissions
+            current |= i.permissions
         return current
 
-    @property
-    def gateway_format(self,):
-        return self._permissions
+    def check_permission(self, target_permissions: int, other_permissions: Sequence[PermissionsUsing]) -> bool:
+        current: int = self.merge(other_permissions)
+        return (current & target_permissions) == target_permissions
 
 
-class ServerPermissions(Permissions):
-    def __init__(self, permissions) -> None:
+class ServerPermissions(PermissionsSource):
+    # 0000 0000 0000 0000
+    # 1 : administrator
+    # 2 : view_channels
+    # 4 : manage_channels
+    # 8 : send_messages
+    # 16 : manage messages
+    # 32 : manage groups
+    # 64 : manage server
+
+    def __init__(self, permissions: int = PermissionsSource.DEFAULT_SERVER_PERMISSIONS) -> None:
         super().__init__(permissions)
 
 
-class ChannelPermissions(Permissions):
-    def __init__(self, permissions) -> None:
+class ChannelPermissions(PermissionsSource):
+    # 0000 0000 0000 0000
+    # 1 : administrator
+    # 2 : view_channel
+    # 4 : manage own messages/send messages
+    # 8 : delete other people's messages
+    # 16 : mute people, permanent/timed
+    # 32 : manage channel
+
+    def __init__(self, permissions: int = PermissionsSource.DEFAULT_CHANNEL_PERMISSIONS) -> None:
         super().__init__(permissions)

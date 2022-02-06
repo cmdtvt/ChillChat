@@ -3,7 +3,7 @@ from typing import Any
 
 
 class Payload:
-    "Sent to the websocket"
+    """Sent to the websocket"""
     def __init__(self, payload_type: str, data: Any, action: str = None) -> None:
         self.payload_type = payload_type
         self.data = data

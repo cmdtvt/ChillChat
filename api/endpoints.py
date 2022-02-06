@@ -249,7 +249,8 @@ async def create_channel(server_id: int) -> None:
 
 @api_blueprint.route('/server/<int:server_id>/channels', methods=['GET'])
 async def get_server_channels(server_id: int):
-    if server_id:
+    token = session.get('token')
+    if server_id and token:
         server = await g.db.servers(server_id=server_id)
         if server:
             await server.load_channels()

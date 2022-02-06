@@ -1,4 +1,5 @@
 import asyncio
+import ssl
 from queue import Queue
 from quart import Quart, render_template, session, redirect, url_for, request, g, jsonify
 from instances import database, cache
@@ -19,12 +20,12 @@ class ProfilerMiddleware:
         # print("Send", send)
         start = time.perf_counter()
         tmp = await self.app(scope, receive, send)
-        print(type(tmp), tmp)
         stop = time.perf_counter()
         self.total_time += (stop - start)
         self.requests += 1
-        print(f"{self.total_time/self.requests} average seconds")
         return tmp
+
+
 
 
 app = Quart(__name__, static_folder="static")
@@ -40,6 +41,17 @@ app.jinja_options["enable_async"] = True
 app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
 
+@app.before_serving
+async def startup():
+    def _exception_handler(loop, context):
+        exception = context.get("exception")
+        if isinstance(exception, ssl.SSLError):
+            return  # Handshake failure
+
+        loop.default_exception_handler(context)
+
+    loop = asyncio.get_event_loop()
+    loop.set_exception_handler(_exception_handler)
 
 @app.before_first_request
 def before_first_request():
@@ -81,7 +93,9 @@ async def login():
     username = form.get('username')
     password = form.get('password')
     if username and password:
-        member, password_hash = await g.db.members(username=username)
+        member_search = await g.db.members(username=username)
+        print(member_search)
+        member, password_hash = member_search
         if member and password_hash:
             loop = asyncio.get_running_loop()
             db = g.db
@@ -108,9 +122,5 @@ async def logout():
 async def chat():
     if not session.get('token'):
         return redirect(url_for('hello'))
-    member: MemberType = await g.db.members(token=session.get('token'))
-    await member.get_servers()
-    for i in member.servers.values():
-        await i.load_channels()
-    return await render_template('views/chat.html', member=member, session=session)
-app.run(debug=True)
+    return await render_template('views/chat.html')
+app.run(host="0.0.0.0", debug=True, certfile='self-signed/server.crt', keyfile='self-signed/server.key')

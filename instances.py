@@ -1,5 +1,5 @@
-from db import DB_API
+from db import DBAPI
 from utilities import Cache
 
-database = DB_API("127.0.0.1", "chillchat", "chillarandgrillar", "chillchat", 5432)
+database = DBAPI("127.0.0.1", "chillchat", "chillarandgrillar", "chillchat", 5432)
 cache = Cache()

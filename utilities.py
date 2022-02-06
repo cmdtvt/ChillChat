@@ -37,23 +37,18 @@ class Cache:
     @staticmethod
     def generate_key(*args, **kwargs):
         key = None
-        if not args:
-            key = "null"
+        if args or kwargs:
+            args = list(args)
+            key = " ".join([str(x) for x in list(args) + list(kwargs.items())])
         else:
-            key = " ".join([str(x) for x in zip(args, kwargs.items())])
+            key = "null"
         return key
 
-    async def save_async(self, func, key, *args, **kwargs):
-        if func.__name__ not in self.cache:
-            self.cache[func.__name__] = {}
-        self.cache[func.__name__][key] = {"function": await func(*args, **kwargs)}
-        self.cache[func.__name__][key]["timestamp"] = time.time()
-        return self.cache[func.__name__][key]["function"]
+    async def save_async(self, func, key, timeout, *args, **kwargs):
+        return self.add_and_get(key, await func(*args, **kwargs), timeout)
 
-    def save_sync(self, func, key, *args, **kwargs):
-        self.cache[func.__name__][key] = {"function": func(*args, **kwargs)}
-        self.cache[func.__name__][key]["timestamp"] = time.time()
-        return self.cache[func.__name__][key]["function"]
+    def save_sync(self, func, key, timeout, *args, **kwargs):
+        return self.add_and_get(key, func(*args, **kwargs), timeout)
 
     def __contains__(self, item):
         return True if item in self.cache.keys() else False
@@ -62,20 +57,17 @@ class Cache:
         def __decorator_wrapper(func):
             def __decorator(*args, **kwargs):
                 key = Cache.generate_key(*args, **kwargs)
-                if func.__name__ in self.cache:
-                    if key in self.get(func.__name__) and time.time() - self.get(func.__name__)[key]["timestamp"] < timeout:
-                        return self.get(func.__name__)[key]["function"]
-                return self.save_sync(func, key, *args, **kwargs)
+                key = Cache.generate_key(func.__name__, key)
+                print("Key", key)
+                return self.get(key, timeout) or self.save_sync(func, key, timeout, *args, **kwargs)
             return __decorator
         return __decorator_wrapper
 
     def async_cached(self, timeout=600):
         def __decorator_wrapper(func):
             async def __decorator(*args, **kwargs):
-                key = Cache.generate_key(*args, **kwargs)
-                if func.__name__ in self.cache:
-                    if key in self.cache[func.__name__] and time.time() - self.get(func.__name__)[key]["timestamp"] < timeout:
-                        return self.get(func.__name__)[key]["function"]
-                return await self.save_async(func, key, *args, **kwargs)
+
+                key = Cache.generate_key(func.__name__, *args, **kwargs)
+                return self.get(key, timeout) or await self.save_async(func, key, timeout, *args, **kwargs)
             return __decorator
         return __decorator_wrapper

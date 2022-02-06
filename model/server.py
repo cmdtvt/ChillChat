@@ -1,20 +1,24 @@
-from .abc import MemberType, ChannelType, Database_API_Type, ServerType
-from .permissions import ServerPermissions
+from .abc import MemberType, ChannelType, DBAPIType, ServerType
+from .permissions import ServerPermissions, PermissionsSource
 from .channel import TextChannel
 from .payload import Payload
 from typing import Sequence
 
 
 class Server(ServerType):
-    database: Database_API_Type = None
+    database: DBAPIType = None
 
-    def __init__(self, id: int, name: str, icon: str = None):
-        self.id = id
+    def __init__(self,
+                 sid: int,
+                 name: str,
+                 icon: str = None,
+                 default_permissions: int = PermissionsSource.DEFAULT_SERVER_PERMISSIONS):
+        self.id = sid
         self.name = name
         if icon is None:
             icon = f"https://via.placeholder.com/350x350?text={self.name}"
         self.icon = icon
-        self.default_permissions = ServerPermissions()
+        self.default_permissions = ServerPermissions(default_permissions)
         self.owner = None
         self.channels = {}
 

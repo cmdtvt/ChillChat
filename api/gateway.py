@@ -65,7 +65,6 @@ class Client(ClientType):
                 if not self.receive_task.cancelled():
                     data = await websocket.receive()
                     if data == Gateway.ACK_HEARTBEAT:
-                        session.modified = True
                         self._missed_heartbeats_in_row = 0
             except asyncio.CancelledError:
                 await self.close_connection()
@@ -87,6 +86,7 @@ class Client(ClientType):
         try:
             if not self.queue:
                 self.queue = asyncio.Queue()
+                await self.member.get_permissions()
                 await self.member.get_servers()
                 member_data = self.member.gateway_format
                 member_data["servers"] = [x.gateway_format for x in self.member.servers.values()]

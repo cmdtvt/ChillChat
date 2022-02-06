@@ -3,7 +3,6 @@
 
 document.addEventListener('DOMContentLoaded',function() {
     console.log("Front script");
-    var localStorage = window.localStorage
     let hideLoginForm = () => {
         console.log("closing")
         let element = document.querySelector("#login-box")
@@ -70,8 +69,6 @@ document.addEventListener('DOMContentLoaded',function() {
                 UpdateUI(loginData)
                 let dateNow = Date.now()
                 loginData.timestamp = dateNow
-                console.log(loginData)
-                console.log(JSON.stringify(loginData))
                 localStorage.setItem('member', JSON.stringify(loginData))
                 hideLoginForm()
 
