@@ -5,6 +5,7 @@ function convertUnixTimestampToDate(timestamp) {
     return dt
 }
 function killChildren(ele) {
+    console.trace(ele)
     while(ele.firstChild) {
         ele.firstChild.remove()
     }

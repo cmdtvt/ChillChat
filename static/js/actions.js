@@ -83,7 +83,7 @@ function ActionServerOpen(server) {
     settings["current_server"] = server.id;
     ActionLoadingAnimation("#channels");
     //console.log(server)
-    Channels(server); //FIXME: Change to use server not id 
+    Channels(server);
     SetupSettingMenus(server);
 }
 
@@ -92,7 +92,7 @@ function SetupSettingMenus(server) {
 
 
 
-    let element = document.querySelector("#settings-channels");
+    let element = document.querySelector("#channels");
     killChildren(element)
     for (let [key,channel] of server['channels'].entries()) {
         element.appendChild(VisualizeChannel(channel));

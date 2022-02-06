@@ -21,68 +21,30 @@
 # User Permissions will be lessused than Role/group, default being a group,
 # but can apply permissions to specific user,
 # owner having all permissions at all times (maybe change this later)
+from typing import Sequence
+from .abc import PermissionsType
 
-class Permissions:
-    def __init__(self, _keys) -> None:
-        self._keys = _keys
 
-    def toggle(self, key: str) -> bool:
-        if self._keys and key in self._keys:
-            self._keys[key] = not self._keys[key]
+class Permissions(PermissionsType):
+    def __init__(self, permissions) -> None:
+        super().__init__(permissions)
 
-    def enable(self, key: str) -> bool:
-        if self._keys and key in self._keys:
-            self._keys[key] = True
-
-    def disable(self, key: str) -> bool:
-        if self._keys and key in self._keys:
-            self._keys[key] = False
-
-    def is_allowed(self, key: str) -> bool:
-        if self._keys and key in self._keys:
-            return self._keys[key]
-
-    @property
-    def keys(self,) -> dict:
-        return self._keys
-
-    @keys.setter
-    def keys(self, keys: dict) -> None:
-        self._keys = keys
+    def merge(self, other_permissions: Sequence[PermissionsType]):
+        current = self._permissions
+        for i in other_permissions:
+            current &= i._permissions
+        return current
 
     @property
     def gateway_format(self,):
-        return self._keys.copy()
+        return self._permissions
 
 
 class ServerPermissions(Permissions):
-    def __init__(self) -> None:
-        _keys = {
-            "ADMINISTRATOR": False,
-        }
-        super().__init__(_keys)
-
-    def clone(self,):
-        result = ServerPermissions()
-        result.keys = super().keys()
-        return result
-
-    def __iter__(self,):
-        return iter(self._keys.items())
+    def __init__(self, permissions) -> None:
+        super().__init__(permissions)
 
 
 class ChannelPermissions(Permissions):
-    def __init__(self) -> None:
-        _keys = {
-            "VIEW_CHANNEL": True,
-            "SEND_MESSAGE": True,
-        }
-        super().__init__(_keys)
-
-    def __iter__(self,):
-        return iter(self._keys.items())
-
-    def clone(self,):
-        result = ChannelPermissions()
-        result.keys = super().keys()
-        return result
+    def __init__(self, permissions) -> None:
+        super().__init__(permissions)

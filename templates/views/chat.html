@@ -7,18 +7,18 @@
 
     <title>ChillChat</title>
 	<!--<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/style.css">-->
-	<script src="http://127.0.0.1:5000/static/js/api.js" defer></script>
-	<script src="http://127.0.0.1:5000/static/js/websocket.js" defer></script>
-	<script src="http://127.0.0.1:5000/static/js/visualizes.js" defer></script>
-	<script src="http://127.0.0.1:5000/static/js/main.js" defer></script>
-	<script src="http://127.0.0.1:5000/static/js/actions.js" defer></script>
-	<script src="http://127.0.0.1:5000/static/js/chat.js" defer></script>
+	<script src="{{url_for('static', filename='js/api.js')}}" defer></script>
+	<script src="{{url_for('static', filename='js/websocket.js')}}" defer></script>
+	<script src="{{url_for('static', filename='js/visualizes.js')}}" defer></script>
+	<script src="{{url_for('static', filename='js/main.js')}}" defer></script>
+	<script src="{{url_for('static', filename='js/actions.js')}}" defer></script>
+	<script src="{{url_for('static', filename='js/chat.js')}}" defer></script>
 
 	<!--Interface things.-->
 	<link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
 	<link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}">
 	<link rel="stylesheet" href="{{url_for('static', filename='css/loading.css')}}">
-	<script src="{{url_for('static', filename='js/interface.js')}}"></script>
+	<script src="{{url_for('static', filename='js/interface.js')}}" defer></script>
 
 </head>
 <body>

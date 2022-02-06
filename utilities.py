@@ -2,28 +2,37 @@ import time
 import asyncio
 
 
-class Cache():
+class Cache:
     def __init__(self,):
         self.cache = {}
 
-    def add_and_get(self, key, item, timeout=None):
+    def add_and_get(self, key, item, timeout=600):
         self.add(key, item, timeout)
-        return self.get(key)
+        return self.get(key, timeout)
 
-    def add(self, key, item, timeout=None):
+    def add(self, key, item, timeout):
         if key in self.cache and timeout is not None:
             if time.time() - self.cache[key]["timestamp"] > timeout:
-                self.cache[key]["function"] = item
+                self.cache[key]["item"] = item
                 self.cache[key]["timestamp"] = time.time()
         elif key not in self.cache:
-            self.cache[key] = {"function": item, "timestamp": time.time()}
+            self.cache[key] = {"item": item, "timestamp": time.time()}
         return
 
-    def get(self, key):
-        return self.cache.get(key)
+    def get(self, key, timeout):
+        if key in self.cache and time.time() - self.cache[key]["timestamp"] < timeout:
+            return self.cache[key]["item"]
+        else:
+            self.remove_key(key)
+            return None
 
     def invalidate(self, func, key):
-        del self.cache[func.__name__][key]
+        if func.__name__ in self.cache and key in self.cache[func.__name__]:
+            del self.cache[func.__name__][key]
+
+    def remove_key(self, key):
+        if key in self.cache:
+            del self.cache[key]
 
     @staticmethod
     def generate_key(*args, **kwargs):
@@ -35,7 +44,7 @@ class Cache():
         return key
 
     async def save_async(self, func, key, *args, **kwargs):
-        if(func.__name__ not in self.cache):
+        if func.__name__ not in self.cache:
             self.cache[func.__name__] = {}
         self.cache[func.__name__][key] = {"function": await func(*args, **kwargs)}
         self.cache[func.__name__][key]["timestamp"] = time.time()

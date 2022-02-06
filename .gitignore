@@ -5,3 +5,4 @@ __pycache__
 *.css.map
 json-viewer*
 .gitignore
+/.idea/

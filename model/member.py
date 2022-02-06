@@ -5,7 +5,7 @@ from typing import Any, Union, Optional
 from .abc import Database_API_Type, MemberType, PayloadType
 from .payload import Payload
 from .server import Server
-from .role import Role
+from .group import Group
 from .channel import TextChannel
 
 
@@ -19,7 +19,7 @@ class Member(MemberType):
                  *,
                  own_channel: TextChannel = None,
                  servers: dict[int, Server] = None,
-                 roles: dict[int, Role] = None,
+                 roles: dict[int, Group] = None,
                  permissions: dict[str, dict[int, Union[ServerPermissions, ChannelPermissions]]] = None) -> None:
         self.id = id
         self.name = name

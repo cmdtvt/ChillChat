@@ -65,6 +65,7 @@ class Client(ClientType):
                 if not self.receive_task.cancelled():
                     data = await websocket.receive()
                     if data == Gateway.ACK_HEARTBEAT:
+                        session.modified = True
                         self._missed_heartbeats_in_row = 0
             except asyncio.CancelledError:
                 await self.close_connection()
@@ -114,7 +115,7 @@ class Client(ClientType):
         except asyncio.CancelledError:
             pass
         finally:
-            self.close_connection()
+            await self.close_connection()
 
     async def send(self, data: str) -> Any:
         await self.queue.put(data)
@@ -126,11 +127,11 @@ async def gateway():
     client_task = None
     g.db.clients["all"].add(client)
     try:
-        if session and session.get('token'):
+        task = await websocket.receive()
+        if session and session.get('token') and task.startswith("START"):
             token = session.get('token')
-            task = await websocket.receive()
             member = await g.db.members(token=token)
-            if member and task.startswith("START"):
+            if member:
                 client.token = token
                 client.member = member
                 client_task = asyncio.ensure_future(copy_current_websocket_context(client.process)())

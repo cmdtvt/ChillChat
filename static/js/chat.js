@@ -131,7 +131,6 @@ function RenderComponents() {
     UtilityActionInterfaceReload();
 }
 
-//TODO: Move this somewhere else maby.
 function openMessageToEdit(message) {
     let element = document.querySelector("[data-message-id='"+message.id+"']");
     let stored_element = element.innerHTML;

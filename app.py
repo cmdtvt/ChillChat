@@ -1,7 +1,7 @@
 import asyncio
 from queue import Queue
-from quart import Quart, render_template, session, redirect, url_for, request, g
-from instances import database
+from quart import Quart, render_template, session, redirect, url_for, request, g, jsonify
+from instances import database, cache
 import time
 import api.endpoints
 from model.abc import MemberType
@@ -32,7 +32,8 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=86400
+    PERMANENT_SESSION_LIFETIME=86400,
+    SEND_FILE_MAX_AGE_DEFAULT=86400
 )
 app.asgi_app = ProfilerMiddleware(app.asgi_app)
 app.jinja_options["enable_async"] = True
@@ -40,19 +41,26 @@ app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
 
 
-@app.before_request
-def before_reqs():
-    g.db = database
+@app.before_first_request
+def before_first_request():
     session.permanent = True
+
+
+@app.before_request
+def before_request():
+    g.db = database
+    g.cache = cache
+    session.modified = True
 
 
 @app.before_websocket
 def before_websocket():
     g.db = database
+    session.modified = True
 
 
 @app.after_request
-def after_reqs(response):
+def after_request(response):
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
@@ -61,15 +69,10 @@ def after_reqs(response):
 
 @app.route('/')
 async def hello():
-    member_tokens = ["8c4427adf8476719ce6b31b980c41c8b7c913b3955791180713511f4b868fcb632a0c7f144dd06064a804e6599a018eeb8f5",
-                     "7a7c1d7a49a5ebf4d44ca2c91b2f7d24831a049d466104b5ba319ffc692053d994d3fc05d94c852f1f8fea1d1c3c98c355e2"]
-    member: MemberType = await g.db.members(token=member_tokens[0])
-    await member.get_servers()
-    for i in member.servers.values():
-        await i.load_channels()
-    if session:
-        session["token"] = member.token
-    return await render_template("views/home.html", member=member, session=session)
+    member = None
+    if session and session.get('token'):
+        member = await g.db.members(token=session.get('token'))
+    return await render_template("views/home.html", member=member)
 
 
 @app.route('/login', methods=['POST'])
@@ -78,30 +81,27 @@ async def login():
     username = form.get('username')
     password = form.get('password')
     if username and password:
-        loop = asyncio.get_running_loop()
         member, password_hash = await g.db.members(username=username)
         if member and password_hash:
-            database = g.db
+            loop = asyncio.get_running_loop()
+            db = g.db
             verify = await loop.run_in_executor(
                 None,
-                lambda: database.verify_password(password_hash, password)
+                lambda: db.verify_password(password_hash, password)
             )
             if verify:
                 session["token"] = member.token
-                return "ok"
-    return "not ok"
+                return jsonify(member.gateway_format)
+    return "not ok", 400
 
 
-@app.route('/topikayttaja')
-async def erisessio():
-    member_tokens = ["8c4427adf8476719ce6b31b980c41c8b7c913b3955791180713511f4b868fcb632a0c7f144dd06064a804e6599a018eeb8f5",
-                     "7a7c1d7a49a5ebf4d44ca2c91b2f7d24831a049d466104b5ba319ffc692053d994d3fc05d94c852f1f8fea1d1c3c98c355e2"]
-    member: MemberType = await g.db.members(token=member_tokens[1])
-    await member.get_servers()
-    for i in member.servers.values():
-        await i.load_channels()
-    session["token"] = member.token
-    return await render_template("views/home.html", member=member, session=session)
+@app.route('/logout', methods=['GET'])
+async def logout():
+    if session and session.get('token'):
+        session.pop('token')
+        return "ok", 200
+    else:
+        return "not ok", 400
 
 
 @app.route('/chat')

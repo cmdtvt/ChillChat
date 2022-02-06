@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block main %}
-    
+    {{member}}
     <div class="login-box" id="login-box">
         <span class="icon-close" id="login-close"></span>
         <div class="login-content">
@@ -13,7 +13,7 @@
                     <input type="username" name="username" id="login-username" placeholder="Username">
                     <input type="password" name="username" id="login-password" placeholder="Password">
                 </div>
-                <button class="btn btn-save btn-full" type="submit">Login</button>
+                <button class="btn btn-green btn-full" type="submit">Login</button>
             </form>
         </div>
     </div>
@@ -26,8 +26,19 @@
             <div class="item">
                 <a href="#about" class="item">About Us</a>
             </div>           
-            <div class="item">
-                <p class="item btn btn-full" id="login-button">Login</p>
+            <div class="item not-logged-in">
+                <p class="item btn btn-full" id="login-open">Login</p>
+            </div>
+            
+            <div class="item logged-in">
+                <a href="/chat" class="item">Chat</a>
+            </div>
+            
+            <div class="item logged-in">
+                <p class="item btn btn-full" id="logged-in-as"></p>
+            </div>
+            <div class="item logged-in">
+                <p class="item btn btn-full" id="logout">Logout</p>
             </div>
 
 
