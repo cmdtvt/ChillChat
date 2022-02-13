@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, Union
 
 
 class ClientType:
@@ -40,6 +40,10 @@ class PermissionsType:
     @property
     def gateway_format(self,) -> int:
         return self.permissions
+
+    def __and__(self, other) -> int:
+        return self.permissions & other
+
 
 class MemberType:
     id: int

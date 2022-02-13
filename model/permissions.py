@@ -28,6 +28,7 @@ from .abc import PermissionsType
 class PermissionsSource(PermissionsType):
     DEFAULT_SERVER_PERMISSIONS = 10
     DEFAULT_CHANNEL_PERMISSIONS = 6
+
     def __init__(self, permissions: int) -> None:
         super().__init__(permissions)
 
@@ -62,6 +63,13 @@ class ServerPermissions(PermissionsSource):
     # 16 : manage messages
     # 32 : manage groups
     # 64 : manage server
+    ADMINISTRATOR = 1
+    VIEW_CHANNELS = 2
+    MANAGE_CHANNELS = 4
+    SEND_MESSAGES = 8
+    MANAGE_MESSAGES = 16
+    MANAGE_GROUPS = 32
+    MANAGE_SERVER = 64
 
     def __init__(self, permissions: int = PermissionsSource.DEFAULT_SERVER_PERMISSIONS) -> None:
         super().__init__(permissions)
@@ -75,6 +83,12 @@ class ChannelPermissions(PermissionsSource):
     # 8 : delete other people's messages
     # 16 : mute people, permanent/timed
     # 32 : manage channel
+    ADMINISTRATOR = 1
+    VIEW_CHANNEL = 2
+    SEND_MESSAGE = 4
+    MANAGE_MESSAGES = 8
+    MODERATE = 16
+    MANAGE_CHANNEL = 32
 
     def __init__(self, permissions: int = PermissionsSource.DEFAULT_CHANNEL_PERMISSIONS) -> None:
         super().__init__(permissions)

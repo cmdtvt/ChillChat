@@ -25,7 +25,8 @@ class Channel(ChannelType):
     def gateway_format(self,):
         result = {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "default_permissions": self.default_permissions.gateway_format
         }
         if self.server:
             result["server"] = self.server.gateway_format
@@ -35,11 +36,22 @@ class Channel(ChannelType):
 class TextChannel(Channel):
     async def send(self, payload: MessagePayload) -> None:
         if Channel.database is not None:
-            msg = await Channel.database.create_message(payload)
-            if self.server:
-                payload = Payload("message", msg.gateway_format, "new")
-                await self.server.broadcast(payload)
-                return "ok"
+            author = payload.author
+            await author.get_permissions()
+            permission_required = ChannelPermissions.SEND_MESSAGE
+
+            default_perms = (self.default_permissions & permission_required) == permission_required
+            author_channel_perms = 0
+            if author.permissions.get("channel"):
+                author_channel_perms = author.permissions["channel"].get(self.id, 0)
+            author_channel_perms = (author_channel_perms & permission_required) == permission_required
+
+            if default_perms or author_channel_perms:
+                msg = await Channel.database.create_message(payload)
+                if self.server:
+                    payload = Payload("message", msg.gateway_format, "new")
+                    await self.server.broadcast(payload)
+                    return "ok"
 
     async def messages(self,):
         if Channel.database is not None:

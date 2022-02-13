@@ -1,5 +1,5 @@
 from .abc import MemberType, ChannelType, DBAPIType, ServerType
-from .permissions import ServerPermissions, PermissionsSource
+from .permissions import ServerPermissions, PermissionsSource, ChannelPermissions
 from .channel import TextChannel
 from .payload import Payload
 from typing import Sequence
@@ -61,8 +61,11 @@ class Server(ServerType):
                     ),
                     (self.id,)
                 )
-            members = [await Server.database.members(member_id=x["member_id"]) for x in server_members_data]
-            members = list(filter(lambda x: x.id in Server.database.clients["id"], members))
+            members_ids = [x["member_id"] for x in server_members_data]
+            members = []
+            for x in members_ids:
+                if x in Server.database.clients["id"]:
+                    members.append(Server.database.clients["id"][x]["member"])
             return members
 
     @property
@@ -76,7 +79,25 @@ class Server(ServerType):
 
     async def broadcast(self, payload: Payload) -> None:
         members = await self.load_client_members()
+        permissions = {}
+        print(payload)
+        print(type(payload))
+        if payload.payload_type == "message":
+            required = ChannelPermissions.VIEW_CHANNEL
+            channel = payload.data["channel"]
+            default = channel["default_permissions"]
+            permissions["channel"] = channel
+            permissions["required"] = required
+            permissions["default"] = (default & required) == required
         for member in members:
+            if payload.payload_type == "message":
+                default = permissions["default"]
+                channel = permissions["channel"]
+                required = permissions["required"]
+                user_permissions = member.permissions["channel"].get(channel["id"], 0)
+                user_permissions = (user_permissions & required) == required
+                if not default and not user_permissions:
+                    continue
             await member.send_via_client(payload)
 
     async def multicast(self, payload: Payload, member_ids: Sequence[int] = None) -> None:

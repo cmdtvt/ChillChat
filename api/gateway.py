@@ -86,7 +86,6 @@ class Client(ClientType):
         try:
             if not self.queue:
                 self.queue = asyncio.Queue()
-                await self.member.get_permissions()
                 await self.member.get_servers()
                 member_data = self.member.gateway_format
                 member_data["servers"] = [x.gateway_format for x in self.member.servers.values()]
@@ -136,11 +135,11 @@ async def gateway():
                 client.member = member
                 client_task = asyncio.ensure_future(copy_current_websocket_context(client.process)())
                 if token not in g.db.clients["tokenized"]:
-                    g.db.clients["tokenized"][client.token] = set()
+                    g.db.clients["tokenized"][client.token] = {"clients": set(), "member": member}
                 if member.id not in g.db.clients["id"]:
-                    g.db.clients["id"][member.id] = set()
-                g.db.clients["tokenized"][client.token].add(client)
-                g.db.clients["id"][member.id].add(client)
+                    g.db.clients["id"][member.id] = {"clients": set(), "member": member}
+                g.db.clients["tokenized"][client.token]["clients"].add(client)
+                g.db.clients["id"][member.id]["clients"].add(client)
                 await asyncio.gather(client_task)
     except asyncio.CancelledError as e:
         print(e)
@@ -150,10 +149,10 @@ async def gateway():
         g.db.clients["all"].remove(client)
         if client.token:
             if client.token in g.db.clients["tokenized"]:
-                g.db.clients["tokenized"][client.token].remove(client)
+                g.db.clients["tokenized"][client.token]["clients"].remove(client)
         if client.member:
             if client.member.id in g.db.clients["id"]:
-                g.db.clients["id"][client.member.id].remove(client)
+                g.db.clients["id"][client.member.id]["clients"].remove(client)
 
     # except Exception as e:
     #     print(e)

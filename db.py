@@ -101,6 +101,7 @@ class DBAPI(DBAPIType):
             if member_data:
                 member_data = member_data[0]
                 member = Member(member_data["id"], member_data["name"], member_data["token"], member_data["avatar"])
+                await member.get_permissions()
                 return member
         return None
 
