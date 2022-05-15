@@ -1,0 +1,22 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.languageServer": "Pylance",
+    "python.pythonPath": "C:/Users/tommi/Documents/ChillChat/.venv/venv/Scripts/python.exe",
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/api",
+        "${workspaceFolder}/model",
+        "${workspaceFolder}/static"
+    ],
+    "python.linting.pylintPath": "${workspaceFolder}\\.venv\\venv\\Scripts\\pylint.exe",
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=150",
+        "--ignore=F401",
+    ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/api",
+        "${workspaceFolder}/model",
+        "${workspaceFolder}/static"
+    ],
+}

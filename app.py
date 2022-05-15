@@ -26,9 +26,7 @@ class ProfilerMiddleware:
         return tmp
 
 
-
-
-app = Quart(__name__, static_folder="static")
+app = Quart(__name__, static_folder="views/SPA/static", template_folder="views/SPA")
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
@@ -41,6 +39,7 @@ app.jinja_options["enable_async"] = True
 app.secret_key = b"\xe1\xda\x9a!\xe2]\xbdF#P&*\xea?\xe8\xc7\xdb@\xe8\x00W\xfe*j"
 app.register_blueprint(api.endpoints.api_blueprint, url_prefix="/v1")
 
+
 @app.before_serving
 async def startup():
     def _exception_handler(loop, context):
@@ -52,6 +51,7 @@ async def startup():
 
     loop = asyncio.get_event_loop()
     loop.set_exception_handler(_exception_handler)
+
 
 @app.before_first_request
 def before_first_request():
@@ -80,11 +80,18 @@ def after_request(response):
 
 
 @app.route('/')
-async def hello():
+async def home():
     member = None
     if session and session.get('token'):
         member = await g.db.members(token=session.get('token'))
-    return await render_template("views/home.html", member=member)
+    return await render_template("index.html", member=member)
+
+
+@app.route('/chat')
+async def chat():
+    if not session.get('token'):
+        return redirect(url_for('hello'))
+    return await render_template('chat.html')
 
 
 @app.route('/login', methods=['POST'])
@@ -106,21 +113,17 @@ async def login():
             if verify:
                 session["token"] = member.token
                 return jsonify(member.gateway_format)
-    return "not ok", 400
+    return False, 400
 
 
 @app.route('/logout', methods=['GET'])
 async def logout():
     if session and session.get('token'):
         session.pop('token')
-        return "ok", 200
+        return True, 200
     else:
-        return "not ok", 400
+        return False, 400
 
 
-@app.route('/chat')
-async def chat():
-    if not session.get('token'):
-        return redirect(url_for('hello'))
-    return await render_template('views/chat.html')
+
 app.run(host="0.0.0.0", debug=True, certfile='self-signed/server.crt', keyfile='self-signed/server.key')
