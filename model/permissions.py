@@ -22,39 +22,35 @@
 # but can apply permissions to specific user,
 # owner having all permissions at all times (maybe change this later)
 from typing import Sequence
-from .abc import PermissionsType
+from .abc import PermissionBase
 
 
-class PermissionsSource(PermissionsType):
+class Permission(PermissionBase):
     DEFAULT_SERVER_PERMISSIONS = 10
     DEFAULT_CHANNEL_PERMISSIONS = 6
 
     def __init__(self, permissions: int) -> None:
         super().__init__(permissions)
 
+class Permission(PermissionBase):
+    DEFAULT_SERVER_PERMISSIONS = 10
+    DEFAULT_CHANNEL_PERMISSIONS = 6
 
-class PermissionsUsing:
-    def __init__(self) -> None:
-        self.permissions = None
-    pass
-
-
-class PermissionsUsing(PermissionsType):
     def __init__(self, permissions: int) -> None:
         super().__init__(permissions)
 
-    def merge(self, other_permissions: Sequence[PermissionsUsing]) -> int:
+    def merge(self, other_permissions: Sequence[Permission]) -> int:
         current: int = self.permissions
         for i in other_permissions:
             current |= i.permissions
         return current
 
-    def check_permission(self, target_permissions: int, other_permissions: Sequence[PermissionsUsing]) -> bool:
+    def check_permission(self, target_permissions: int, other_permissions: Sequence[Permission]) -> bool:
         current: int = self.merge(other_permissions)
         return (current & target_permissions) == target_permissions
 
 
-class ServerPermissions(PermissionsSource):
+class ServerPermissions(Permission):
     # 0000 0000 0000 0000
     # 1 : administrator
     # 2 : view_channels
@@ -71,11 +67,11 @@ class ServerPermissions(PermissionsSource):
     MANAGE_GROUPS = 32
     MANAGE_SERVER = 64
 
-    def __init__(self, permissions: int = PermissionsSource.DEFAULT_SERVER_PERMISSIONS) -> None:
+    def __init__(self, permissions: int = Permission.DEFAULT_SERVER_PERMISSIONS) -> None:
         super().__init__(permissions)
 
 
-class ChannelPermissions(PermissionsSource):
+class ChannelPermissions(Permission):
     # 0000 0000 0000 0000
     # 1 : administrator
     # 2 : view_channel
@@ -90,5 +86,5 @@ class ChannelPermissions(PermissionsSource):
     MODERATE = 16
     MANAGE_CHANNEL = 32
 
-    def __init__(self, permissions: int = PermissionsSource.DEFAULT_CHANNEL_PERMISSIONS) -> None:
+    def __init__(self, permissions: int = Permission.DEFAULT_CHANNEL_PERMISSIONS) -> None:
         super().__init__(permissions)

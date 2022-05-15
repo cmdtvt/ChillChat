@@ -1,17 +1,17 @@
 import datetime
-from .abc import DBAPIType, MemberType, ChannelType
+from .abc import DBAPIBase, MemberBase, ChannelBase
 from .payload import Payload
 from typing import Union
 
 
 class Message:
-    database: DBAPIType = None
+    database: DBAPIBase = None
 
     def __init__(self,
                  mid: int,
                  content: str,
-                 author: MemberType,
-                 channel: ChannelType,
+                 author: MemberBase,
+                 channel: ChannelBase,
                  timestamp: datetime.datetime = datetime.datetime.utcnow()) -> None:
         self.id = mid
         self.content = content
@@ -20,7 +20,7 @@ class Message:
         self.timestamp = timestamp
 
     @property
-    def gateway_format(self,) -> dict[str, Union[int, str, MemberType]]:
+    def gateway_format(self,) -> dict[str, Union[int, str, MemberBase]]:
         response = {
             "id": self.id,
             "content": self.content,
@@ -48,7 +48,7 @@ class Message:
 
 
 class MessagePayload:
-    def __init__(self, content: str, author: MemberType, channel: ChannelType) -> None:
+    def __init__(self, content: str, author: MemberBase, channel: ChannelBase) -> None:
         self.content = content
         self.author = author
         self.channel = channel

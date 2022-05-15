@@ -1,11 +1,11 @@
 from typing import Any, Optional, Sequence, Union
 
 
-class ClientType:
+class ClientBase:
     pass
 
 
-class ServerType:
+class ServerBase:
     id: int
     name: str
     owner: Optional[object]
@@ -25,35 +25,38 @@ class ServerType:
         raise NotImplementedError
 
 
-class RoleType:
+class RoleBase:
     id: int
 
 
-class ChannelType:
+class ChannelBase:
     pass
 
 
-class PermissionsType:
-    def __init__(self, permissions):
-        self.permissions = permissions
+class PermissionBase:
+    def __init__(self, permissions : int, display_name : str = ""):
+        self.permissions : int = permissions
+        self.display_name = display_name
 
-    @property
-    def gateway_format(self,) -> int:
-        return self.permissions
+    def format(self, format_type = "json") -> dict:
+        if format_type == "json":
+            return {"permission" : self.permissions, "name" : self.display_name}
 
     def __and__(self, other) -> int:
         return self.permissions & other
+    def __or__(self, other) -> int:
+        return self.permissions | other
 
 
-class MemberType:
+class MemberBase:
     id: int
     name: str
     token: str
     avatar: str
-    servers: dict[int, ServerType]
-    groups: Sequence[RoleType]
-    permissions: dict[str, dict[int, object]]
-    client: ClientType
+    servers: dict[int, ServerBase]
+    groups: Sequence[RoleBase]
+    permissions: dict[str, dict[ int, PermissionBase]]
+    client: ClientBase
 
     @property
     def gateway_format(self) -> dict:
@@ -69,39 +72,39 @@ class MemberType:
         raise NotImplementedError
 
 
-class MessageType:
+class MessageBase:
     id: int
-    channel: ChannelType
-    author: MemberType
+    channel: ChannelBase
+    author: MemberBase
 
 
-class ChannelType:
+class ChannelBase:
     id: int
     name: str
-    server: ServerType
-    messages: Sequence[MessageType]
+    server: ServerBase
+    messages: Sequence[MessageBase]
 
-    async def send(self, mpl: MessageType):
+    async def send(self, mpl: MessageBase):
         raise NotImplementedError
 
 
-class ServerType:
-    channels: dict[int, ChannelType]
-    members: dict[int, MemberType]
+class ServerBase:
+    channels: dict[int, ChannelBase]
+    members: dict[int, MemberBase]
 
 
-class DBAPIType:
-    members: dict[str, dict[Any, MemberType]]
-    servers: dict[int, ServerType]
-    channels: dict[str, dict[int, ChannelType]]
-    roles: dict[int, RoleType]
+class DBAPIBase:
+    members: dict[str, dict[Any, MemberBase]]
+    servers: dict[int, ServerBase]
+    channels: dict[str, dict[int, ChannelBase]]
+    roles: dict[int, RoleBase]
     queries: dict[str, str]
     host: str
     username: str
     password: str
     port: int
     pool: Any
-    clients: dict[str, dict[Any, set[ClientType]]]
+    clients: dict[str, dict[Any, set[ClientBase]]]
     hasher: Any
 
     def create_token(self,) -> str:
@@ -113,49 +116,49 @@ class DBAPIType:
     def verify_password(self, password_hash: str, password: str):
         raise NotImplementedError
 
-    async def create_message(self, mpl: MessageType):
+    async def create_message(self, mpl: MessageBase):
         raise NotImplementedError
 
-    async def edit_message(self, message: MessageType, content: str) -> MessageType:
+    async def edit_message(self, message: MessageBase, content: str) -> MessageBase:
         raise NotImplementedError
 
-    async def delete_message(self, message: MessageType) -> bool:
+    async def delete_message(self, message: MessageBase) -> bool:
         raise NotImplementedError
 
-    async def members(self, *, token: str = None, member_id: int = None) -> Optional[MemberType]:
+    async def members(self, *, token: str = None, member_id: int = None) -> Optional[MemberBase]:
         raise NotImplementedError
 
-    async def channels(self, *, channel_id: int = None) -> Optional[ChannelType]:
+    async def channels(self, *, channel_id: int = None) -> Optional[ChannelBase]:
         raise NotImplementedError
 
-    async def servers(self, *, server_id: int = None) -> Optional[ServerType]:
+    async def servers(self, *, server_id: int = None) -> Optional[ServerBase]:
         raise NotImplementedError
 
-    async def messages(self, *, message_id: int = None) -> Optional[MessageType]:
+    async def messages(self, *, message_id: int = None) -> Optional[MessageBase]:
         raise NotImplementedError
 
-    async def create_member(self, name: str, avatar: str) -> MemberType:
+    async def create_member(self, name: str, avatar: str) -> MemberBase:
         raise NotImplementedError
 
-    async def remove_from_server(self, member: MemberType, server: ServerType) -> None:
+    async def remove_from_server(self, member: MemberBase, server: ServerBase) -> None:
         raise NotImplementedError
 
-    async def join_server(self, member: MemberType, server: ServerType) -> None:
+    async def join_server(self, member: MemberBase, server: ServerBase) -> None:
         raise NotImplementedError
 
-    async def create_server(self, name: str, owner: MemberType) -> ServerType:
+    async def create_server(self, name: str, owner: MemberBase) -> ServerBase:
         raise NotImplementedError
 
-    async def delete_server(self, server: ServerType) -> bool:
+    async def delete_server(self, server: ServerBase) -> bool:
         raise NotImplementedError
 
-    async def create_server_channel(self, name: str, channel_type: str, server: ServerType) -> ChannelType:
+    async def create_server_channel(self, name: str, channel_type: str, server: ServerBase) -> ChannelBase:
         raise NotImplementedError
 
     async def query(self, sql: str, params: Optional[Sequence[Any]] = None) -> Optional[Sequence[Any]]:
         raise NotImplementedError
 
 
-class PayloadType:
+class PayloadBase:
     payload_type: str
     data: Any

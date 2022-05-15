@@ -5,7 +5,7 @@ from quart import Quart, render_template, session, redirect, url_for, request, g
 from instances import database, cache
 import time
 import api.endpoints
-from model.abc import MemberType
+from model.abc import MemberBase
 
 
 class ProfilerMiddleware:

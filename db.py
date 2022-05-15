@@ -7,7 +7,7 @@ from markupsafe import escape
 import argon2
 
 import utilities
-from model.abc import DBAPIType, ClientType
+from model.abc import DBAPIBase, ClientBase
 from model.message import MessagePayload, Message
 from model.member import Member
 from model.channel import Channel, TextChannel
@@ -16,9 +16,9 @@ from model.server import Server
 cache = utilities.Cache()
 
 
-class DBAPI(DBAPIType):
+class DBAPI(DBAPIBase):
 
-    def __init__(self: DBAPIType,
+    def __init__(self: DBAPIBase,
                  host: str,
                  username: str,
                  password: str,
@@ -41,7 +41,7 @@ class DBAPI(DBAPIType):
             "UPDATE": "UPDATE {table} SET {values} WHERE {where}",
         }
         self.pool = None
-        self.clients: dict[str, dict[str, ClientType]] = {"tokenized": {}, "all": set(), "id": {}}
+        self.clients: dict[str, dict[str, ClientBase]] = {"tokenized": {}, "all": set(), "id": {}}
         Server.database = self
         Channel.database = self
         Member.database = self
@@ -53,20 +53,20 @@ class DBAPI(DBAPIType):
                                             salt_len=50
                                             )
 
-    def create_token(self: DBAPIType,) -> str:
+    def create_token(self: DBAPIBase,) -> str:
         return binascii.b2a_hex(os.urandom(50)).decode('utf8')
 
-    def create_password(self: DBAPIType, password: str) -> str:
+    def create_password(self: DBAPIBase, password: str) -> str:
         return self.hasher.hash(password)
 
-    def verify_password(self: DBAPIType, password_hash: str, password: str):
+    def verify_password(self: DBAPIBase, password_hash: str, password: str):
         try:
             return self.hasher.verify(password_hash, password)
         except Exception:
             return False
 
     @cache.async_cached(timeout=5)
-    async def members(self: DBAPIType,
+    async def members(self: DBAPIBase,
                       *,
                       token: str = None,
                       member_id: int = None,
@@ -106,12 +106,12 @@ class DBAPI(DBAPIType):
         return None
 
     @cache.async_cached(timeout=5)
-    async def cached_query(self: DBAPIType, query, params):
+    async def cached_query(self: DBAPIBase, query, params):
         print(query, params)
         return await self.query(query, params)
 
     @cache.async_cached(timeout=5)
-    async def channels(self: DBAPIType, *, channel_id: int = None) -> Optional[Channel]:
+    async def channels(self: DBAPIBase, *, channel_id: int = None) -> Optional[Channel]:
         if channel_id:
             channel_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="channel",
@@ -132,7 +132,7 @@ class DBAPI(DBAPIType):
         return None
 
     @cache.async_cached(timeout=5)
-    async def servers(self: DBAPIType, *, server_id: int = None) -> Optional[Server]:
+    async def servers(self: DBAPIBase, *, server_id: int = None) -> Optional[Server]:
         if server_id:
             server_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="server",
@@ -143,7 +143,7 @@ class DBAPI(DBAPIType):
                 return Server(server_data["id"], server_data["name"], server_data["icon"], server_data["permissions"])
 
     @cache.async_cached(timeout=5)
-    async def messages(self: DBAPIType, *, message_id: int = None) -> Optional[Message]:
+    async def messages(self: DBAPIBase, *, message_id: int = None) -> Optional[Message]:
         if message_id:
             message_data = await self.query(self.queries["SELECT_WHERE"].format(
                 table="message",
@@ -156,27 +156,27 @@ class DBAPI(DBAPIType):
                 if author and channel:
                     return Message(message_id, message_data["content"], author, channel, message_data["timestamp"])
 
-    async def create_member(self: DBAPIType, name: str, avatar: str) -> Member:
+    async def create_member(self: DBAPIBase, name: str, avatar: str) -> Member:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="member",
                                                                       columns="name, avatar",
                                                                       values="$1::text, $2::text",
                                                                       returning="id"), (name, avatar))
         return Member(qr, name, None, avatar, own_channel=None, servers=None, roles=None, permissions=None)
 
-    async def remove_from_server(self: DBAPIType, member: Member, server: Server) -> None:
+    async def remove_from_server(self: DBAPIBase, member: Member, server: Server) -> None:
         await self.query(self.queries["DELETE"].format(
             table="server_members",
             where="member_id=$1::bigint AND server_id=$2::bigint",
         ), (member.id, server.id))
 
-    async def join_server(self: DBAPIType, member: Member, server: Server) -> None:
+    async def join_server(self: DBAPIBase, member: Member, server: Server) -> None:
         await self.query(self.queries["INSERT"].format(
             table="server_members",
             columns="member_id, server_id",
             values="$1::bigint, $2::bigint"
         ), (member.id, server.id))
 
-    async def create_server(self: DBAPIType, name: str, owner: Member) -> Server:
+    async def create_server(self: DBAPIBase, name: str, owner: Member) -> Server:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="server",
                                                                       columns="name, owner",
                                                                       values="$1::text, $2::bigint",
@@ -186,12 +186,12 @@ class DBAPI(DBAPIType):
         await self.join_server(owner, result)
         return result
 
-    async def delete_server(self: DBAPIType, server: Server) -> bool:
+    async def delete_server(self: DBAPIBase, server: Server) -> bool:
         await self.query(self.queries["DELETE"].format(table="server", where="id=$1::bigint"), (server.id,))
         key = utilities.Cache.generate_key(server_id=server.id)
         cache.invalidate(self.servers, key)
 
-    async def create_server_channel(self: DBAPIType, name: str, channel_type: str, server: Server) -> Channel:
+    async def create_server_channel(self: DBAPIBase, name: str, channel_type: str, server: Server) -> Channel:
         qr = await self.query(self.queries["INSERT_RETURNING"].format(table="channel",
                                                                       columns="name, type",
                                                                       values="$1::text, $2::text",
@@ -205,7 +205,7 @@ class DBAPI(DBAPIType):
         server.channels[channel.id] = channel
         return channel
 
-    async def create_message(self: DBAPIType, payload: MessagePayload) -> Message:
+    async def create_message(self: DBAPIBase, payload: MessagePayload) -> Message:
         content = escape(payload.content)
         message_id = await self.query(self.queries["INSERT_RETURNING"].format(
             table="message",
@@ -216,7 +216,7 @@ class DBAPI(DBAPIType):
         message = Message(message_id[0]["id"], content, payload.author, payload.channel)
         return message
 
-    async def edit_message(self: DBAPIType, message: Message, content: str) -> Message:
+    async def edit_message(self: DBAPIBase, message: Message, content: str) -> Message:
         content = escape(content)
         await self.query(
             self.queries["UPDATE"].format(
@@ -228,7 +228,7 @@ class DBAPI(DBAPIType):
         message.content = content
         return message
 
-    async def delete_message(self: DBAPIType, message: Message) -> bool:
+    async def delete_message(self: DBAPIBase, message: Message) -> bool:
         await self.query(
             self.queries["DELETE"].format(
                 table="message",
@@ -238,7 +238,7 @@ class DBAPI(DBAPIType):
         )
         return True
 
-    async def query(self: DBAPIType,
+    async def query(self: DBAPIBase,
                     sql: str,
                     params: Optional[Sequence[Any]] = None) -> Optional[Sequence[Any]]:
         if self.pool is None:

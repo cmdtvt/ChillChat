@@ -1,7 +1,7 @@
 from asyncio.queues import Queue
 from quart import Blueprint, copy_current_websocket_context, websocket, session, g
 from typing import Union, Any
-from model.abc import ClientType, MemberType
+from model.abc import ClientBase, MemberBase
 import json
 import re
 import asyncio
@@ -21,10 +21,10 @@ class Gateway:
             return reg.group(1)
 
 
-class Client(ClientType):
+class Client(ClientBase):
     def __init__(self,):
         self.token: str = None
-        self.member: MemberType = None
+        self.member: MemberBase = None
         self.heartbeat_task: asyncio.Task = None
         self.process_queue_task: asyncio.Task = None
         self.receive_task: asyncio.Task = None

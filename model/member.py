@@ -2,15 +2,15 @@
 from .permissions import ChannelPermissions, ServerPermissions
 from .message import MessagePayload
 from typing import Any, Union, Optional
-from .abc import DBAPIType, MemberType, PayloadType
+from .abc import DBAPIBase, MemberBase, PayloadBase
 from .payload import Payload
 from .server import Server
 from .group import Group
 from .channel import TextChannel, Channel
 
 
-class Member(MemberType):
-    database: Optional[DBAPIType] = None
+class Member(MemberBase):
+    database: Optional[DBAPIBase] = None
 
     def __init__(self, id: int,
                  name: str,
@@ -52,7 +52,7 @@ class Member(MemberType):
             payload = MessagePayload(content, self, self.own_channel)
             await self.own_channel.send(payload)
 
-    async def send_via_client(self, payload: Union[PayloadType, str]):
+    async def send_via_client(self, payload: Union[PayloadBase, str]):
         if Member.database and self.token in Member.database.clients["tokenized"]:
             for client in Member.database.clients["tokenized"][self.token]["clients"]:
                 await client.send(str(payload))
@@ -140,9 +140,9 @@ class Member(MemberType):
         }
         if self.permissions:
             for cid, permission in self.permissions["channel"].items():
-                permissions["channel"][cid] = permission.gateway_format
+                permissions["channel"][cid] = permission.format()
             for sid, permission in self.permissions["server"].items():
-                permissions["server"][sid] = permission.gateway_format
+                permissions["server"][sid] = permission.format()
         response = {
             "id": self.id,
             "name": self.name,

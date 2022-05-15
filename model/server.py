@@ -1,18 +1,18 @@
-from .abc import MemberType, ChannelType, DBAPIType, ServerType
-from .permissions import ServerPermissions, PermissionsSource, ChannelPermissions
+from .abc import MemberBase, ChannelBase, DBAPIBase, ServerBase
+from .permissions import ServerPermissions, Permission, ChannelPermissions
 from .channel import TextChannel
 from .payload import Payload
 from typing import Sequence
 
 
-class Server(ServerType):
-    database: DBAPIType = None
+class Server(ServerBase):
+    database: DBAPIBase = None
 
     def __init__(self,
                  sid: int,
                  name: str,
                  icon: str = None,
-                 default_permissions: int = PermissionsSource.DEFAULT_SERVER_PERMISSIONS):
+                 default_permissions: int = Permission.DEFAULT_SERVER_PERMISSIONS):
         self.id = sid
         self.name = name
         if icon is None:
@@ -40,7 +40,7 @@ class Server(ServerType):
                 if channel is not None:
                     self.channels[i["id"]] = channel
 
-    async def load_client_members(self, member_ids: Sequence[int] = None) -> Sequence[MemberType]:
+    async def load_client_members(self, member_ids: Sequence[int] = None) -> Sequence[MemberBase]:
         if Server.database is not None:
             server_members_data = []
             if member_ids:
@@ -105,7 +105,7 @@ class Server(ServerType):
         for member in members:
             await member.send_via_client(payload)
 
-    async def create_channel(self, name, channel_type) -> ChannelType:
+    async def create_channel(self, name, channel_type) -> ChannelBase:
         channel = await Server.database.create_server_channel(name, channel_type, self)
         payload = Payload("channel", channel.gateway_format, "new")
         await self.broadcast(payload)
