@@ -11,7 +11,11 @@
             "program": "app.py",
             "console": "integratedTerminal",
             "env": {
-                "PYTHONASYNCIODEBUG" : "1"
+                "PYTHONASYNCIODEBUG" : "1",
+                "DATABASE_HOST" : "127.0.0.1",
+                "DATABASE_USER" : "app",
+                "DATABASE_PASSWORD" : "aeon123",
+                "DATABASE_NAME" : "chillchat"
             }
         },
         {
