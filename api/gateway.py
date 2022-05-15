@@ -23,7 +23,7 @@ class Gateway:
 
 class Client(ClientBase):
     def __init__(self,):
-        self.token: str = None
+        self.token: str = ""
         self.member: MemberBase = None
         self.heartbeat_task: asyncio.Task = None
         self.process_queue_task: asyncio.Task = None
