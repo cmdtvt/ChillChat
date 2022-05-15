@@ -28,9 +28,9 @@ export default defineConfig({
         chat: resolve(__dirname, 'chat.html')
       },
       output : {
-        assetFileNames: "static/[name]_[hash].[ext]",
-        entryFileNames: "static/[name]_[hash].js",
-        chunkFileNames: `static/[name]_[hash].js`,
+        assetFileNames: "static/[name]_build.[ext]",
+        entryFileNames: "static/[name]_build.js",
+        chunkFileNames: `static/[name]_build.js`,
       }
     },
     

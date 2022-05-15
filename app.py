@@ -80,16 +80,18 @@ def after_request(response):
 
 
 @app.route('/')
-async def hello():
+async def home():
     member = None
     if session and session.get('token'):
         member = await g.db.members(token=session.get('token'))
-    return await render_template("views/home.html", member=member)
+    return await render_template("index.html", member=member)
 
 
-@app.route('/SPA')
-async def testing():
-    return await render_template("index.html")
+@app.route('/chat')
+async def chat():
+    if not session.get('token'):
+        return redirect(url_for('hello'))
+    return await render_template('chat.html')
 
 
 @app.route('/login', methods=['POST'])
@@ -111,21 +113,17 @@ async def login():
             if verify:
                 session["token"] = member.token
                 return jsonify(member.gateway_format)
-    return "not ok", 400
+    return False, 400
 
 
 @app.route('/logout', methods=['GET'])
 async def logout():
     if session and session.get('token'):
         session.pop('token')
-        return "ok", 200
+        return True, 200
     else:
-        return "not ok", 400
+        return False, 400
 
 
-@app.route('/chat')
-async def chat():
-    if not session.get('token'):
-        return redirect(url_for('hello'))
-    return await render_template('views/chat.html')
+
 app.run(host="0.0.0.0", debug=True, certfile='self-signed/server.crt', keyfile='self-signed/server.key')
