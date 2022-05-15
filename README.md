@@ -6,7 +6,6 @@
     - ... and more
 
 - Backend
-    - Replace session with JWT (https://jwt.io/libraries)
     - Endpoints for registering
     - Optimize SQL
     - ... and more
